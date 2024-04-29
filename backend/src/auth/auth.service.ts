@@ -18,21 +18,21 @@ export class AuthService {
     const {name, password} = authCredentialsDto;
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(password, salt);
-    const memberEntity = this.memberRepository.create({name, password: hashedPassword});
-
+    const memberEntity = this.memberRepository.create({name: name, password: hashedPassword});
+    console.log(memberEntity)
     await this.memberRepository.save(
-      this.mapDtoToEntity(authCredentialsDto, memberEntity)
+      memberEntity
     );
   }
 
-  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{accessToken:string}> {
     const {name, password} = authCredentialsDto;
     const memberEntity = await this.memberRepository.findOneBy({name});
 
     if(memberEntity && await bcrypt.compare(password, memberEntity.password)) {
       const payload = { name };
       const accessToken = this.jwtService.sign(payload);
-      return accessToken
+      return {accessToken}
     } else {
       throw new UnauthorizedException('login failed')
     }
@@ -42,10 +42,9 @@ export class AuthService {
     return await this.memberRepository.findOneBy({ memberId });
   }
 
-  mapDtoToEntity(authCredentialsDto: AuthCredentialsDto, memberEntity: MemberEntity): MemberEntity{
-    memberEntity.memberId = authCredentialsDto.memberId;
-    memberEntity.name = authCredentialsDto.name;
-    memberEntity.password = authCredentialsDto.password;
-    return memberEntity
-  }
+  // mapDtoToEntity(authCredentialsDto: AuthCredentialsDto, memberEntity: MemberEntity): MemberEntity{
+  //   memberEntity.name = authCredentialsDto.name;
+  //   memberEntity.password = authCredentialsDto.password;
+  //   return memberEntity
+  // }
 }
