@@ -4,12 +4,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(MemberEntity)
-    private readonly memberRepository: Repository<MemberEntity>
+    private readonly memberRepository: Repository<MemberEntity>,
+    private readonly jwtService: JwtService
   ){}
   
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void>{
@@ -28,7 +30,9 @@ export class AuthService {
     const memberEntity = await this.memberRepository.findOneBy({name});
 
     if(memberEntity && await bcrypt.compare(password, memberEntity.password)) {
-      return 'login success'
+      const payload = { name };
+      const accessToken = this.jwtService.sign(payload);
+      return accessToken
     } else {
       throw new UnauthorizedException('login failed')
     }
