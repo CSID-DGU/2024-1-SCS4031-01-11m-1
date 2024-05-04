@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom'; // React Router의 Link 컴포넌트를 import합니다.
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -54,8 +54,8 @@ const Right = styled.div`
     position:absolute;
     right:0px;
     display: flex;
-    justify-content: center; /* 가운데 정렬을 위해 추가 */
-    align-items: center; /* 가운데 정렬을 위해 추가 */
+    justify-content: center;
+    align-items: center;
 `;
 
 const RightBox = styled.div`
@@ -95,7 +95,7 @@ const Button = styled.button`
     padding: 18px 26px;
     border-radius: 30px;
     background: #1C3159;
-    color:#fff;
+    color: #fff;
 `;
 
 const SignUpLink = styled(Link)`
@@ -106,17 +106,46 @@ const SignUpLink = styled(Link)`
     font-weight: 400;
     line-height: normal;
     opacity: 0.7;
-    margin-left:127px;
+`;
+
+const ErrorMessage = styled.p`
+    color: red;
+    font-family: "Wanted Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 `;
 
 function Login() {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const handleLogin = () => {
-        // 여기에 로그인 처리 로직
-        console.log('ID:', id);
-        console.log('Password:', password);
+    const handleLogin = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/auth/sign-in', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: id,
+                    password: password,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Login successful:', data);
+                // 로그인 성공 시 원하는 동작 - dashboard로 이동
+            } else {
+                setError('로그인에 실패하였습니다.');
+                console.error('Login failed:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+        }
     };
 
     return (
@@ -144,8 +173,8 @@ function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button onClick={handleLogin}>Login</Button>
-                    {/* Sign Up 링크 추가 */}
                     <SignUpLink to="/signup">Sign Up</SignUpLink>
+                    {error && <ErrorMessage>{error}</ErrorMessage>}
                 </RightBox>
             </Right>
         </Container>
