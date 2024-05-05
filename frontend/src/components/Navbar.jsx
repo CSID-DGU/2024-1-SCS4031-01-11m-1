@@ -1,0 +1,48 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import Profile from './navbar/Profile'
+
+const NavbarContainer = styled.div`
+    width:100%;
+    height:61px;
+    display: inline-flex;
+    padding: 8px 28px 9px 338px;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 462px;
+`;
+
+const TextContainer = styled.div`
+    width:410px;
+    height:18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 85px;
+`;
+
+const NavbarLink = styled(Link)`
+    color: ${({ active }) => active ? '#1C3159' : '#B4B4B4'};
+    font-family: "Wanted Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+`;
+
+function Navbar() {
+    const location = useLocation();
+
+    return (
+        <NavbarContainer>
+            <TextContainer>
+                <NavbarLink to="/dashboard" active={location.pathname === '/dashboard'}>Dashboard</NavbarLink>
+                <NavbarLink to="/analytics" active={location.pathname === '/analytics'}>Analytics</NavbarLink>
+                <NavbarLink to="/management" active={location.pathname === '/management'}>Management</NavbarLink>
+            </TextContainer>
+            <Profile />
+        </NavbarContainer>
+    );
+}
+
+export default Navbar;
