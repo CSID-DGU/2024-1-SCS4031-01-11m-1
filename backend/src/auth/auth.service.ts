@@ -28,10 +28,11 @@ export class AuthService {
   async signIn(authLoginDto: AuthLoginDto): Promise<{accessToken:string}> {
     const {name, password} = authLoginDto;
     const memberEntity = await this.memberRepository.findOneBy({name});
+    console.log(memberEntity)
 
     if(memberEntity && await bcrypt.compare(password, memberEntity.password)) {
       const payload = { name };
-      const accessToken = await this.jwtService.sign(payload);
+      const accessToken = this.jwtService.sign(payload);
       return {accessToken}
     } else {
       throw new UnauthorizedException('login failed')

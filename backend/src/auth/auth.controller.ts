@@ -4,6 +4,7 @@ import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthLoginDto } from './dto/auth-login.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Member } from './get-member-decorator';
 
 @ApiTags('Auth Controller')
 @Controller('/auth')
@@ -14,17 +15,17 @@ export class AuthController {
   @Post('/sign-up')
   async signUp(@Body() authCredentialDto: AuthCredentialsDto): Promise<void>{
     return await this.authService.signUp(authCredentialDto);
-  }
+  };
 
   @ApiOperation({ summary: '로그인을 합니다.' })
   @Post('sign-in')
   async signIn(@Body(ValidationPipe)authLoginDto: AuthLoginDto): Promise<{accessToken:string}>{
     return await this.authService.signIn(authLoginDto);
-  }
+  };
 
   @Post('/authTest')
   @UseGuards(AuthGuard())
   authTest(@Req() req){
-    console.log(req)
-  }
+    console.log(req.user.memberId)
+  };
 }
