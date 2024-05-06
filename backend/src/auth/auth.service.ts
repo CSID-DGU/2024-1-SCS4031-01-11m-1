@@ -41,10 +41,4 @@ export class AuthService {
   async findById(memberId: string){
     return await this.memberRepository.findOneBy({ memberId });
   }
-
-  // mapDtoToEntity(authCredentialsDto: AuthCredentialsDto, memberEntity: MemberEntity): MemberEntity{
-  //   memberEntity.name = authCredentialsDto.name;
-  //   memberEntity.password = authCredentialsDto.password;
-  //   return memberEntity
-  // }
 }
