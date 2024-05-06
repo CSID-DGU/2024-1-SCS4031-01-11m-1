@@ -61,19 +61,17 @@ const FullLine = styled.div`
     z-index: 10;
 `;
 
-function Tab() {
+function Tab({ onTabChange }) {
     const [activeTab, setActiveTab] = useState('Product');
 
     const handleTabClick = (tabName) => {
-    setActiveTab(tabName);
-    onTabChange(tabName); // Call the onTabChange callback
-};
-
+        setActiveTab(tabName);
+        onTabChange(tabName);
+    };
 
     return (
         <Container>
             <LineContainer>
-                
                 <TabContainer>
                     <TabButtonContainer>
                         <TabButton active={activeTab === 'Product'} onClick={() => handleTabClick('Product')}>Product</TabButton>
@@ -87,6 +85,7 @@ function Tab() {
                         <TabButton active={activeTab === 'Category'} onClick={() => handleTabClick('Category')}>Category</TabButton>
                         <Line active={activeTab === 'Category'} />
                     </TabButtonContainer>
+                    
                 </TabContainer>
                 <FullLine />
             </LineContainer>

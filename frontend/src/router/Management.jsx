@@ -1,9 +1,10 @@
-import Navbar from "./Navbar";
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import Navbar from "./Navbar";
 import Tab from "../components/management/Tab"
 import ProductTable from "../components/management/ProductTable";
-
-
+import MeetingMinutesTable from "../components/management/MeetingMinutesTable";
+import CategoryTable from "../components/management/CategoryTable"
 
 const Container = styled.div`
     width: 100%;
@@ -36,14 +37,23 @@ const ListContainer = styled.div`
 `;
 
 function Management() {
+    const [activeTab, setActiveTab] = useState('Product');
+
+    const handleTabChange = (tabName) => {
+        setActiveTab(tabName);
+    };
+
     return (
         <>
             <Navbar />
             <Title>Management</Title>
             <Container>
                 <ListContainer>
-                    <Tab />
-                    <ProductTable />
+                    <Tab onTabChange={handleTabChange} />
+                    {activeTab === 'Product' && <ProductTable />}
+                    {activeTab === 'Meeting Minutes' && <MeetingMinutesTable />}
+                    {activeTab === 'Category' && <CategoryTable />}
+                    
                 </ListContainer>
             </Container>
         </>
