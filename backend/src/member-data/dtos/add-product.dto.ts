@@ -1,6 +1,6 @@
 import { IsString, MinLength, MaxLength } from 'class-validator';
 
-export class AddProduct {
+export class AddProductDto {
   @IsString()
   @MinLength(1)
   @MaxLength(10)
@@ -13,4 +13,7 @@ export class AddProduct {
   @MinLength(1)
   @MaxLength(100)
   productDescription: string;
+
+  @IsString()
+  productUrl: string;
 }

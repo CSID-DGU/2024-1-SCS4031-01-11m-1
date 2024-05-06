@@ -20,6 +20,9 @@ import { MemberDataModule } from './member-data/member-data.module';
     MemberDataModule
   ],
   controllers: [AppController],
-  providers: [AppService, AuthModule],
+  providers: [
+    AppService,
+    AuthModule,
+  ],
 })
 export class AppModule {}
