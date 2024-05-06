@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
@@ -13,7 +13,7 @@ export class MemberDataController {
     private memberDataService: MemberDataService,
   ){}
 
-  @Patch('/add-product')
+  @Post('/add-product')
   @UseGuards(AuthGuard())
   async addProduct(
     @Body() addProductDto: AddProductDto,
