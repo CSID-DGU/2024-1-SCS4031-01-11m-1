@@ -1,16 +1,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import Profile from './navbar/Profile'
+import Profile from "../components/navbar/Profile";
 
 const NavbarContainer = styled.div`
     width:100%;
     height:61px;
+    background-color: #FDFDFD;
     display: inline-flex;
-    padding: 8px 28px 9px 338px;
+    padding: 8px 28px 9px 30px;
     justify-content: flex-end;
     align-items: center;
-    gap: 462px;
+    gap: 50%;
+    
 `;
 
 const TextContainer = styled.div`
