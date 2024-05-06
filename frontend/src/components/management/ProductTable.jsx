@@ -30,6 +30,7 @@ const TableCell = styled.td`
 `;
 
 
+
 function ProductTable() {
   return (
     <TableContainer>
@@ -37,9 +38,10 @@ function ProductTable() {
         <tbody>
           <TableRow>
             <TableCell width="5%">ID</TableCell>
-            <TableCell width="13%">Image</TableCell>
-            <TableCell width="50%">Product</TableCell>
+            <TableCell width="10%">Image</TableCell>
+            <TableCell width="45%">Product</TableCell>
             <TableCell width="25%">URL</TableCell>
+            <TableCell width="5%"></TableCell>
           </TableRow>
         </tbody>
         <Product />
