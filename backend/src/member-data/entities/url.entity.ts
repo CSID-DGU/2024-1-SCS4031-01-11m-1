@@ -11,4 +11,23 @@ export class UrlEntity extends BaseEntity{
 
   @ManyToOne(()=>ProductEntiy)
   product: ProductEntiy;
+
+  constructor(
+    url: string,
+    product: ProductEntiy
+  ){
+    super();
+    this.url = url;
+    this.product = product;
+  };
+
+  static createNew(
+    url: string,
+    product: ProductEntiy
+  ){
+    return new UrlEntity(
+      url,
+      product,
+    );
+  };
 }

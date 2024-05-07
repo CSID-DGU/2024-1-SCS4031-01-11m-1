@@ -5,6 +5,7 @@ import { UrlEntity } from './entities/url.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddProductDto } from './dtos/add-product.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { DtoToEntityMapper } from './mapper/dto-to-entity.mapper';
 
 @Injectable()
 export class MemberDataService {
@@ -21,16 +22,15 @@ export class MemberDataService {
     const member = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
 
-    const productEntity: ProductEntiy = await this.productRepository.findOneBy({member: member})
-    this.nullCheckForEntity(productEntity);
-    productEntity.productName = productName;
-    productEntity.productImage = productImage;
-    productEntity.description = productDescription;
-    await this.productRepository.save(productEntity);
+    const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndNewUrlEntityMapper(
+      addProductDto, member
+    );
 
-    const urlEntity: UrlEntity = await this.urlRepository.findOneBy({product: productEntity})
+    const productEntity = productAndUrl.product;
+    const urlEntity = productAndUrl.url;
+    this.nullCheckForEntity(productEntity);
     this.nullCheckForEntity(urlEntity);
-    urlEntity.url = productUrl;
+    await this.productRepository.save(productEntity);
     await this.urlRepository.save(urlEntity);
   }
 
