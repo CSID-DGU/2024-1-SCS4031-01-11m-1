@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { PrivateRoutes } from "./PrivateRoutes";
 import Login from "./router/Login";
-
+import Signup from "./router/Signup";
 
 
 function Router() {
@@ -15,7 +15,7 @@ function Router() {
             </Route>
                 {/* 로그인할 필요 없이 접근 가능한 페이지들 */}
             <Route path="/login" element={<Login />}/>
-                
+            <Route path="/signup" element={<Signup />}/>
             </Routes>
             
         </BrowserRouter>
