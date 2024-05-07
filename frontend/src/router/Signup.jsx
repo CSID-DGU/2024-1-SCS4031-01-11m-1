@@ -118,8 +118,8 @@ const ErrorMessage = styled.p`
 `;
 
 function Login() {
-    const [name, setName] = useState('');
-    const [id, setId] = useState('');
+    const [username, setName] = useState('');
+    const [name, setId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -131,8 +131,8 @@ function Login() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    name: name,
-                    id: id,
+                    name: username,
+                    id: name,
                     password: password,
                 }),
             });
@@ -164,14 +164,14 @@ function Login() {
                     <Welcom>Sign Up to Get Started</Welcom>
                     <Input
                         type="text"
-                        placeholder="Name"
-                        value={name}
+                        placeholder="Full Name"
+                        value={username}
                         onChange={(e) => setName(e.target.value)}
                     />
                     <Input
                         type="text"
                         placeholder="ID"
-                        value={id}
+                        value={name}
                         onChange={(e) => setId(e.target.value)}
                     />
                     <Input
