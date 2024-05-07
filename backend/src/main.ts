@@ -10,6 +10,13 @@ async function bootstrap() {
     .setTitle('11M Documentation')
     .setDescription('11M의 API 문서입니다.')
     .setVersion('0.0.0')
+    .addBearerAuth(
+      {type: 'http',
+      scheme: 'bearer',
+      name: 'JWT',
+      in: 'header',},
+      'access-token'
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

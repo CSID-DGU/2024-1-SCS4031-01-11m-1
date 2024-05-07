@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthLoginDto } from './dto/auth-login.dto';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Member } from './get-member-decorator';
 
 @ApiTags('Auth Controller')
@@ -24,6 +24,7 @@ export class AuthController {
   };
 
   @Post('/authTest')
+  @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard())
   authTest(@Req() req){
     console.log(req.user.memberId)

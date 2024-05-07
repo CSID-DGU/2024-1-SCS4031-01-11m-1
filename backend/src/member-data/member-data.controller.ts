@@ -4,7 +4,7 @@ import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
 import { MemberEntity } from 'src/auth/member.entity';
 import { MemberDataService } from './member-data.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Member Data Controller')
 @Controller('/member-data')
@@ -15,6 +15,7 @@ export class MemberDataController {
 
   @Post('/add-product')
   @UseGuards(AuthGuard())
+  @ApiBearerAuth('access-token')
   async addProduct(
     @Body() addProductDto: AddProductDto,
     @Member() member: MemberEntity
