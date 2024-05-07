@@ -67,35 +67,37 @@ function ProductTable() {
     setCurrentPage(pageNumber);
   };
 
+
   return (
     <>
-      <TableContainer>
-        <Table>
-          <tbody>
-            <TableRow>
-              <TableCell width="5%">ID</TableCell>
-              <TableCell width="13%">Image</TableCell>
-              <TableCell width="50%">Product</TableCell>
-              <TableCell width="25%">URL</TableCell>
-            </TableRow>
-            {currentProducts.map((product, index) => (
+    <TableContainer>
+      <Table>
+        <tbody>
+          <TableRow>
+            <TableCell width="5%">ID</TableCell>
+            <TableCell width="10%">Image</TableCell>
+            <TableCell width="45%">Product</TableCell>
+            <TableCell width="25%">URL</TableCell>
+            <TableCell width="5%"></TableCell>
+          </TableRow>
+          {currentProducts.map((product, index) => (
               <Product key={index} {...product} />
             ))}
-          </tbody>
-        </Table>
-      </TableContainer>
+        </tbody>
+      </Table>
+    </TableContainer>
       <PaginationContainer>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <PaginationButton
-            key={index}
-            active={currentPage === index + 1}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </PaginationButton>
-        ))}
-      </PaginationContainer>
-    </>
+      {Array.from({ length: totalPages }, (_, index) => (
+        <PaginationButton
+          key={index}
+          active={currentPage === index + 1}
+          onClick={() => handlePageChange(index + 1)}
+        >
+          {index + 1}
+        </PaginationButton>
+      ))}
+    </PaginationContainer>
+  </>
   );
 }
 
