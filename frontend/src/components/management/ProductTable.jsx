@@ -51,7 +51,6 @@ const PaginationButton = styled.button`
   border-radius: 5px;
 `;
 
-
 function ProductTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
