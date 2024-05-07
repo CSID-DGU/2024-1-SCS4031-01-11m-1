@@ -11,8 +11,8 @@ import { AuthLoginDto } from './dto/auth-login.dto';
 export class AuthService {
   constructor(
     @InjectRepository(MemberEntity)
-    private readonly memberRepository: Repository<MemberEntity>,
-    private readonly jwtService: JwtService
+    private memberRepository: Repository<MemberEntity>,
+    private jwtService: JwtService
   ){}
   
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void>{
@@ -28,6 +28,7 @@ export class AuthService {
   async signIn(authLoginDto: AuthLoginDto): Promise<{accessToken:string}> {
     const {name, password} = authLoginDto;
     const memberEntity = await this.memberRepository.findOneBy({name});
+    console.log(memberEntity)
 
     if(memberEntity && await bcrypt.compare(password, memberEntity.password)) {
       const payload = { name };
@@ -37,14 +38,7 @@ export class AuthService {
       throw new UnauthorizedException('login failed')
     }
   }
-
   async findById(memberId: string){
     return await this.memberRepository.findOneBy({ memberId });
   }
-
-  // mapDtoToEntity(authCredentialsDto: AuthCredentialsDto, memberEntity: MemberEntity): MemberEntity{
-  //   memberEntity.name = authCredentialsDto.name;
-  //   memberEntity.password = authCredentialsDto.password;
-  //   return memberEntity
-  // }
 }
