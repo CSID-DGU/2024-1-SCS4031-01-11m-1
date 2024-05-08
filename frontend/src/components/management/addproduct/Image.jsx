@@ -26,29 +26,33 @@ const Box = styled.div`
   flex-shrink: 0;
   border: 0.5px solid #D9D9D9;
   background: #F2F2F2;
-
   margin-top:11px;
   margin-bottom:10px;
   display: flex;
   align-items: center;
   padding-left: 10px;
-
-  //파일명
-  
   color: #727272;
   font-family: Pretendard;
   font-size: 10px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // hover 시 전체 파일명 표시
+  &:hover {
+    white-space: initial;
+    overflow: initial;
+    text-overflow: initial;
+  }
 `;
 
 const HiddenInput = styled.input`
   display: none;
 `;
 
-
-//이미지 업로드 버튼
 const Button = styled.label`
   display: flex;
   height: 18px;
@@ -61,7 +65,6 @@ const Button = styled.label`
   cursor: pointer;
   border-radius: 0px 2px 2px 0px;
   background: #1C3159;
-
   color: #FFF;
   text-align: center;
   font-family: "Wanted Sans";
@@ -78,18 +81,17 @@ const Imagecondition = styled.p`
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-
-  margin-top:20px
+  margin-top:20px;
 `;
 
-
-function Image() {
+function Image({ onImageUpload }) {
   const [fileName, setFileName] = useState('');
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
+      onImageUpload(file); 
     }
   };
 
@@ -105,6 +107,5 @@ function Image() {
     </>
   );
 }
-
 
 export default Image;
