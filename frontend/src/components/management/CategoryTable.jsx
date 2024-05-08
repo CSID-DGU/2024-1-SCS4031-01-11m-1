@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Product from './Product';
+import Category from './Category';
 
 const TableContainer = styled.div`
   width: 100%;
@@ -36,14 +36,11 @@ function ProductTable() {
       <Table>
         <tbody>
           <TableRow>
-            <TableCell width="5%">ID</TableCell>
-            <TableCell width="13%">Image</TableCell>
-            <TableCell width="50%">Product</TableCell>
-            <TableCell width="25%">URL</TableCell>
+            <TableCell width="10%">ID</TableCell>
+            <TableCell width="40%">Category</TableCell>
           </TableRow>
         </tbody>
-        <Product />
-        <Product />
+        <Category />
       </Table>
     </TableContainer>
   );

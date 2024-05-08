@@ -22,7 +22,7 @@ const FileName = styled.span`
     text-decoration: underline;
 `;
 
-const Product = () => {
+const Minute = () => {
     const downloadPdf = () => {
         const link = document.createElement('a');
         link.href = pdf;
@@ -45,4 +45,4 @@ const Product = () => {
     );
 };
 
-export default Product;
+export default Minute;
