@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Image from './addproduct/Image';
-import ProductName from './addproduct/ProductName';
-import ProductDiscription from './addproduct/ProductDiscription';
-import URL from './addproduct/URL';
-
+import MinuteTitle from '../management/addminute/MinuteTitle';
+import MinuteFile from '../management/addminute/MinuteFile';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -22,7 +19,7 @@ const ModalOverlay = styled.div`
 
 const Container = styled.div`
     width: 307px;
-    height: 552px;
+    height: 331px;  
     border-radius: 10px;
     background: #FFF;
     padding: 26px;
@@ -99,32 +96,22 @@ const CancelButton = styled.button`
 `;
 
 function Addproduct( { onClose }) {
-    const [uploadedImage, setUploadedImage] = useState(null);
-    const [productName, setProductName] = useState('');
-    const [productDescription, setProductDescription] = useState('');
-    const [url, setUrl] = useState('');
+    const [minuteTitle, setMinuteTitle] = useState('');
+    const [minuteFile, setMinuteFile] = useState('');
 
-    const handleImageUpload = (image) => {
-        setUploadedImage(image);
-    };
-    const handleProductNameChange = (productName) => {
-        setProductName(productName);
-    };
-    const handleProductDescriptionChange = (description) => {
-        setProductDescription(description);
-    };
-    const handleUrlChange = (newUrl) => {
-        setUrl(newUrl);
+    const handleMinuteTitle = (minuteTitle) => {
+        setMinuteTitle(minuteTitle);
     };
 
+    const handleMinuteFile = (minuteFile) => {
+        setMinuteFile(minuteFile);
+    }
+    
     const handleSave = () => {
         const requestBody = JSON.stringify({
-            productName,
-            productImage: uploadedImage,
-            productDescription,
-            productUrl: url
+            //여기에 값
         });
-        fetch('/member-data/add-product', {
+        fetch('/member-data/add-minute', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -133,10 +120,10 @@ function Addproduct( { onClose }) {
         })
         .then(response => {
             if (response.ok) {
-                console.log('Product added successfully');
+                console.log('Minute added successfully');
                 onClose();
             } else {
-                console.error('Failed to add product');
+                console.error('Failed to add minute');
            
             }
         })
@@ -154,10 +141,8 @@ function Addproduct( { onClose }) {
             
                 <Container>
                     <Title>Add product</Title>
-                    <Image onImageUpload={handleImageUpload} />
-                    <ProductName onChange={handleProductNameChange} />
-                    <ProductDiscription onChange={handleProductDescriptionChange} />
-                    <URL onChange={handleUrlChange} />
+                    <MinuteTitle onChange={handleMinuteTitle} />
+                    <MinuteFile onChange={handleMinuteFile} />
                     <Line />
                     <ButtonContainer>
                         <CancelButton onClick={handleCancel}>Cancel</CancelButton>

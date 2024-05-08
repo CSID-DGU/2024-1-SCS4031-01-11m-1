@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 import Product from './Product';
-import plusicon from '../image/plus_icon.png';
+
 
 const TableContainer = styled.div`
   width: 100%;
@@ -52,46 +53,15 @@ const PaginationButton = styled.button`
   border-radius: 5px;
 `;
 
-const AddProduct = styled.button`
-  display: flex;
-  width: 116px;
-  height: 31px;
-  padding: 4px 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: #1C3159;
-  box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.25);
-  color: #DFDFDF;
-  text-align: center;
-  font-family: "Wanted Sans";
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
 
-  position: relative;
-  left:90%;
-  top:-8%;
-`;
-
-const Addicon = styled.div`
-  background: url(${plusicon});
-  background-repeat: no-repeat;
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-`;
-
-function ProductTable() {
+function ProductTable({ memberId }) {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
+  const [products, setProducts] = useState([]);
+ 
 
-  
-  const products = [Product,Product,Product,Product,Product,Product,Product,Product,Product,];
 
+  //페이지네이션 변수
   const totalPages = Math.ceil(products.length / productsPerPage);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -101,7 +71,14 @@ function ProductTable() {
     setCurrentPage(pageNumber);
   };
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+        const response = await axios.get(`/member-data/products/${memberId}`);
+        setProducts(response.data);
+    };
 
+    fetchProducts();
+  }, [memberId]);
   return (
     <>
     
@@ -116,8 +93,8 @@ function ProductTable() {
             <TableCell width="25%">URL</TableCell>
             <TableCell width="5%"></TableCell>
           </TableRow>
-          {currentProducts.map((product, index) => (
-              <Product key={index} {...product} />
+          {currentProducts.map((product) => (
+              <Product key={product.id} {...product} />
             ))}
         </tbody>
       </Table>

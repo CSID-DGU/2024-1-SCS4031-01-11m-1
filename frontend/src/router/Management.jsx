@@ -7,6 +7,8 @@ import MeetingMinutesTable from "../components/management/MeetingMinutesTable";
 import CategoryTable from "../components/management/CategoryTable"
 import plusicon from '../components/image/plus_icon.png';
 import Addproduct from '../components/management/Addproduct';
+import Addminute from '../components/management/Addminute';
+
 
 const Container = styled.div`
     width: 100%;
@@ -62,6 +64,30 @@ const AddProductbtn = styled.button`
     top:-7%;
 `;
 
+const AddMinutebtn = styled.button`
+    display: flex;
+    width: 116px;
+    height: 31px;
+    padding: 4px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #1C3159;
+    box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.25);
+    color: #DFDFDF;
+    text-align: center;
+    font-family: "Wanted Sans";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    position:relative;
+    left:88%;
+    top:-7%;
+`;
+
 const Addicon = styled.div`
     background: url(${plusicon});
     background-repeat: no-repeat;
@@ -73,7 +99,7 @@ const Addicon = styled.div`
 function Management() {
     const [activeTab, setActiveTab] = useState('Product');
     const [showAddProductModal, setShowAddProductModal] = useState(false);
-
+    const [showAddMinuteModal, setShowAddMinuteModal] = useState(false);
     const handleTabChange = (tabName) => {
         setActiveTab(tabName);
     };
@@ -82,9 +108,17 @@ function Management() {
         setShowAddProductModal(true);
     };
 
-    const handleCloseModal = () => {
+    const handleCloseProductModal = () => {
         setShowAddProductModal(false);
     };
+
+    const handleAddMinuteClick = () => {
+        setShowAddMinuteModal(true);
+    }
+    
+    const handleCloseMinuteModal = () => {
+        setShowAddMinuteModal(false);
+    }
 
     return (
         <>
@@ -102,11 +136,20 @@ function Management() {
                             <ProductTable />
                         </>
                     )}
-                    {activeTab === 'Meeting Minutes' && <MeetingMinutesTable />}
+                    {activeTab === 'Meeting Minutes' && (
+                        <>
+                            <AddMinutebtn onClick={handleAddMinuteClick}>
+                                <Addicon src={plusicon} />
+                                Add minute
+                            </AddMinutebtn>
+                            <MeetingMinutesTable />
+                        </>
+                    )}
                     {activeTab === 'Category' && <CategoryTable />}
                 </ListContainer>
             </Container>
-            {showAddProductModal && <Addproduct onClose={handleCloseModal} />}
+            {showAddProductModal && <Addproduct onClose={handleCloseProductModal} />}
+            {showAddMinuteModal && <Addminute onClose={handleCloseMinuteModal} />}
         </>
     );
 }
