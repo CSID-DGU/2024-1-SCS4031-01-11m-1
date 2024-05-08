@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import MinuteTitle from '../management/addminute/MinuteTitle';
-import MinuteFile from '../management/addminute/MinuteFile';
+import Category from '../management/addcategory/Category';
+
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -19,7 +19,7 @@ const ModalOverlay = styled.div`
 
 const Container = styled.div`
     width: 307px;
-    height: 331px;  
+    height: 240px;  
     border-radius: 10px;
     background: #FFF;
     padding: 26px;
@@ -95,23 +95,20 @@ const CancelButton = styled.button`
     cursor: pointer;
 `;
 
-function Addminute( { onClose }) {
-    const [minuteTitle, setMinuteTitle] = useState('');
-    const [minuteFile, setMinuteFile] = useState('');
+function Addcategory( { onClose }) {
+    const [category, setCategory] = useState('');
 
-    const handleMinuteTitle = (minuteTitle) => {
-        setMinuteTitle(minuteTitle);
+    const handleCategory = (category) => {
+        setCategory(category);
     };
 
-    const handleMinuteFile = (minuteFile) => {
-        setMinuteFile(minuteFile);
-    }
+    
     
     const handleSave = () => {
         const requestBody = JSON.stringify({
             //여기에 값
         });
-        fetch('/member-data/add-minute', {
+        fetch('/member-data/add-category', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -123,7 +120,7 @@ function Addminute( { onClose }) {
                 console.log('Minute added successfully');
                 onClose();
             } else {
-                console.error('Failed to add minute');
+                console.error('Failed to add category');
            
             }
         })
@@ -138,21 +135,19 @@ function Addminute( { onClose }) {
 
     return (
         <ModalOverlay>
-            
                 <Container>
-                    <Title>Add product</Title>
-                    <MinuteTitle onChange={handleMinuteTitle} />
-                    <MinuteFile onFileUpload={handleMinuteFile} />
+                    <Title>Add category</Title>
+                    <Category onChange={handleCategory} />
+                    
                     <Line />
                     <ButtonContainer>
                         <CancelButton onClick={handleCancel}>Cancel</CancelButton>
                         <SaveButton onClick={handleSave}>Save</SaveButton>
                     </ButtonContainer>
                 </Container>
-            
         </ModalOverlay>
         
     );
 }
 
-export default Addminute;
+export default Addcategory;

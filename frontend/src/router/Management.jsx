@@ -8,6 +8,7 @@ import CategoryTable from "../components/management/CategoryTable"
 import plusicon from '../components/image/plus_icon.png';
 import Addproduct from '../components/management/Addproduct';
 import Addminute from '../components/management/Addminute';
+import Addcategory from '../components/management/AddCategory';
 
 
 const Container = styled.div`
@@ -100,6 +101,8 @@ function Management() {
     const [activeTab, setActiveTab] = useState('Product');
     const [showAddProductModal, setShowAddProductModal] = useState(false);
     const [showAddMinuteModal, setShowAddMinuteModal] = useState(false);
+    const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+
     const handleTabChange = (tabName) => {
         setActiveTab(tabName);
     };
@@ -120,6 +123,13 @@ function Management() {
         setShowAddMinuteModal(false);
     }
 
+    const handleAddCategoryClick = () => {
+        setShowAddCategoryModal(true);
+    }
+    const handleCloseCategoryModal = () => {
+        setShowAddCategoryModal(false);
+    }
+
     return (
         <>
             <Navbar />
@@ -127,6 +137,7 @@ function Management() {
             <Container>
                 <ListContainer>
                     <Tab onTabChange={handleTabChange} />
+
                     {activeTab === 'Product' && (
                         <>
                             <AddProductbtn onClick={handleAddProductClick}>
@@ -145,11 +156,20 @@ function Management() {
                             <MeetingMinutesTable />
                         </>
                     )}
-                    {activeTab === 'Category' && <CategoryTable />}
+                    {activeTab === 'Category' && (
+                        <>
+                            <AddMinutebtn onClick={handleAddCategoryClick}>
+                                <Addicon src={plusicon} />
+                                Add category
+                            </AddMinutebtn>
+                            <CategoryTable />
+                        </>
+                    )}
                 </ListContainer>
             </Container>
             {showAddProductModal && <Addproduct onClose={handleCloseProductModal} />}
             {showAddMinuteModal && <Addminute onClose={handleCloseMinuteModal} />}
+            {showAddCategoryModal && <Addcategory onClose={handleCloseCategoryModal} />}
         </>
     );
 }
