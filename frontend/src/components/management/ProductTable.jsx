@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Product from './Product';
+import plusicon from '../image/plus_icon.png';
 
 const TableContainer = styled.div`
   width: 100%;
@@ -51,6 +52,39 @@ const PaginationButton = styled.button`
   border-radius: 5px;
 `;
 
+const AddProduct = styled.button`
+  display: flex;
+  width: 116px;
+  height: 31px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #1C3159;
+  box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.25);
+  color: #DFDFDF;
+  text-align: center;
+  font-family: "Wanted Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+
+  position: relative;
+  left:90%;
+  top:-8%;
+`;
+
+const Addicon = styled.div`
+  background: url(${plusicon});
+  background-repeat: no-repeat;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+`;
+
 function ProductTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
@@ -70,6 +104,8 @@ function ProductTable() {
 
   return (
     <>
+    
+      
     <TableContainer>
       <Table>
         <tbody>

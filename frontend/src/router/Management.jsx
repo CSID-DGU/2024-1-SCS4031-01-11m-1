@@ -5,6 +5,8 @@ import Tab from "../components/management/Tab"
 import ProductTable from "../components/management/ProductTable";
 import MeetingMinutesTable from "../components/management/MeetingMinutesTable";
 import CategoryTable from "../components/management/CategoryTable"
+import plusicon from '../components/image/plus_icon.png';
+
 
 const Container = styled.div`
     width: 100%;
@@ -36,6 +38,41 @@ const ListContainer = styled.div`
     background: #FFF;
 `;
 
+const AddProductbtn = styled.button`
+  display: flex;
+  width: 116px;
+  height: 31px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #1C3159;
+  box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.25);
+  color: #DFDFDF;
+  text-align: center;
+  font-family: "Wanted Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+ 
+  position:relative;
+  left:88%;
+  top:-7%;
+
+`;
+
+const Addicon = styled.div`
+  background: url(${plusicon});
+  background-repeat: no-repeat;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+`;
+
+
 function Management() {
     const [activeTab, setActiveTab] = useState('Product');
 
@@ -48,9 +85,19 @@ function Management() {
             <Navbar />
             <Title>Management</Title>
             <Container>
+            
                 <ListContainer>
                     <Tab onTabChange={handleTabChange} />
-                    {activeTab === 'Product' && <ProductTable />}
+                    {activeTab === 'Product' && (
+                        <>
+                            <AddProductbtn>
+                                <Addicon src={plusicon} />
+                                Add Product
+                            </AddProductbtn>
+                            <ProductTable />
+                            
+                        </>
+                    )}
                     {activeTab === 'Meeting Minutes' && <MeetingMinutesTable />}
                     {activeTab === 'Category' && <CategoryTable />}
                     
@@ -59,5 +106,6 @@ function Management() {
         </>
     );
 }
+
 
 export default Management;

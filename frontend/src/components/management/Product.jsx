@@ -29,8 +29,8 @@ const Image = styled.img`
 `;
 
 const ImageContainer = styled.div`
-    width: 100%;
-    height: 100px;
+    width: 85px;
+    height: 85px;
     background: url(${productimg});
     background-size: cover;
     flex-shrink: 0;
@@ -146,7 +146,6 @@ const Product = () => {
                 <ProductContainer>
                     <ProductName>에버모이스트 리프레쉬 수분 크림</ProductName>
                     <ProductExplanation>피부를 즉각적으로 촉촉하게 가득 채워주는 효과적인 보습 크림입니다. 이 제품은 풍부한 수분 공급과 동시에 가벼운 질감으로 피부에 무겁지 않게 흡수되어 촉촉한 윤기를 선사합니다. 특히, 피부의 건조함을 완화하고 탄력을 증진하여 건조한 피부를 위한 이ideal한 보습 솔루션입니다. 에버모이스트 리프레쉬 수분 크림은 자연유래 성분으로 피부를 부드럽게 케어하며, 지루함 없는 즉각적인 보습 효과를 제공하여 피부를 촉촉하고 생기 있게 가꿔줍니다.
-                    피부를 즉각적으로 촉촉하게 가득 채워주는 효과적인 보습 크림입니다. 이 제품은 풍부한 수분 공급과 동시에 가벼운 질감으로 피부에 무겁지 않게 흡수되어 촉촉한 윤기를 선사합니다. 특히, 피부의 건조함을 완화하고 탄력을 증진하여 건조한 피부를 위한 이ideal한 보습 솔루션입니다. 에버모이스트 리프레쉬 수분 크림은 자연유래 성분으로 피부를 부드럽게 케어하며, 지루함 없는 즉각적인 보습 효과를 제공하여 피부를 촉촉하고 생기 있게 가꿔줍니다.
                     </ProductExplanation>
                 </ProductContainer>
             </TableCell>

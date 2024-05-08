@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from '../api/axios';
 
 const Container = styled.div`
     width: 100%;
@@ -124,29 +125,24 @@ function Login() {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://localhost:3000/auth/sign-in', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: id,
-                    password: password,
-                }),
+            const response = await axios.post('/auth/sign-in', { 
+                name: id,
+                password: password,
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Login successful:', data);
+            if (response.status === 200) {
+                console.log('Login successful:', response.data);
                 // 로그인 성공 시 원하는 동작 - dashboard로 이동
             } else {
                 setError('로그인에 실패하였습니다.');
                 console.error('Login failed:', response.statusText);
             }
         } catch (error) {
+            setError('로그인에 실패하였습니다.');
             console.error('Error during login:', error);
         }
     };
+
 
     return (
         <Container>
