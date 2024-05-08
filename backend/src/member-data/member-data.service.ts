@@ -8,6 +8,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { DtoToEntityMapper } from './mapper/dto-to-entity.mapper';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { MemberEntity } from 'src/auth/member.entity';
 
 @Injectable()
 export class MemberDataService {
@@ -18,10 +19,22 @@ export class MemberDataService {
     private readonly urlRepository: Repository<UrlEntity>,
     private readonly authService: AuthService,
   ){};
+
+  async loadProducts(memberId: string): Promise<ProductEntiy[]>{
+    const member:MemberEntity = await this.authService.findById(memberId)
+    this.nullCheckForEntity(member);
+
+    const productList: ProductEntiy[] = await this.productRepository.findBy({member})
+    for(const product of productList){
+      this.nullCheckForEntity(product);
+    };
+
+    return productList;
+  }
   
   @Transactional()
   async addProduct(addProductDto: AddProductDto , memberId: string): Promise<void>{
-    const member = await this.authService.findById(memberId)
+    const member:MemberEntity = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
 
     const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndNewUrlEntityMapper(
