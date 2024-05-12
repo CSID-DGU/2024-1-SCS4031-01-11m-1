@@ -24,7 +24,6 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Check directory
-      working-directory: ${{ env.working-directory }}
       run: cat Dockerfile
 
     - name: Build and release to DockerHub
