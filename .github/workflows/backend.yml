@@ -24,13 +24,14 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Check directory
+      working-directory: ${{ env.working-directory }}
       run: cat Dockerfile
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
       with:
         context: .
-        file: ./Dockerfile
+        file: ./backend/Dockerfile
         platforms: linux/amd54
         push: true
         tags: latest
