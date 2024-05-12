@@ -14,7 +14,7 @@ jobs:
     environment: Prod
     runs-on: ubuntu-latest
     env:
-      working-directory: backend
+      working-directory: ./backend
 
     steps:      
     - name: Login to DockerHub
@@ -24,7 +24,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Check directory
-      working-directory: ./
+      working-directory: ${{ env.working-directory }}
       run: cat Dockerfile
 
     - name: Build and release to DockerHub
