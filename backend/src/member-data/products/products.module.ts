@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MemberDataController } from './member-data.controller';
-import { MemberDataService } from './member-data.service';
+import { MemberDataController } from './products.controller';
+import { MemberDataService } from './products.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MemberEntity } from 'src/auth/member.entity';
 import { ProductEntiy } from './entities/product.entity';

@@ -5,7 +5,7 @@ import { UrlEntity } from './entities/url.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddProductDto } from './dtos/add-product.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { DtoToEntityMapper } from './mapper/dto-to-entity.mapper';
+import { DtoToEntityMapper } from './mapper/products.mapper';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { MemberEntity } from 'src/auth/member.entity';

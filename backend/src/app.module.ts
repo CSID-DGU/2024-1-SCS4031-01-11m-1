@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './typeorm.config';
 import { AuthModule } from './auth/auth.module';
-import { MemberDataModule } from './member-data/member-data.module';
+import { MemberDataModule } from './member-data/products/products.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 

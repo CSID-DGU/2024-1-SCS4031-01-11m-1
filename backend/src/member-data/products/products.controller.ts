@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
 import { MemberEntity } from 'src/auth/member.entity';
-import { MemberDataService } from './member-data.service';
+import { MemberDataService } from './products.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
