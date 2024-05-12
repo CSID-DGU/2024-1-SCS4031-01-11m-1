@@ -14,7 +14,7 @@ jobs:
     environment: Prod
     runs-on: ubuntu-latest
     env:
-      working-directory: ./
+      working-directory: ./backend
 
     steps:
     - name: checkout
@@ -28,7 +28,7 @@ jobs:
 
     - name: Check directory
       working-directory: ${{ env.working-directory }}
-      run: pwd
+      run: cat Dockerfile
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
