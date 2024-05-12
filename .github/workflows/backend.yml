@@ -27,10 +27,11 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and release to DockerHub
-      env:
-        NAME: $${secrets.DOCKERHUB_USERNAME}}
-        REPO: 11m-backend
-      run: |
-        docker build -t $REPO .
-        docker tag $REPO:latest $NAME/$REPO:latest
-        docker push $NAME/$REPO:latest
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd54
+        push: true
+        tags: latest
+        label: 11m-backend
