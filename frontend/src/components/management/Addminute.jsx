@@ -19,7 +19,7 @@ const ModalOverlay = styled.div`
 
 const Container = styled.div`
     width: 307px;
-    height: 331px;  
+    height: 301px;  
     border-radius: 10px;
     background: #FFF;
     padding: 26px;
@@ -38,7 +38,7 @@ const Line = styled.p`
     width: 250px;
     height: 1px;
     background: #D9D9D9;
-    margin-top: 28px;
+    margin-top: 35px;
 `;
 
 const ButtonContainer = styled.div`
