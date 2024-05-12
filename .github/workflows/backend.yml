@@ -16,10 +16,7 @@ jobs:
     env:
       working-directory: ./backend
 
-    steps:
-    - name: Set up Docker BuildX
-      uses: docker/setup-buildx-action@v1
-      
+    steps:      
     - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
@@ -30,7 +27,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./Dockerfile
+        file: ./backend/Dockerfile
         platforms: linux/amd54
         push: true
         tags: latest
