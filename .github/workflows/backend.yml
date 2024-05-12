@@ -33,7 +33,7 @@ jobs:
     - name: Build and release to DockerHub
       working-directory: $${{ env.working-directory }}
       env:
-        NAME: $${secrets.DOCKERHUB_USERNAME}}
+        NAME: ${secrets.DOCKERHUB_USERNAME}}
         REPO: 11m-backend
       run: |
         docker build -t $REPO .
