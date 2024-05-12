@@ -19,6 +19,22 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
+
+    - name: Creating .env
+      working-directory: $${{ env.working-directory }}
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      run: |
+        echo "DB_HOST=$DB_HOST" >> .env
+        echo "DB_PORT=$DB_PORT" >> .env
+        echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+        echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+        echo "SECRET_KEY=$SECRET_KEY" >> .env
+      
     
     - name: Login to DockerHub
       uses: docker/login-action@v3
