@@ -24,7 +24,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Check directory
-      run: ls
+      run: cat Dockerfile
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
