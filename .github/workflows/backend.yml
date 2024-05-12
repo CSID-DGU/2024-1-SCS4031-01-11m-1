@@ -14,9 +14,12 @@ jobs:
     environment: Prod
     runs-on: ubuntu-latest
     env:
-      working-directory: /home/runner/work/2024-1-SCS4031-01-11m-1
+      working-directory: ./
 
-    steps:      
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    
     - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
@@ -25,7 +28,7 @@ jobs:
 
     - name: Check directory
       working-directory: ${{ env.working-directory }}
-      run: cat ${{ env.working-directory }}/backend/Dockerfile
+      run: pwd
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
