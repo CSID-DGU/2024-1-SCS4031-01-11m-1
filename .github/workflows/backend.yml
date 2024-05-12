@@ -24,8 +24,8 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Check directory
-      working-directory: ${{ env.working-directory }}
-      run: pwd
+      working-directory: ${{ env.working-directory }}/backend
+      run: cat Dockerfile
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
