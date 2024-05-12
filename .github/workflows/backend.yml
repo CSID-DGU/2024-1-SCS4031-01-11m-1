@@ -25,7 +25,7 @@ jobs:
 
     - name: Check directory
       working-directory: ${{ env.working-directory }}
-      run: cat backend/Dockerfile
+      run: cat ${{ env.working-directory }}/backend/Dockerfile
 
     - name: Build and release to DockerHub
       uses: docker/build-push-action@v3
