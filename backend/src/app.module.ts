@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { MemberDataModule } from './member-data/member-data.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { VocModule } from './voc/vocModule';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { DataSource } from 'typeorm';
       },
     }),
     AuthModule,
-    MemberDataModule
+    MemberDataModule,
+    VocModule
   ],
   controllers: [AppController],
   providers: [
