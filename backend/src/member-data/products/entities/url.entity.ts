@@ -1,5 +1,6 @@
-import { ManyToOne, Entity, PrimaryGeneratedColumn, BaseEntity, Column } from 'typeorm';
+import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ProductEntiy } from './product.entity';
+import { BaseEntity } from 'src/base-entity';
 
 @Entity()
 export class UrlEntity extends BaseEntity{
@@ -14,20 +15,28 @@ export class UrlEntity extends BaseEntity{
 
   constructor(
     url: string,
-    product: ProductEntiy
+    product: ProductEntiy,
+    createdAt: Date,
+    updatedAt: Date,
   ){
     super();
     this.url = url;
     this.product = product;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   };
 
   static createNew(
     url: string,
-    product: ProductEntiy
+    product: ProductEntiy,
+    createdAt: Date,
+    updatedAt: Date,
   ){
     return new UrlEntity(
       url,
       product,
+      createdAt,
+      updatedAt,
     );
   };
 }

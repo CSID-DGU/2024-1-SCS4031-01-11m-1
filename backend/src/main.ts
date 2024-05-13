@@ -16,6 +16,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('11M Documentation')
+    .addServer(process.env.SWAGGER_PREFIX)
     .setDescription('11M의 API 문서입니다.')
     .setVersion('0.0.0')
     .addBearerAuth(
