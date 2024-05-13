@@ -8,6 +8,12 @@ async function bootstrap() {
   
   const app = await NestFactory.create(AppModule);
 
+  //CORS 허용
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('11M Documentation')
     .setDescription('11M의 API 문서입니다.')
