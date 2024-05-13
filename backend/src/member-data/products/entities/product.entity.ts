@@ -1,5 +1,6 @@
 import { MemberEntity } from 'src/auth/member.entity';
-import { ManyToOne, Entity, PrimaryGeneratedColumn, BaseEntity, Column } from 'typeorm';
+import { BaseEntity } from 'src/base-entity';
+import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class ProductEntiy extends BaseEntity {
@@ -23,12 +24,16 @@ export class ProductEntiy extends BaseEntity {
     productImage: string,
     description: string,
     member: MemberEntity,
+    createdAt: Date,
+    updatedAt: Date,
   ){
     super();
     this.productName = productName;
     this.productImage = productImage;
     this.description = description;
     this.member = member;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 
   static createNew(
@@ -36,12 +41,16 @@ export class ProductEntiy extends BaseEntity {
     productImage: string,
     description: string,
     member: MemberEntity,
+    createdAt: Date,
+    updatedAt: Date
   ){
     return new ProductEntiy(
       productName,
       productImage,
       description,
-      member
+      member,
+      createdAt,
+      updatedAt
     );
   };
 }
