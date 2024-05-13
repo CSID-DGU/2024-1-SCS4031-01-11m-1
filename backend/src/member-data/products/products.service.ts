@@ -5,13 +5,13 @@ import { UrlEntity } from './entities/url.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddProductDto } from './dtos/add-product.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { DtoToEntityMapper } from './mapper/dto-to-entity.mapper';
+import { DtoToEntityMapper } from './mapper/products.mapper';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { MemberEntity } from 'src/auth/member.entity';
 
 @Injectable()
-export class MemberDataService {
+export class ProductsService {
   constructor(
     @InjectRepository(ProductEntiy)
     private readonly productRepository: Repository<ProductEntiy>,
@@ -37,7 +37,7 @@ export class MemberDataService {
     const member:MemberEntity = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
 
-    const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndNewUrlEntityMapper(
+    const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndUrlEntityMapper(
       addProductDto, member
     );
 
