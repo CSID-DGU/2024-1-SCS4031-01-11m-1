@@ -13,7 +13,7 @@ export class AuthController {
 
   @ApiOperation({ summary: '회원가입을 합니다.' })
   @Post('/sign-up')
-  async signUp(@Body() authCredentialDto: AuthCredentialsDto): Promise<void>{
+  async signUp(@Body() authCredentialDto: AuthCredentialsDto): Promise<string>{
     return await this.authService.signUp(authCredentialDto);
   };
 
