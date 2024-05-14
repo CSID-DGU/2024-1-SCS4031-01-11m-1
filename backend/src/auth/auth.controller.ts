@@ -2,9 +2,10 @@ import { Body, Controller, Post, Req, UseGuards, ValidationPipe } from '@nestjs/
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthLoginDto } from './dto/auth-login.dto';
+import { AuthLoginRequestDto } from './dto/auth-login-request.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Member } from './get-member-decorator';
+import { AuthLogInResponseDto } from './dto/auth-login-response.dto';
 
 @ApiTags('Auth Controller')
 @Controller('/auth')
@@ -19,8 +20,8 @@ export class AuthController {
 
   @ApiOperation({ summary: '로그인을 합니다.' })
   @Post('sign-in')
-  async signIn(@Body(ValidationPipe)authLoginDto: AuthLoginDto): Promise<{accessToken:string}>{
-    return await this.authService.signIn(authLoginDto);
+  async signIn(@Body(ValidationPipe)authLoginRequestDto: AuthLoginRequestDto): Promise<AuthLogInResponseDto>{
+    return await this.authService.signIn(authLoginRequestDto);
   };
 
   @Post('/authTest')
