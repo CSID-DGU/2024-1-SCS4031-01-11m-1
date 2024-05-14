@@ -23,8 +23,9 @@ export class VocController{
 
     @ApiOperation({summary: "크롤링 테스트"})
     @Post("/test/datascraping/:url")
-    public async testDataScraping(@Param("url") url: string):Promise<String[]>{
-        return this.vocService.testDataScraping(url);
+    public async testDataScraping(@Param("url") url: string):Promise<String>{
+        const result:String[] = await this.vocService.testDataScraping(url);
+        return result[0];
     }
     
 
