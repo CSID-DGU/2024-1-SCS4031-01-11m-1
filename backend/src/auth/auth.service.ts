@@ -34,7 +34,7 @@ export class AuthService {
       if(error instanceof BadRequestException){
         throw new BadRequestException({
           HttpStatus: HttpStatus.BAD_REQUEST,
-          error: '[ERROR] 예측지표를 불러오는 중 오류가 발생했습니다. id 형식이 uuid인지 확인해주세요.',
+          error: '[ERROR] 회원가입에 실해했습니다. id, name, pw 형식이 올바른지 확인해주세요.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
