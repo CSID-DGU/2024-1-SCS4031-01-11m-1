@@ -36,6 +36,10 @@ export class OliveYoundDataCrawler implements DataCrawler{
           , isLandscape : false        //
       });
 
+        page.setDefaultTimeout(1000000000000000000);
+
+        console.log("Browser Created");
+
         await page.goto(url);
         await page.click(".goods_reputation");
         await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
