@@ -18,7 +18,7 @@ export class AuthCredentialsDto {
   @IsString()
   @MinLength(2)
   @MaxLength(20)
-  username: string;
+  memberName: string;
 
   @ApiProperty({
     example: "사용자 password",
