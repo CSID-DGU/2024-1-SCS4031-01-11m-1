@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from '../api/axios';
 
@@ -122,7 +122,7 @@ function Login() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-   
+    const navigate = useNavigate();
     const handleLogin = async () => {
         try {
             const response = await axios.post('http://ec2-54-180-116-5.ap-northeast-2.compute.amazonaws.com/api/auth/sign-in', { 
@@ -134,7 +134,8 @@ function Login() {
             if (response.status === 201) {
                 console.log('Login successful:', response.data);
                 // 로그인 성공 시 원하는 동작 - dashboard로 이동
-                localStorage.setItem("accessToken", response.data.token);
+                localStorage.setItem("accessToken", response.data);
+                navigate('/dashboard')
             } else {
                 setError('로그인에 실패하였습니다.');
                 console.error('Login failed:', response.statusText);

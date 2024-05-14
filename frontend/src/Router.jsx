@@ -13,13 +13,13 @@ function Router() {
         <BrowserRouter>
             <Routes>
                 {/* 로그인하고 접속해야하는 페이지들 */}
-                {/* <Route element={<PrivateRoutes />}> */}
+                <Route element={<PrivateRoutes />}>
                     <Route path="/management" element={<Management />}/>
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/analytics/report" element={<ReportDetail />} />
                     <Route path="/analytics/addreport" element={<AddReport />} />
-                {/* </Route> */}
+                </Route>
                 {/* 로그인할 필요 없이 접근 가능한 페이지들 */}
                 <Route path="/login" element={<Login />}/>
                 <Route path="/signup" element={<Signup />}/>
