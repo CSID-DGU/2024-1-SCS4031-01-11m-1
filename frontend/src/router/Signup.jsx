@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -82,6 +82,15 @@ const Welcom = styled.p`
     line-height: normal;
 `;
 
+const Form = styled.form`
+    display: flex;
+    width: 307px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+`;
+
 const Input = styled.input`
     width: 307px;
     padding: 18px 26px;
@@ -117,76 +126,83 @@ const ErrorMessage = styled.p`
     line-height: normal;
 `;
 
-function Login() {
-    const [username, setName] = useState('');
-    const [name, setId] = useState('');
+function Signup() {
+    const [username, setUsername] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-
-    const handleRegister = async () => {
-        try {
-            const response = await fetch('http://localhost:3000/auth/sign-up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: username,
-                    id: name,
-                    password: password,
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Registration successful:', data);
-                history.push('/login');
-            } else {
-                setError('회원가입에 실패하였습니다.');
-                console.error('Registration failed:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error during registration:', error);
-        }
+    const navigate = useNavigate();
+  
+    const payload = {
+      name: name,
+      username: username,
+      password: password,
     };
-
+  
+    const handleRegister = async () => {
+      try {
+        const response = await fetch('http://ec2-54-180-116-5.ap-northeast-2.compute.amazonaws.com/api/auth/sign-up', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+  
+        if (response.status === 201) {
+          console.log('Registration successful:');
+          navigate('/login');
+        } else {
+          setError('회원가입에 실패하였습니다.');
+          console.error('Registration failed:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error during registration:', error);
+        console.log(payload);
+      }
+    };
+  
     return (
-        <Container>
-            <Left>
-                <Box>
-                    <Logo>GoVOC</Logo>
-                    <Text>Listen customer’s voice</Text>
-                </Box>
-            </Left>
-            <Right>
-                <RightBox>
-                    <Hello>Hello!</Hello>
-                    <Welcom>Sign Up to Get Started</Welcom>
-                    <Input
-                        type="text"
-                        placeholder="Full Name"
-                        value={username}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <Input
-                        type="text"
-                        placeholder="ID"
-                        value={name}
-                        onChange={(e) => setId(e.target.value)}
-                    />
-                    <Input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <Button onClick={handleRegister}>Register</Button>
-                    <SignUpLink to="/login">Already have an account? Login</SignUpLink>
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
-                </RightBox>
-            </Right>
-        </Container>
+      <Container>
+        <Left>
+          <Box>
+            <Logo>GoVOC</Logo>
+            <Text>Listen customer’s voice</Text>
+          </Box>
+        </Left>
+        <Right>
+          <RightBox>
+            <Hello>Hello!</Hello>
+            <Welcom>Sign Up to Get Started</Welcom>
+            <Form>
+              <Input
+                type="text"
+                placeholder="Full Name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Input
+                type="text"
+                placeholder="ID"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                autoComplete="off"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form>
+            <Button onClick={handleRegister}>Register</Button>
+            <SignUpLink to="/login">Already have an account? Login</SignUpLink>
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+          </RightBox>
+        </Right>
+      </Container>
     );
-}
+  }
+  
 
-export default Login;
+export default Signup;

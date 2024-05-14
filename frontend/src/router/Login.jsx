@@ -119,20 +119,22 @@ const ErrorMessage = styled.p`
 `;
 
 function Login() {
-    const [id, setId] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-
+   
     const handleLogin = async () => {
         try {
-            const response = await axios.post('/auth/sign-in', { 
-                name: id,
+            const response = await axios.post('http://ec2-54-180-116-5.ap-northeast-2.compute.amazonaws.com/api/auth/sign-in', { 
+                name: name,
                 password: password,
             });
+            
 
-            if (response.status === 200) {
+            if (response.status === 201) {
                 console.log('Login successful:', response.data);
                 // 로그인 성공 시 원하는 동작 - dashboard로 이동
+                localStorage.setItem("accessToken", response.data.token);
             } else {
                 setError('로그인에 실패하였습니다.');
                 console.error('Login failed:', response.statusText);
@@ -159,8 +161,8 @@ function Login() {
                     <Input
                         type="text"
                         placeholder="ID"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                     />
                     <Input
                         type="password"
@@ -170,7 +172,7 @@ function Login() {
                     />
                     <Button onClick={handleLogin}>Login</Button>
                     <SignUpLink to="/signup">Sign Up</SignUpLink>
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
+                    
                 </RightBox>
             </Right>
         </Container>

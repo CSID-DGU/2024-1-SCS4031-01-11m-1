@@ -188,8 +188,7 @@ margin: 2rem 0;
 @font-face {
   font-family: "Wanted Sans";
   font-weight: normal;
-  src: url("./fonts/WantedSans-Regular.ttf") format("truetype");
-}
+  src: url('https://fastly.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css') format('font-woff2');
 body {
   font-family: "Wanted Sans";
 }
@@ -197,7 +196,7 @@ body {
 @font-face {
   font-family: "Pretendard";
   font-weight: normal;
-  src: url("./fonts/PretendardVariable.ttf") format("truetype");
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('font-woff2');
 }
 body {
   font-family: "Pretedard";

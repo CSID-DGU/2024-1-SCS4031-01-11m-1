@@ -6,6 +6,7 @@ import Management from "./router/Management";
 import Analytics from "./router/Analytics";
 import ReportDetail from "./components/analytics/ReportDetail";
 import AddReport from "./components/analytics/AddReport";
+import Dashboard from "./router/Dashboard";
 
 function Router() {
     return(
@@ -15,6 +16,7 @@ function Router() {
                 {/* <Route element={<PrivateRoutes />}> */}
                     <Route path="/management" element={<Management />}/>
                     <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/analytics/report" element={<ReportDetail />} />
                     <Route path="/analytics/addreport" element={<AddReport />} />
                 {/* </Route> */}
