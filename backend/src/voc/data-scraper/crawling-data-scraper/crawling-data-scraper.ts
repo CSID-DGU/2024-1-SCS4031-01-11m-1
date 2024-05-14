@@ -1,5 +1,5 @@
-import { DataScrapingModule } from "../DataScrapingModule";
-import { DataCrawlerMapping } from "./data_crawler/DataCrawlerMapping";
+import { DataScrapingModule } from "../data-scraper";
+import { DataCrawlerMapping } from "./data-crawler/data-crawler-mapping";
 
 export class CrawlingDataScrapingModule implements DataScrapingModule{
 

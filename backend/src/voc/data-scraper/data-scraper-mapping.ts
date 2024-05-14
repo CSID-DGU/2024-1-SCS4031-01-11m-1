@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { CrawlingDataScrapingModule } from "./crawling_data_scraping_module/CrawlingDataScrapingModule";
-import { DataScrapingModule } from "./DataScrapingModule";
+import { CrawlingDataScrapingModule } from "./crawling-data-scraper/crawling-data-scraper";
+import { DataScrapingModule } from "./data-scraper";
 
 @Injectable()
 export class DataScrapingModuleMapping{

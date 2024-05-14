@@ -1,4 +1,4 @@
-import { DataCrawler } from "./DataCrawler";
+import { DataCrawler } from "./data-crawler";
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
 

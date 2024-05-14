@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DataScrapingModuleMapping } from "../data_scraping_module/DataScrapingModuleMapping";
+import { DataScrapingModuleMapping } from "../data-scraper/data-scraper-mapping";
 
 @Injectable()
 export class VocService{

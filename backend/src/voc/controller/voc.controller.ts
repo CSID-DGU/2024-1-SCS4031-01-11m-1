@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { VocService } from "../service/VocService";
+import { VocService } from "../service/voc.service";
 
 @ApiTags('Member Data Controller')
 @Controller('/voc')

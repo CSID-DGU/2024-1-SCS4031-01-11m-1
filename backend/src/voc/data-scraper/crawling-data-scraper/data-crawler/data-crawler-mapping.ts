@@ -1,5 +1,5 @@
-import { DataCrawler } from "./DataCrawler";
-import { OliveYoundDataCrawler } from "./OliveYoundDataCralwer";
+import { DataCrawler } from "./data-crawler";
+import { OliveYoundDataCrawler } from "./olive-young-data-crawler";
 
 export class DataCrawlerMapping{
     crawlMap = new Map<String, DataCrawler>([
