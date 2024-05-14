@@ -16,7 +16,16 @@ export class OliveYoundDataCrawler implements DataCrawler{
         let isLastSection = false;
         let init = true;
         
-        const browser = await puppeteer.launch({headless:false});
+        const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/chromium-browser',
+            headless: true,
+            args: [
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--disable-setuid-sandbox",
+                "--no-sandbox"
+            ]
+        });
         let page = await browser.newPage();
         await page.setViewport({
             width : 1280               // 페이지 너비
