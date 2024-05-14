@@ -98,7 +98,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 let userPoint = point.charAt(6);
 
                 let convertedPoint = (100 / Number(maxPoint)) * Number(userPoint);
-                //console.log(point, review);
+                console.log(point, review);
                 resultArray.push(convertedPoint + "%" + review);
             }
 
