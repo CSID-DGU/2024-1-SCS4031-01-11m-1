@@ -17,14 +17,14 @@ export class OliveYoundDataCrawler implements DataCrawler{
         let init = true;
         
         const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium-browser',
+            //executablePath: '/usr/bin/chromium-browser',
             headless: true,
-            args: [
+            /*args: [
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
                 "--disable-setuid-sandbox",
                 "--no-sandbox"
-            ]
+            ]*/
         });
         let page = await browser.newPage();
         await page.setViewport({
@@ -98,7 +98,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 let userPoint = point.charAt(6);
 
                 let convertedPoint = (100 / Number(maxPoint)) * Number(userPoint);
-                //console.log(point, review);
+                console.log(point, review);
                 resultArray.push(convertedPoint + "%" + review);
             }
 
