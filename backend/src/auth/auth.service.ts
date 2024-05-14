@@ -5,7 +5,8 @@ import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { AuthLoginDto } from './dto/auth-login.dto';
+import { AuthLoginRequestDto } from './dto/auth-login-request.dto';
+import { AuthLogInResponseDto } from './dto/auth-login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,14 +18,14 @@ export class AuthService {
   
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<string>{
     try{
-      const {name, password, username} = authCredentialsDto;
+      const {name, password, memberName} = authCredentialsDto;
       const checkMember =  await this.memberCheck(name)
       if(checkMember == true){
         return "이미 존재하는 Id입니다."
       }else{
         const salt = await bcrypt.genSalt()
         const hashedPassword = await bcrypt.hash(password, salt);
-        const memberEntity = this.memberRepository.create({name: name, username: username ,password: hashedPassword});
+        const memberEntity = this.memberRepository.create({name: name, memberName: memberName ,password: hashedPassword});
         await this.memberRepository.save(
           memberEntity
         );
@@ -42,7 +43,7 @@ export class AuthService {
     }
   }
 
-  async signIn(authLoginDto: AuthLoginDto): Promise<{accessToken:string}> {
+  async signIn(authLoginDto: AuthLoginRequestDto): Promise<AuthLogInResponseDto> {
     const {name, password} = authLoginDto;
     const memberEntity = await this.memberRepository.findOneBy({name});
     console.log(memberEntity)
@@ -50,7 +51,12 @@ export class AuthService {
     if(memberEntity && await bcrypt.compare(password, memberEntity.password)) {
       const payload = { name };
       const accessToken = this.jwtService.sign(payload);
-      return {accessToken}
+      const response = new AuthLogInResponseDto()
+      response.accessToken = accessToken;
+      response.memberId = memberEntity.memberId;
+      response.memberName = memberEntity.memberName;
+      response.name = memberEntity.name;
+      return response;
     } else {
       throw new UnauthorizedException('login failed')
     }

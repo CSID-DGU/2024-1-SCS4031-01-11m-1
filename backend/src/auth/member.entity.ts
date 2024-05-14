@@ -9,7 +9,7 @@ export class MemberEntity extends BaseEntity {
   name: string;
 
   @Column()
-  username: string;
+  memberName: string;
 
   @Column()
   password: string;
