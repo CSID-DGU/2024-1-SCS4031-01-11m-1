@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { VocService } from "../service/voc.service";
+import { TestDataScrapingRequestDto } from "./controller-dto/test-data-scraping-request.dto";
 
 @ApiTags('Member Data Controller')
 @Controller('/voc')
@@ -22,9 +23,9 @@ export class VocController{
     }
 
     @ApiOperation({summary: "크롤링 테스트"})
-    @Post("/test/datascraping/:url")
-    public async testDataScraping(@Param("url") url: string):Promise<String>{
-        const result:String[] = await this.vocService.testDataScraping(url);
+    @Post("/test/datascraping")
+    public async testDataScraping(@Body() dataScrapRequestDto: TestDataScrapingRequestDto):Promise<String>{
+        const result:String[] = await this.vocService.testDataScraping(dataScrapRequestDto.getUrl());
         return result[0];
     }
     
