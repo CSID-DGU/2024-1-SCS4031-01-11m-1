@@ -3,16 +3,16 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
 import { MemberEntity } from 'src/auth/member.entity';
-import { MemberDataService } from './member-data.service';
+import { ProductsService } from './products.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
 
-@ApiTags('Member Data Controller')
+@ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
-export class MemberDataController {
+export class ProductsController {
   constructor(
-    private memberDataService: MemberDataService,
+    private productsService: ProductsService,
   ){};
 
   @ApiOperation({ summary: 'member id로 상품 리스트를 가져옵니다.' })
@@ -22,7 +22,7 @@ export class MemberDataController {
   async loadProducts(
     @Member() member: MemberEntity
     ):Promise<ProductEntiy[]>{
-      return this.memberDataService.loadProducts(member.memberId);
+      return this.productsService.loadProducts(member.memberId);
    };
 
   @ApiOperation({ summary: '상품데이터를 등록합니다.' })
@@ -33,7 +33,7 @@ export class MemberDataController {
     @Body() addProductDto: AddProductDto,
     @Member() member: MemberEntity
     ):Promise<void>{
-      this.memberDataService.addProduct(addProductDto, member.memberId);
+      this.productsService.addProduct(addProductDto, member.memberId);
     };
   
   @ApiOperation({ summary: '상품데이터를 삭제합니다.' })
@@ -46,7 +46,7 @@ export class MemberDataController {
   async deleteProduct(
     @Param('productId') productId
   ): Promise<void>{
-    this.memberDataService.deleteProduct(productId);
+    this.productsService.deleteProduct(productId);
   };
 
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
@@ -60,6 +60,6 @@ export class MemberDataController {
     @Body() updateProductDto: UpdateProductDto,
     @Param('productId') productId
   ):Promise<void>{
-    this.memberDataService.updateProduct(productId, updateProductDto);
+    this.productsService.updateProduct(productId, updateProductDto);
   };
 }

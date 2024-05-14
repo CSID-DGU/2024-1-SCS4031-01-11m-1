@@ -36,3 +36,6 @@ lerna-debug.log*
 
 .env
 /postgresql/
+
+#Local Dev files
+docker-compose-localdev.yml
