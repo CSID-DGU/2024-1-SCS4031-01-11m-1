@@ -8,7 +8,7 @@ export class AddProductDto {
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(10)
+  @MaxLength(20)
   productName: string;
 
   @ApiProperty({
