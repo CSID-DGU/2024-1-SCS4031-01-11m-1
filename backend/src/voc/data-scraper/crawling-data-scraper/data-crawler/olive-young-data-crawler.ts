@@ -37,13 +37,12 @@ export class OliveYoundDataCrawler implements DataCrawler{
           , isLandscape : false        //
       });
 
-        //page.setDefaultTimeout(20000000);
-
         console.log("Browser Created");
 
         await page.goto(url);
 
-        console.log(await page.content());
+        const pageMonitor = await page.content();
+        console.log(pageMonitor);
 
         await page.click(".goods_reputation");
         await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
