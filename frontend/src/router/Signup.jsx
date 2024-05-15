@@ -141,7 +141,7 @@ function Signup() {
   
     const handleRegister = async () => {
       try {
-        const response = await fetch('http://ec2-54-180-116-5.ap-northeast-2.compute.amazonaws.com/api/auth/sign-up', {
+        const response = await fetch('http://15.165.14.203/api/auth/sign-up', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

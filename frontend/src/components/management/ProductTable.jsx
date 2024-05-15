@@ -3,7 +3,6 @@ import axios from 'axios';
 import styled from 'styled-components';
 import Product from './Product';
 
-
 const TableContainer = styled.div`
   width: 100%;
   margin: auto;
@@ -22,13 +21,13 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-    color: #878787;
-    font-family: "Wanted Sans";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-    width: ${props => props.width || 'auto'}; 
+  color: #878787;
+  font-family: "Wanted Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  width: ${props => props.width || 'auto'}; 
 `;
 
 const PaginationContainer = styled.div`
@@ -53,15 +52,45 @@ const PaginationButton = styled.button`
   border-radius: 5px;
 `;
 
-
-function ProductTable({ memberId }) {
+function ProductTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
   const [products, setProducts] = useState([]);
- 
 
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const memberId = userInfo ? userInfo.memberId : null;
 
-  //페이지네이션 변수
+    
+    const fetchProducts = async () => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const accessToken = userInfo ? userInfo.accessToken : null;
+        const memberId = userInfo ? userInfo.memberId : null;
+    
+        if (!accessToken || !memberId) {
+          // 사용자 정보나 액세스 토큰이 없는 경우 처리
+          console.error('Access token or member ID not found');
+          return;
+        }
+    
+        const response = await axios.get(`http://15.165.14.203/api/member-data/products/${memberId}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        setProducts(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    if (memberId) {
+      fetchProducts();
+    }
+  }, []);
+
   const totalPages = Math.ceil(products.length / productsPerPage);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -71,21 +100,10 @@ function ProductTable({ memberId }) {
     setCurrentPage(pageNumber);
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-        const response = await axios.get(`/member-data/products/${memberId}`);
-        setProducts(response.data);
-    };
-
-    fetchProducts();
-  }, [memberId]);
   return (
     <>
-    
-      
-    <TableContainer>
-      <Table>
-        <tbody>
+      <TableContainer>
+        <Table>
           <TableRow>
             <TableCell width="5%">ID</TableCell>
             <TableCell width="10%">Image</TableCell>
@@ -94,23 +112,22 @@ function ProductTable({ memberId }) {
             <TableCell width="5%"></TableCell>
           </TableRow>
           {currentProducts.map((product) => (
-              <Product key={product.id} {...product} />
-            ))}
-        </tbody>
-      </Table>
-    </TableContainer>
+            <Product key={product.id} {...product} />
+          ))}
+        </Table>
+      </TableContainer>
       <PaginationContainer>
-      {Array.from({ length: totalPages }, (_, index) => (
-        <PaginationButton
-          key={index}
-          active={currentPage === index + 1}
-          onClick={() => handlePageChange(index + 1)}
-        >
-          {index + 1}
-        </PaginationButton>
-      ))}
-    </PaginationContainer>
-  </>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <PaginationButton
+            key={index}
+            active={currentPage === index + 1}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </PaginationButton>
+        ))}
+      </PaginationContainer>
+    </>
   );
 }
 

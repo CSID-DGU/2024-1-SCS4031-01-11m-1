@@ -117,34 +117,41 @@ function Addproduct( { onClose }) {
         setUrl(newUrl);
     };
 
+
     const handleSave = () => {
-        const requestBody = JSON.stringify({
-            productName,
-            productImage: uploadedImage,
-            productDescription,
-            productUrl: url
-        });
-        fetch('/member-data/add-product', {
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        const accessToken = userInfo ? userInfo.accessToken : null;
+    
+        // FormData 객체 생성
+        const formData = new FormData();
+        formData.append('productName', productName);
+        formData.append('productDescription', productDescription);
+        formData.append('productUrl', url);
+        formData.append('productImage', uploadedImage); 
+    
+        // POST 요청
+        fetch('http://15.165.14.203/api/member-data/add-product', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                "Content-type": "multipart/formdata",
+                'Authorization': `Bearer ${accessToken}`
             },
-            body: requestBody
+            body: formData // FormData 객체 전달
         })
         .then(response => {
             if (response.ok) {
                 console.log('Product added successfully');
+                
                 onClose();
             } else {
                 console.error('Failed to add product');
-           
             }
         })
         .catch(error => {
             console.error('Error:', error);
         });
+        
     };
-
     const handleCancel = () => {
         onClose();
     };

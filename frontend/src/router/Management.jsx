@@ -145,6 +145,7 @@ function Management() {
                                 Add Product
                             </AddProductbtn>
                             <ProductTable />
+                            
                         </>
                     )}
                     {activeTab === 'Meeting Minutes' && (

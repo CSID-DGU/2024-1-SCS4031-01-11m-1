@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from '../api/axios';
+import { useRecoilState } from "recoil";
+import { userState } from "../context/authState";
 
 const Container = styled.div`
     width: 100%;
@@ -122,10 +124,12 @@ function Login() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [userInfo, setUserInfo] = useRecoilState(userState);
     const navigate = useNavigate();
+
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://ec2-54-180-116-5.ap-northeast-2.compute.amazonaws.com/api/auth/sign-in', { 
+            const response = await axios.post('http://15.165.14.203/api/auth/sign-in', { 
                 name: name,
                 password: password,
             });
@@ -134,7 +138,26 @@ function Login() {
             if (response.status === 201) {
                 console.log('Login successful:', response.data);
                 // 로그인 성공 시 원하는 동작 - dashboard로 이동
-                localStorage.setItem("accessToken", response.data);
+                const accessToken = response.data.accessToken;
+                const memberId = response.data.memberId;
+                const memberName = response.data.memberName;
+                
+                setUserInfo({
+                    accessToken: accessToken,
+                    memberId: memberId,
+                    memberName: memberName,
+                    name: name,
+                });
+
+                localStorage.setItem(
+                    "userInfo",
+                    JSON.stringify({
+                    accessToken: accessToken,
+                    memberId: memberId,
+                    memberName: memberName,
+                    name: name,
+                    })
+                );
                 navigate('/dashboard')
             } else {
                 setError('로그인에 실패하였습니다.');
