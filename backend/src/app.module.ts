@@ -9,6 +9,8 @@ import { MemberDataModule } from './member-data/member-data.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { VocModule } from './voc/voc.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { multerOptions } from './utils/multer.options.factory';
 
 @Module({
   imports: [
