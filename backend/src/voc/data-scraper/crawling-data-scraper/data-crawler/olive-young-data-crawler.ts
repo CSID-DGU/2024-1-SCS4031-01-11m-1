@@ -9,6 +9,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
     public async crawl(url: string): Promise<string[]> {
         console.log(url + " Start!");
         const delayAfterScroll:number = 2000;
+        const userAgent:string = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
         let counter:number = 1;
         let resultArray:string[] = [];
         let isNextPage = true;
@@ -28,9 +29,10 @@ export class OliveYoundDataCrawler implements DataCrawler{
             ]
         });
 
-        await browser.userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-
         let page = await browser.newPage();
+
+        await page.setUserAgent(userAgent);
+
         await page.setViewport({
             width : 1280               // 페이지 너비
           , height : 720                // 페이지 높이
