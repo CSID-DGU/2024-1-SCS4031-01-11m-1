@@ -33,18 +33,19 @@ export class ProductsService {
   }
   
   @Transactional()
-  async addProduct(addProductDto: AddProductDto , memberId: string): Promise<void>{
+  async addProduct(addProductDto: AddProductDto , memberId: string, file: Express.Multer.File): Promise<void>{
     const member:MemberEntity = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
+    const fileName = `product-image/${file.filename}`;
+    const fileUrl = `/media/${fileName}`;
 
-    const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndUrlEntityMapper(
-      addProductDto, member
-    );
+    const { productName, productDescription, productUrl } = addProductDto;
 
-    const productEntity:ProductEntiy = productAndUrl.product;
-    const urlEntity:UrlEntity = productAndUrl.url;
+    const productEntity = ProductEntiy.createNew(productName, fileUrl, productDescription, member, new Date(), new Date())
+    const urlEntity = UrlEntity.createNew(productUrl, productEntity, new Date(), new Date());
     this.nullCheckForEntity(productEntity);
     this.nullCheckForEntity(urlEntity);
+
     await this.productRepository.save(productEntity);
     await this.urlRepository.save(urlEntity);
   };
@@ -61,7 +62,7 @@ export class ProductsService {
       for(const urlEntity of urlEntities){
         await this.urlRepository.remove(urlEntity);
       };
-      
+
       await this.productRepository.remove(productEntity);
     } catch(error){
       if(error instanceof QueryFailedError){
@@ -90,11 +91,13 @@ export class ProductsService {
   };
 
   @Transactional()
-  async updateProduct(productId: string, updateProductDto: UpdateProductDto): Promise<void>{
+  async updateProduct(productId: string, updateProductDto: UpdateProductDto, file: Express.Multer.File): Promise<void>{
     const productEntity = await this.productRepository.findOneBy({id: productId});
     this.nullCheckForEntity(productEntity);
+    const fileName = `product-image/${file.filename}`;
+    const fileUrl = `/media/${fileName}`;
     productEntity.productName = updateProductDto.productName;
-    productEntity.productImage = updateProductDto.productImage;
+    productEntity.productImage = fileUrl;
     productEntity.description = updateProductDto.productDescription;
     await this.productRepository.save(productEntity);
   }

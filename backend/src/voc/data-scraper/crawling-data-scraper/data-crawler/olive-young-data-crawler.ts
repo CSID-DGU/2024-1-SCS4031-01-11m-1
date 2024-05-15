@@ -8,7 +8,8 @@ export class OliveYoundDataCrawler implements DataCrawler{
 
     public async crawl(url: string): Promise<string[]> {
         console.log(url + " Start!");
-        const delayAfterScroll:number = 2000;
+        const delayAfterScroll:number = 3000;
+        const userAgent:string = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
         let counter:number = 1;
         let resultArray:string[] = [];
         let isNextPage = true;
@@ -22,11 +23,16 @@ export class OliveYoundDataCrawler implements DataCrawler{
             args: [
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
-                "--disable-setuid-sandbox",
-                "--no-sandbox"
+                "--no-sandbox",
+                "--headless",
+                "--enable-chrome-browser-cloud-management"
             ]
         });
+
         let page = await browser.newPage();
+
+        await page.setUserAgent(userAgent);
+
         await page.setViewport({
             width : 1280               // 페이지 너비
           , height : 720                // 페이지 높이
@@ -36,11 +42,10 @@ export class OliveYoundDataCrawler implements DataCrawler{
           , isLandscape : false        //
       });
 
-        page.setDefaultTimeout(2000000000);
-
         console.log("Browser Created");
 
         await page.goto(url);
+
         await page.click(".goods_reputation");
         await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
 
@@ -64,7 +69,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
             }
 
             if(moveToNextPage){
-                //console.log("Next Page");
+                console.log("Next Page");
                 await page.waitForSelector("#gdasContentsArea > div > div.pageing > a.next");
                 const nextPageButton = await page.$("#gdasContentsArea > div > div.pageing > a.next");
                 await page.mouse.wheel({deltaY:5000});
@@ -133,7 +138,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 //console.log(coord);
                 //console.log("counter: " + counter + ", endNum: " + endNum);
                 await page.mouse.click(coord.x!, coord.y!);
-                await sleep(1000);
+                await sleep(2000);
                 await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
             }
 

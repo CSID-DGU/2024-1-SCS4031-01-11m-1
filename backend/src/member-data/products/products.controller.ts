@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
@@ -7,6 +7,9 @@ import { ProductsService } from './products.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
+import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/utils/multer.options.factory';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -22,21 +25,34 @@ export class ProductsController {
   async loadProducts(
     @Member() member: MemberEntity
     ):Promise<ProductEntiy[]>{
-      return this.productsService.loadProducts(member.memberId);
+      return await this.productsService.loadProducts(member.memberId);
    };
 
   @ApiOperation({ summary: '상품데이터를 등록합니다.' })
   @Post('/add-product')
   @UseGuards(AuthGuard())
   @ApiBearerAuth('access-token')
+  @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
   async addProduct(
     @Body() addProductDto: AddProductDto,
+    @UploadedFile() productImage: Express.Multer.File,
     @Member() member: MemberEntity
     ):Promise<void>{
-      this.productsService.addProduct(addProductDto, member.memberId);
+      console.log(productImage);
+      await this.productsService.addProduct(addProductDto, member.memberId, productImage);
     };
 
   @ApiOperation({ summary: '상품데이터를 삭제합니다.' })
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 product id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 상품데이터를 삭제하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
   @Delete('/delete-product/:productId')
   @ApiParam({
     name: 'productId',
@@ -46,7 +62,7 @@ export class ProductsController {
   async deleteProduct(
     @Param('productId') productId
   ): Promise<void>{
-    this.productsService.deleteProduct(productId);
+    await this.productsService.deleteProduct(productId);
   };
 
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
@@ -58,8 +74,9 @@ export class ProductsController {
   })
   async updateProduct(
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() productImage: Express.Multer.File,
     @Param('productId') productId
   ):Promise<void>{
-    this.productsService.updateProduct(productId, updateProductDto);
+    await this.productsService.updateProduct(productId, updateProductDto, productImage);
   };
 }
