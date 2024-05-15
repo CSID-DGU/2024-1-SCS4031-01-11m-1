@@ -27,6 +27,9 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 "--enable-chrome-browser-cloud-management"
             ]
         });
+
+        await browser.userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+
         let page = await browser.newPage();
         await page.setViewport({
             width : 1280               // 페이지 너비
