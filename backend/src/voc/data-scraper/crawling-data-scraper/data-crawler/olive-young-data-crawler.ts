@@ -42,6 +42,9 @@ export class OliveYoundDataCrawler implements DataCrawler{
         console.log("Browser Created");
 
         await page.goto(url);
+
+        console.log(await page.content());
+
         await page.click(".goods_reputation");
         await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
 
