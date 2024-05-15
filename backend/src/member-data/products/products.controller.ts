@@ -67,6 +67,7 @@ export class ProductsController {
 
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
   @Patch(('/update-product/:productId'))
+  @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
   @ApiParam({
     name: 'productId',
     example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
