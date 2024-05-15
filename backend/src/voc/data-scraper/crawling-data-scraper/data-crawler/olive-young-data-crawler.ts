@@ -22,8 +22,8 @@ export class OliveYoundDataCrawler implements DataCrawler{
             args: [
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
-                "--disable-setuid-sandbox",
-                "--no-sandbox"
+                "--no-sandbox",
+                "--headless"
             ]
         });
         let page = await browser.newPage();
