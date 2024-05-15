@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
@@ -8,6 +8,8 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/utils/multer.options.factory';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -30,11 +32,14 @@ export class ProductsController {
   @Post('/add-product')
   @UseGuards(AuthGuard())
   @ApiBearerAuth('access-token')
+  @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
   async addProduct(
     @Body() addProductDto: AddProductDto,
+    @UploadedFile() productImage: Express.Multer.File,
     @Member() member: MemberEntity
     ):Promise<void>{
-      await this.productsService.addProduct(addProductDto, member.memberId);
+      console.log(productImage);
+      await this.productsService.addProduct(addProductDto, member.memberId, productImage);
     };
 
   @ApiOperation({ summary: '상품데이터를 삭제합니다.' })
@@ -69,8 +74,9 @@ export class ProductsController {
   })
   async updateProduct(
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() productImage: Express.Multer.File,
     @Param('productId') productId
   ):Promise<void>{
-    await this.productsService.updateProduct(productId, updateProductDto);
+    await this.productsService.updateProduct(productId, updateProductDto, productImage);
   };
 }

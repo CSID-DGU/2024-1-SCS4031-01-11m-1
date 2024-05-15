@@ -12,13 +12,6 @@ export class AddProductDto {
   productName: string;
 
   @ApiProperty({
-    example: "11m suncream Image",
-    description: "상품 이미지"
-  })
-  @IsString()
-  productImage: string;
-
-  @ApiProperty({
     example: "11m suncream은 매우 촉촉합니다 !",
     description: "상품 설명"
   })
