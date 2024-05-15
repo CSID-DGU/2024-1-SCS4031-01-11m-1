@@ -23,7 +23,8 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
                 "--no-sandbox",
-                "--headless"
+                "--headless",
+                "--enable-chrome-browser-cloud-management"
             ]
         });
         let page = await browser.newPage();
