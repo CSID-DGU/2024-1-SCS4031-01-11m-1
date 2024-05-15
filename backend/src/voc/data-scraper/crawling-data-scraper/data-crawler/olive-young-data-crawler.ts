@@ -37,7 +37,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
           , isLandscape : false        //
       });
 
-        page.setDefaultTimeout(20000000);
+        //page.setDefaultTimeout(20000000);
 
         console.log("Browser Created");
 
