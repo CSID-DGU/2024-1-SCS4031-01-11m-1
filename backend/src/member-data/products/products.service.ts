@@ -36,7 +36,7 @@ export class ProductsService {
   async addProduct(addProductDto: AddProductDto , memberId: string, file: Express.Multer.File): Promise<void>{
     const member:MemberEntity = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
-    const fileName = `product-image/${file.filename}`;
+    const fileName = `${file.filename}`;
     const fileUrl = `/media/${fileName}`;
 
     const { productName, productDescription, productUrl } = addProductDto;

@@ -11,7 +11,7 @@ async function bootstrap() {
   initializeTransactionalContext()
   
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useStaticAssets(path.join(__dirname, 'uploads'), {
+  app.useStaticAssets(path.join('./uploads/image'), {
     prefix: '/media',
   });
 
