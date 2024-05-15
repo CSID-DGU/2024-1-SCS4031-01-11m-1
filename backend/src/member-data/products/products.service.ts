@@ -40,6 +40,9 @@ export class ProductsService {
     const productAndUrl = DtoToEntityMapper.addProductDtoToNewProductAndUrlEntityMapper(
       addProductDto, member
     );
+    console.log('------------------------')
+    const example = new FormData();
+    console.log(example);
 
     const productEntity:ProductEntiy = productAndUrl.product;
     const urlEntity:UrlEntity = productAndUrl.url;
@@ -61,7 +64,7 @@ export class ProductsService {
       for(const urlEntity of urlEntities){
         await this.urlRepository.remove(urlEntity);
       };
-      
+
       await this.productRepository.remove(productEntity);
     } catch(error){
       if(error instanceof QueryFailedError){
