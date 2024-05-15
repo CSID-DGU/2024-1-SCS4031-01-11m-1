@@ -35,4 +35,7 @@ import { VocModule } from './voc/voc.module';
     AuthModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
+

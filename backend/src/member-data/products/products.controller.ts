@@ -35,19 +35,19 @@ export class ProductsController {
     ):Promise<void>{
       this.productsService.addProduct(addProductDto, member.memberId);
     };
-  
-  // @ApiOperation({ summary: '상품데이터를 삭제합니다.' })
-  // @Delete('/delete-product/:productId')
-  // @ApiParam({
-  //   name: 'productId',
-  //   example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
-  //   required: true,
-  // })
-  // async deleteProduct(
-  //   @Param('productId') productId
-  // ): Promise<void>{
-  //   this.productsService.deleteProduct(productId);
-  // };
+
+  @ApiOperation({ summary: '상품데이터를 삭제합니다.' })
+  @Delete('/delete-product/:productId')
+  @ApiParam({
+    name: 'productId',
+    example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
+    required: true,
+  })
+  async deleteProduct(
+    @Param('productId') productId
+  ): Promise<void>{
+    this.productsService.deleteProduct(productId);
+  };
 
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
   @Patch(('/update-product/:productId'))
