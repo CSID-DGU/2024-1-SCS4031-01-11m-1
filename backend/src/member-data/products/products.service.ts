@@ -238,6 +238,45 @@ export class ProductsService {
     }
   };
 
+  @Transactional()
+  async deleteProductMinute(productMinuteId: string):Promise<void>{
+    try{
+      const minuteEntity = await this.productMinuteRepository.findOneBy({id: productMinuteId});
+      this.nullCheckForEntity(minuteEntity);
+      await this.productMinuteRepository.remove(minuteEntity);
+    }catch(error){
+      if(error instanceof QueryFailedError){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 회의록을 삭제하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof BadRequestException){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 회의록을 삭제하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 회의록을 삭제하는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 회의록을 삭제하는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      };
+    };
+  }
+
   async loadProductMintes(memberId:string):Promise<ProductMinuteEntity[]>{
     try{
       const member:MemberEntity = await this.authService.findById(memberId)

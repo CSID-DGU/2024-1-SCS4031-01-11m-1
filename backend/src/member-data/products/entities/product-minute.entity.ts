@@ -10,31 +10,31 @@ export class ProductMinuteEntity extends BaseEntity{
   @Column()
   minuteName: string;
 
-  @Column()
-  minuteUrl: string;
+  @Column({nullable: true})
+  minute: string;
 
   @ManyToOne(() => MemberEntity, {eager: false})
   member: MemberEntity;
 
   constructor(
     minuteName: string,
-    minuteUrl: string,
+    minute: string,
     member: MemberEntity,
   ){
     super();
     this.minuteName = minuteName;
-    this.minuteUrl = minuteUrl;
+    this.minute = minute;
     this.member = member;
   };
 
   static createNew(
     minuteName: string,
-    minuteUrl: string,
+    minute: string,
     member: MemberEntity
   ){
     return new ProductMinuteEntity(
       minuteName,
-      minuteUrl,
+      minute,
       member
     )};
 }
