@@ -35,6 +35,16 @@ export class ProductsController {
   @ApiBearerAuth('access-token')
   @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
   @ApiAddImageFile('productImage')
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 member id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 상품데이터를 추가하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
   async addProduct(
     @Body() addProductDto: AddProductDto,
     @UploadedFile() productImage: Express.Multer.File,
@@ -76,6 +86,16 @@ export class ProductsController {
     example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
     required: true,
   })
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 product id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 상품데이터를 업데이트하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
   async updateProduct(
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFile() productImage: Express.Multer.File,
