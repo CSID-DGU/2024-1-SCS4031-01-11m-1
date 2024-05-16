@@ -34,20 +34,53 @@ export class ProductsService {
   
   @Transactional()
   async addProduct(addProductDto: AddProductDto , memberId: string, file: Express.Multer.File): Promise<void>{
-    const member:MemberEntity = await this.authService.findById(memberId)
-    this.nullCheckForEntity(member);
-    const fileName = `${file.filename}`;
-    const fileUrl = `/media/${fileName}`;
+    try{
+      const member:MemberEntity = await this.authService.findById(memberId)
+      this.nullCheckForEntity(member);
+      const fileName = `${file.filename}`;
+      const fileUrl = `/media/${fileName}`;
 
-    const { productName, productDescription, productUrl } = addProductDto;
+      const { productName, productDescription, productUrl } = addProductDto;
 
-    const productEntity = ProductEntiy.createNew(productName, fileUrl, productDescription, member, new Date(), new Date())
-    const urlEntity = UrlEntity.createNew(productUrl, productEntity, new Date(), new Date());
-    this.nullCheckForEntity(productEntity);
-    this.nullCheckForEntity(urlEntity);
+      const productEntity = ProductEntiy.createNew(productName, fileUrl, productDescription, member, new Date(), new Date())
+      const urlEntity = UrlEntity.createNew(productUrl, productEntity, new Date(), new Date());
+      this.nullCheckForEntity(productEntity);
+      this.nullCheckForEntity(urlEntity);
 
-    await this.productRepository.save(productEntity);
-    await this.urlRepository.save(urlEntity);
+      await this.productRepository.save(productEntity);
+      await this.urlRepository.save(urlEntity);
+    } catch(error){
+      if(error instanceof QueryFailedError){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 제품을 추가하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof BadRequestException){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 제품을 추가하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 제품을 추가하는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 제품을 추가하는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
+    
   };
 
   @Transactional()
@@ -68,14 +101,21 @@ export class ProductsService {
       if(error instanceof QueryFailedError){
         throw new BadRequestException({
           HttpStatus: HttpStatus.BAD_REQUEST,
-          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다. id 형식이 올바른지 확인해주세요.',
+          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof BadRequestException){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
       } else if(error instanceof NotFoundException){
         throw new NotFoundException({
           HttpStatus: HttpStatus.NOT_FOUND,
-          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다. 해당 제품 및 url을 찾지 못했습니다.',
+          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
@@ -92,14 +132,46 @@ export class ProductsService {
 
   @Transactional()
   async updateProduct(productId: string, updateProductDto: UpdateProductDto, file: Express.Multer.File): Promise<void>{
-    const productEntity = await this.productRepository.findOneBy({id: productId});
-    this.nullCheckForEntity(productEntity);
-    const fileName = `product-image/${file.filename}`;
-    const fileUrl = `/media/${fileName}`;
-    productEntity.productName = updateProductDto.productName;
-    productEntity.productImage = fileUrl;
-    productEntity.description = updateProductDto.productDescription;
-    await this.productRepository.save(productEntity);
+    try{
+      const productEntity = await this.productRepository.findOneBy({id: productId});
+      this.nullCheckForEntity(productEntity);
+      const fileName = `${file.filename}`;
+      const fileUrl = `/media/${fileName}`;
+      productEntity.productName = updateProductDto.productName;
+      productEntity.productImage = fileUrl;
+      productEntity.description = updateProductDto.productDescription;
+      await this.productRepository.save(productEntity);
+    } catch(error){
+      if(error instanceof QueryFailedError){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 제품을 업데이트하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof BadRequestException){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 제품을 업데이트하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 제품을 업데이트하는 중 오류가 발생했습니다. 해당 제품을 찾을 수 없습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 제품을 업데이트하는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
   }
 
   private nullCheckForEntity(entity) {
