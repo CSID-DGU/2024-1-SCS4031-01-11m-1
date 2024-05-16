@@ -50,3 +50,23 @@ export function ApiUploadImageFile(fieldName: string = 'file') {
     }),
   );
 }
+
+export function ApiaddMinuteFile(fieldName: string = 'file') {
+  return applyDecorators(
+    ApiConsumes('multipart/form-data'),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          productMinuteName: {
+            type: 'string',
+          },
+          [fieldName]: { 
+            type:'string',
+            format: 'binary'
+          },
+        },
+      },
+    }),
+  );
+}

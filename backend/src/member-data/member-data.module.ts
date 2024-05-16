@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UrlEntity } from './products/entities/url.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { ProductMinuteEntity } from './products/entities/product-minute.entity';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
       MemberEntity,
       ProductEntiy,
       UrlEntity,
+      ProductMinuteEntity,
     ]),
     AuthModule
   ],

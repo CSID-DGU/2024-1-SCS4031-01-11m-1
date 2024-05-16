@@ -15,8 +15,8 @@ export class UpdateProductDto {
   example: "11m suncream은 매우 매우 촉촉합니다.",
   description: "업데이트 할 상품 설명"
   })
-    @IsString()
-    @MinLength(1)
-    @MaxLength(100)
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
   productDescription: string;
 }
