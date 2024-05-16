@@ -8,7 +8,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
 
     public async crawl(url: string): Promise<string[]> {
         console.log(url + " Start!");
-        const delayAfterScroll:number = 3000;
+        const delayAfterScroll:number = 2000;
         const userAgent:string = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
         let counter:number = 1;
         let resultArray:string[] = [];
@@ -138,7 +138,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
                 //console.log(coord);
                 //console.log("counter: " + counter + ", endNum: " + endNum);
                 await page.mouse.click(coord.x!, coord.y!);
-                await sleep(2000);
+                await sleep(200);
                 await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
             }
 
