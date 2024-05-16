@@ -140,4 +140,27 @@ export class ProductsController {
   ):Promise<ProductMinuteEntity[]>{
     return await this.productsService.loadProductMintes(member.memberId);
   };
+
+  @ApiOperation({ summary: '회의록을 삭제합니다.' })
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 회의록 id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 회의록을 삭제하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
+  @Delete('/delete-product-minute/:productMinuteId')
+  @ApiParam({
+    name: 'productMinuteId',
+    example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
+    required: true,
+  })
+  async deleteProductMinute(
+    @Param('productMMinuteId') productMinuteId
+  ):Promise<void>{
+    await this.productsService.deleteProductMinute(productMinuteId);
+  };
 }
