@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/utils/multer.options.factory';
 import { ApiAddImageFile, ApiUploadImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
+import { ProductMinuteEntity } from './entities/product-minute.entity';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -128,5 +129,15 @@ export class ProductsController {
   ):Promise<void>{
     const { productMinuteName } = addProductMinuteDto;
     await this.productsService.addProductMinute(productMinuteName, member.memberId, productMinute);
+  };
+
+  @ApiOperation({ summary: 'member id로 상품 리스트를 가져옵니다.' })
+  @Get('/product-minutes/:memberId')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth('access-token')
+  async loadProductMinutes(
+    @Member() member: MemberEntity
+  ):Promise<ProductMinuteEntity[]>{
+    return await this.productsService.loadProductMintes(member.memberId);
   };
 }
