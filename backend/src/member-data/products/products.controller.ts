@@ -4,12 +4,13 @@ import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
 import { MemberEntity } from 'src/auth/member.entity';
 import { ProductsService } from './products.service';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/utils/multer.options.factory';
+import { ApiAddImageFile, ApiUploadImageFile } from 'src/utils/api-file.decorator';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -33,6 +34,7 @@ export class ProductsController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth('access-token')
   @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
+  @ApiAddImageFile('productImage')
   async addProduct(
     @Body() addProductDto: AddProductDto,
     @UploadedFile() productImage: Express.Multer.File,
@@ -68,6 +70,7 @@ export class ProductsController {
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
   @Patch(('/update-product/:productId'))
   @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
+  @ApiUploadImageFile('productImage')
   @ApiParam({
     name: 'productId',
     example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
