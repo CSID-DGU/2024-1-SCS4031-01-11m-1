@@ -5,10 +5,11 @@ import { UrlEntity } from './entities/url.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddProductDto } from './dtos/add-product.dto';
 import { AuthService } from 'src/auth/auth.service';
-import { DtoToEntityMapper } from './mapper/products.mapper';
+import { ProductMapper } from './mapper/products.mapper';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { MemberEntity } from 'src/auth/member.entity';
+import { ProductMinuteEntity } from './entities/product-minute.entity';
 
 @Injectable()
 export class ProductsService {
@@ -17,6 +18,8 @@ export class ProductsService {
     private readonly productRepository: Repository<ProductEntiy>,
     @InjectRepository(UrlEntity)
     private readonly urlRepository: Repository<UrlEntity>,
+    @InjectRepository(ProductMinuteEntity)
+    private readonly productMinuteRepository: Repository<ProductMinuteEntity>,
     private readonly authService: AuthService,
   ){};
 
@@ -40,10 +43,10 @@ export class ProductsService {
       const fileName = `${file.filename}`;
       const fileUrl = `/media/${fileName}`;
 
-      const { productName, productDescription, productUrl } = addProductDto;
+      const productAndUrl = ProductMapper.createNewProductAndUrlEntity(addProductDto, member, fileUrl)
 
-      const productEntity = ProductEntiy.createNew(productName, fileUrl, productDescription, member, new Date(), new Date())
-      const urlEntity = UrlEntity.createNew(productUrl, productEntity, new Date(), new Date());
+      const productEntity = productAndUrl.product
+      const urlEntity = productAndUrl.url
       this.nullCheckForEntity(productEntity);
       this.nullCheckForEntity(urlEntity);
 
@@ -80,7 +83,6 @@ export class ProductsService {
         });
       }
     }
-    
   };
 
   @Transactional()
@@ -173,6 +175,50 @@ export class ProductsService {
       }
     }
   }
+
+  @Transactional()
+  async addProductMinute(productMinuteName: string, memberId: string, file: Express.Multer.File): Promise<void>{
+    try{
+      const member:MemberEntity = await this.authService.findById(memberId)
+      this.nullCheckForEntity(member);
+
+      const fileName = `${file.filename}`;
+      const fileUrl = `/media/${fileName}`;
+
+      const producMinuteEntity = ProductMinuteEntity.createNew(productMinuteName, fileUrl, member);
+      await this.productMinuteRepository.save(producMinuteEntity);
+    } catch(error){
+      if(error instanceof QueryFailedError){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 상품 회의록을 추가하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof BadRequestException){
+        throw new BadRequestException({
+          HttpStatus: HttpStatus.BAD_REQUEST,
+          error: '[ERROR] 상품 회의록을 추가하는 중 오류가 발생했습니다. 요청값이 올바른지 확인해주세요.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 상품 회의록을 추가하는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 상품 회의록을 추가하는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
+  };
 
   private nullCheckForEntity(entity) {
     if (entity == null) throw new NotFoundException();
