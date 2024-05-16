@@ -14,7 +14,7 @@ export class ProductEntiy extends BaseEntity {
   productImage: string;
 
   @Column()
-  description: string
+  description: string;
 
   @ManyToOne(() => MemberEntity, {eager: false})
   member: MemberEntity;
