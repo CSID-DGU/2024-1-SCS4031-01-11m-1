@@ -24,15 +24,33 @@ export class ProductsService {
   ){};
 
   async loadProducts(memberId: string): Promise<ProductEntiy[]>{
-    const member:MemberEntity = await this.authService.findById(memberId)
-    this.nullCheckForEntity(member);
+    try{
+      const member:MemberEntity = await this.authService.findById(memberId)
+      this.nullCheckForEntity(member);
 
-    const productList: ProductEntiy[] = await this.productRepository.findBy({member})
-    for(const product of productList){
-      this.nullCheckForEntity(product);
-    };
+      const products: ProductEntiy[] = await this.productRepository.findBy({member})
+      if(products.length==0){
+        throw new NotFoundException();
+      };
 
-    return productList;
+      return products;
+    } catch(error){
+      if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 제품 리스트를 불러오는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 제품 리스트를 불러오는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
   }
   
   @Transactional()
@@ -213,6 +231,36 @@ export class ProductsService {
         throw new InternalServerErrorException({
           HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
           error: '[ERROR] 상품 회의록을 추가하는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
+  };
+
+  async loadProductMintes(memberId:string):Promise<ProductMinuteEntity[]>{
+    try{
+      const member:MemberEntity = await this.authService.findById(memberId)
+      this.nullCheckForEntity(member);
+
+      const productMinutes = await this.productMinuteRepository.findBy({member});
+      if(productMinutes.length == 0){
+        throw new NotFoundException();
+      };
+
+      return productMinutes;
+    } catch(error){
+      if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 회의록 리스트를 불러오는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] 회의록 리스트를 불러오는 중에 예상치 못한 문제가 발생했습니다.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
