@@ -10,7 +10,8 @@ import { ProductEntiy } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/utils/multer.options.factory';
-import { ApiAddImageFile, ApiUploadImageFile } from 'src/utils/api-file.decorator';
+import { ApiAddImageFile, ApiUploadImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
+import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -33,7 +34,7 @@ export class ProductsController {
   @Post('/add-product')
   @UseGuards(AuthGuard())
   @ApiBearerAuth('access-token')
-  @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
+  @UseInterceptors(FileInterceptor('productImage', multerOptions('files')))
   @ApiAddImageFile('productImage')
   @ApiExceptionResponse(
     404,
@@ -79,7 +80,7 @@ export class ProductsController {
 
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
   @Patch(('/update-product/:productId'))
-  @UseInterceptors(FileInterceptor('productImage', multerOptions('image')))
+  @UseInterceptors(FileInterceptor('productImage', multerOptions('files')))
   @ApiUploadImageFile('productImage')
   @ApiParam({
     name: 'productId',
@@ -102,5 +103,30 @@ export class ProductsController {
     @Param('productId') productId
   ):Promise<void>{
     await this.productsService.updateProduct(productId, updateProductDto, productImage);
+  };
+
+  @ApiOperation({ summary: '상품회의록을 등록합니다.' })
+  @Post('/add-product-minute')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth('access-token')
+  @UseInterceptors(FileInterceptor('productMinute', multerOptions('files')))
+  @ApiaddMinuteFile('productMinute')
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 member id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 상품회의록을 추가하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
+  async addProductMinute(
+    @Body() addProductMinuteDto: AddProductMinuteDto,
+    @UploadedFile() productMinute: Express.Multer.File,
+    @Member() member: MemberEntity
+  ):Promise<void>{
+    const { productMinuteName } = addProductMinuteDto;
+    await this.productsService.addProductMinute(productMinuteName, member.memberId, productMinute);
   };
 }

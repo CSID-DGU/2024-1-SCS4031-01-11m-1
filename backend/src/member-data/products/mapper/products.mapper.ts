@@ -3,7 +3,7 @@ import { AddProductDto } from "../dtos/add-product.dto";
 import { ProductEntiy } from "../entities/product.entity";
 import { UrlEntity } from "../entities/url.entity";
 
-export class DtoToEntityMapper{
+export class ProductMapper{
   static createNewProductAndUrlEntity(addProductDto: AddProductDto, member: MemberEntity, imageUrl: string){
     const { productName, productDescription, productUrl } = addProductDto;
     const productEntity = ProductEntiy.createNew(productName, imageUrl, productDescription, member, new Date(), new Date())
