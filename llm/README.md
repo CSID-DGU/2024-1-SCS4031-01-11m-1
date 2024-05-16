@@ -26,3 +26,12 @@ PDFLoader
 ```
 npm install pdf-parse
 ```
+
+##
+
+### Category Classifier
+
+```
+Input : review(string), category(list)
+Output : { 'category1': 'sentiment', 'category2': 'sentiment', ... }
+```
