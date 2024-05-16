@@ -10,7 +10,7 @@ import { ProductEntiy } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/utils/multer.options.factory';
-import { ApiAddImageFile, ApiUploadImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
+import { ApiAddImageFile, ApiUpdateImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 import { ProductMinuteEntity } from './entities/product-minute.entity';
 
@@ -82,7 +82,7 @@ export class ProductsController {
   @ApiOperation({ summary: '상품데이터를 업데이트합니다.' })
   @Patch(('/update-product/:productId'))
   @UseInterceptors(FileInterceptor('productImage', multerOptions('files')))
-  @ApiUploadImageFile('productImage')
+  @ApiUpdateImageFile('productImage')
   @ApiParam({
     name: 'productId',
     example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
@@ -131,7 +131,7 @@ export class ProductsController {
     await this.productsService.addProductMinute(productMinuteName, member.memberId, productMinute);
   };
 
-  @ApiOperation({ summary: 'member id로 상품 리스트를 가져옵니다.' })
+  @ApiOperation({ summary: 'member id로 회의록 리스트를 가져옵니다.' })
   @Get('/product-minutes/:memberId')
   @UseGuards(AuthGuard())
   @ApiBearerAuth('access-token')
