@@ -22,5 +22,6 @@ const categories = ["디자인", "향", "편의성", "발림성", "제형", "가
       review_category
     );
     // { "카테고리1": "긍정/부정", ... }
+    console.log(review["카테고리"]);
   }
 })();
