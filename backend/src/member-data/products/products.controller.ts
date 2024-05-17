@@ -4,7 +4,7 @@ import { AddProductDto } from './dtos/add-product.dto';
 import { Member } from 'src/auth/get-member-decorator';
 import { MemberEntity } from 'src/auth/member.entity';
 import { ProductsService } from './products.service';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntiy } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
@@ -13,6 +13,7 @@ import { multerOptions } from 'src/utils/multer.options.factory';
 import { ApiAddImageFile, ApiUpdateImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 import { ProductMinuteEntity } from './entities/product-minute.entity';
+import { UrlEntity } from './entities/url.entity';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -30,6 +31,29 @@ export class ProductsController {
     ):Promise<ProductEntiy[]>{
       return await this.productsService.loadProducts(member.memberId);
    };
+
+   @ApiOperation({ summary: 'product id로 상품url 리스트를 가져옵니다.' })
+   @ApiParam({
+    name: 'productId',
+    example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
+    required: true,
+  })
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 product id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] 상품 url리스트를 가져오는 중 예상치 못한 에러가 발생했습니다.`,
+  )
+   @Get('/product-url/:productId')
+   async loadProductUrls(
+    @Param('productId') productId
+   ):Promise<UrlEntity[]>{
+    return await this.productsService.loadProductUrls(productId);
+   }
 
   @ApiOperation({ summary: '상품데이터를 등록합니다.' })
   @Post('/add-product')
