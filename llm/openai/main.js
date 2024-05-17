@@ -41,7 +41,7 @@ categories.forEach((category) => {
   // { "카테고리1": { "긍정": ["리뷰", "리뷰", ...], "부정": ["리뷰", "리뷰", ...] }, "카테고리2": { ... }, ... }
   // console.log(categoryReview);
 
-  const minute = rag("llm/test_data/회의록.pdf", categoryReview);
-  // '추가적인 논의가 필요합니다.', '~~ 방향으로 논의가 이루어졌습니다.'
+  const minute = await rag("llm/test_data/회의록.pdf", categoryReview);
+  // { "카테고리1": { "긍정": { "키워드": "회의록 언급 내용", "키워드": "회의록 언급 내용" }, "부정": { "키워드": "회의록 언급 내용", "키워드": "회의록 언급 내용" } }, … }
   console.log(minute);
 })();
