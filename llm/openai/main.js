@@ -1,6 +1,7 @@
 import fs from "fs";
 import { category_classifier } from "./category_classifier.js";
 import { sentiment_analysis } from "./sentiment_analysis.js";
+import { rag } from "./rag.js";
 
 // 제품 하나에 대한 전체 리뷰
 const reviews = JSON.parse(
@@ -39,4 +40,8 @@ categories.forEach((category) => {
   }
   // { "카테고리1": { "긍정": ["리뷰", "리뷰", ...], "부정": ["리뷰", "리뷰", ...] }, "카테고리2": { ... }, ... }
   // console.log(categoryReview);
+
+  const minute = rag("llm/test_data/회의록.pdf", categoryReview);
+  // '추가적인 논의가 필요합니다.', '~~ 방향으로 논의가 이루어졌습니다.'
+  console.log(minute);
 })();
