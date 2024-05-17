@@ -29,9 +29,6 @@ export class ProductsService {
       this.nullCheckForEntity(member);
 
       const products: ProductEntiy[] = await this.productRepository.findBy({member})
-      if(products.length==0){
-        throw new NotFoundException();
-      };
 
       return products;
     } catch(error){
@@ -46,6 +43,33 @@ export class ProductsService {
         throw new InternalServerErrorException({
           HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
           error: '[ERROR] 제품 리스트를 불러오는 중에 예상치 못한 문제가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
+  }
+
+  @Transactional()
+  async loadProductUrls(productId: string): Promise<UrlEntity[]>{
+    try{
+      const productEntity = await this.productRepository.findOneBy({id: productId});
+      this.nullCheckForEntity(productEntity);
+
+      const urls = await this.urlRepository.findBy({product: productEntity});
+      return urls;
+    } catch(error){
+      if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] url 리스트를 불러오는 중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      } else {
+        throw new InternalServerErrorException({
+          HttpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: '[ERROR] url 리스트를 불러오는 중에 예상치 못한 문제가 발생했습니다.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
