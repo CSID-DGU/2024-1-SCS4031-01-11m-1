@@ -1,3 +1,5 @@
+import { DataScraperReturnDto } from "../../data-scraper-return.dto";
+
 export interface DataCrawler{
-    crawl(url:string):Promise<string[]>;
+    crawl(url:string, mostRecentData):Promise<DataScraperReturnDto[]>;
 }
