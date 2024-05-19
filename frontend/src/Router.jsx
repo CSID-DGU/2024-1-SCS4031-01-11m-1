@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { PrivateRoutes } from "./PrivateRoutes";
-import Login from "./router/Login";
-import Signup from "./router/Signup";
-import Management from "./router/Management";
-import Analytics from "./router/Analytics";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Management from "./pages/Management";
+import Analytics from "./pages/Analytics";
 import ReportDetail from "./components/analytics/ReportDetail";
 import AddReport from "./components/analytics/AddReport";
-import Dashboard from "./router/Dashboard";
+import Dashboard from "./pages/Dashboard";
 
 function Router() {
     return(

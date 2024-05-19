@@ -6,31 +6,50 @@ import morebutton_icon from '../image/morebutton_icon.png';
 
 const TableRow = styled.tr`
     border-bottom: 1px solid #ccc;
+
 `;
 
 const TableCell = styled.td`
     color: #333;
     text-align: left;
-    font-family: Pretendard;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
     padding: 10px;
+    
 `;
 
-const Image = styled.img`
-    max-width: 100%;
-    max-height: 80%;
-    border-radius: 5px;
-`;
-
-const ImageContainer = styled.div`
+const ProductImage = styled.img`
     width: 85px;
     height: 85px;
-    background-size: cover;
-    flex-shrink: 0;
-    border-radius: 5px;
+    border-radius: 5px;  
+    vertical-align: top ;
+`;
+
+const ProductContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`;
+
+const ProductDetails = styled.div`
+    width:100%;
+    display:flex;
+    flex-direction: column;
+    justify-items: center;
+    
+
+`;
+
+const ProductproductName = styled.p`
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color:#333;
+    
+`;
+
+const ProductExplanation = styled.p`
+    margin: 0;
+    font-size: 12px;
+    color:#333;
 `;
 
 const MoreButton = styled.button`
@@ -43,21 +62,14 @@ const MoreButton = styled.button`
 `;
 
 const OptionsContainer = styled.div`
-    position: relative;
+    position: absolute;
+    top: 20px;
+    right: 5px;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 5px;
     display: ${({ visible }) => (visible ? 'block' : 'none')};
-    top: 0;
-    right: calc(100%);
-    width: 58px;
-    height: 65px;
-    flex-shrink: 0;
-    border-radius: 5px;
-    border: 0.5px solid #B4B4B4;
-    background: #FFF;
-    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.25);
 `;
 
 const OptionButton = styled.button`
@@ -69,45 +81,9 @@ const OptionButton = styled.button`
     padding: 5px;
     text-align: left;
     color: #000;
-    font-family: "Wanted Sans";
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    text-align: center;
 `;
 
-const ProductContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 2px;
-`;
-
-const ProductName = styled.p`
-    flex-shrink: 0;
-    color: #333;
-    font-family: Pretendard;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-`;
-
-const ProductExplanation = styled.p`
-    flex-shrink: 0;
-    color: #333;
-    font-family: Pretendard;
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 1px;
-    text-align: left;
-`;
-
-const Product = ({ id, name, explanation, url }) => {
+const Product = ({ id, productName, description, url, productImage }) => {
     const [optionsVisible, setOptionsVisible] = useState(false);
 
     const handleMoreButtonClick = () => {
@@ -124,19 +100,22 @@ const Product = ({ id, name, explanation, url }) => {
         // 삭제로직 여기에
     };
 
+    const handleOptionClick = () => {
+        setOptionsVisible(false); // 옵션 메뉴 닫기
+    };
+
+
     return (
         <TableRow>
-            <TableCell>{id}</TableCell>
-            <TableCell>
-                <ImageContainer>
-                    <Image src={url} alt="Product Image" />
-                </ImageContainer>
+            {/* <TableCell>{id}</TableCell> */}
+            <TableCell> 
+                <ProductImage src={productImage} alt="Product productImage" />
             </TableCell>
             <TableCell>
-                <ProductContainer>
-                    <ProductName>{name}</ProductName>
-                    <ProductExplanation>{explanation}</ProductExplanation>
-                </ProductContainer>
+                    <ProductDetails>
+                        <ProductproductName>{productName}</ProductproductName>
+                        <ProductExplanation>{description}</ProductExplanation>
+                    </ProductDetails>
             </TableCell>
             <TableCell>
                 <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
@@ -153,9 +132,10 @@ const Product = ({ id, name, explanation, url }) => {
 };
 
 Product.propTypes = {
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    explanation: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    productName: PropTypes.string.isRequired,
+    productImage : PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
 };
 

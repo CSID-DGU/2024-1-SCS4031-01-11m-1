@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Image from './addproduct/Image';
 import ProductName from './addproduct/ProductName';
-import ProductDiscription from './addproduct/ProductDiscription';
+import ProductDescription from './addproduct/ProductDescription';
 import URL from './addproduct/URL';
 
 
@@ -110,8 +110,8 @@ function Addproduct( { onClose }) {
     const handleProductNameChange = (productName) => {
         setProductName(productName);
     };
-    const handleProductDescriptionChange = (description) => {
-        setProductDescription(description);
+    const handleProductDescriptionChange = (productDescription) => {
+        setProductDescription(productDescription);
     };
     const handleUrlChange = (newUrl) => {
         setUrl(newUrl);
@@ -128,15 +128,16 @@ function Addproduct( { onClose }) {
         formData.append('productDescription', productDescription);
         formData.append('productUrl', url);
         formData.append('productImage', uploadedImage); 
-    
+        
+         
         // POST 요청
         fetch('http://15.165.14.203/api/member-data/add-product', {
             method: 'POST',
             headers: {
-                "Content-type": "multipart/formdata",
-                'Authorization': `Bearer ${accessToken}`
+                // 'Content-type': 'multipart/form-data',
+                'Authorization': `Bearer ${accessToken}`,  
             },
-            body: formData // FormData 객체 전달
+            body:formData 
         })
         .then(response => {
             if (response.ok) {
@@ -163,7 +164,7 @@ function Addproduct( { onClose }) {
                     <Title>Add product</Title>
                     <Image onImageUpload={handleImageUpload} />
                     <ProductName onChange={handleProductNameChange} />
-                    <ProductDiscription onChange={handleProductDescriptionChange} />
+                    <ProductDescription onChange={handleProductDescriptionChange} />
                     <URL onChange={handleUrlChange} />
                     <Line />
                     <ButtonContainer>

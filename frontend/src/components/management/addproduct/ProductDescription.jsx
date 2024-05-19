@@ -55,15 +55,15 @@ const Condition = styled.div`
     margin-top:30px;
 `;
 
-function ProductDiscription({onChange}) {
-  const [productDiscription, setProductDiscription] = useState('');
+function ProductDescription({onChange}) {
+  const [productDescription, setProductDescription] = useState('');
   const [overflow, setOverflow] = useState(false);
 
   const handleChange = (event) => {
     const input = event.target.value;
     if (input.length <= 300) {
       setOverflow(false);
-      setProductDiscription(input);
+      setProductDescription(input);
       onChange(input);
     } else {
       setOverflow(true);
@@ -75,15 +75,15 @@ function ProductDiscription({onChange}) {
         <Title>Product Description</Title>
         <Box>
             <DescriptionInput 
-                value={productDiscription} 
+                value={productDescription} 
                 onChange={handleChange} 
                 placeholder="상품 설명을 입력해주세요" 
             />
-            <Condition overflow={overflow}>{productDiscription.length}/300</Condition>
+            <Condition overflow={overflow}>{productDescription.length}/300</Condition>
         </Box>
     </>
     
   )
 }
 
-export default ProductDiscription;
+export default ProductDescription;
