@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { MemberDataController } from './member-data.controller';
-import { MemberDataService } from './member-data.service';
+import { ProductsController } from './products/products.controller';
+import { ProductsService } from './products/products.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MemberEntity } from 'src/auth/member.entity';
-import { ProductEntiy } from './entities/product.entity';
+import { ProductEntiy } from './products/entities/product.entity';
 import { AuthModule } from 'src/auth/auth.module';
-import { UrlEntity } from './entities/url.entity';
+import { UrlEntity } from './products/entities/url.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { ProductMinuteEntity } from './products/entities/product-minute.entity';
 
 @Module({
   imports: [
@@ -15,12 +16,13 @@ import { JwtService } from '@nestjs/jwt';
       MemberEntity,
       ProductEntiy,
       UrlEntity,
+      ProductMinuteEntity,
     ]),
     AuthModule
   ],
-  controllers: [MemberDataController],
+  controllers: [ProductsController],
   providers: [
-    MemberDataService,
+    ProductsService,
     AuthService,
     JwtService
   ],

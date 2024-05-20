@@ -3,9 +3,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService } from './typeorm.config';
+import { TypeOrmConfigService } from './utils/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { MemberDataModule } from './member-data/member-data.module';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
+import { VocModule } from './voc/voc.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { multerOptions } from './utils/multer.options.factory';
 
 @Module({
   imports: [
@@ -14,10 +19,17 @@ import { MemberDataModule } from './member-data/member-data.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useClass: TypeOrmConfigService
+      useClass: TypeOrmConfigService,
+      async dataSourceFactory(options) {
+        if (!options) {
+          throw new Error('Invalid options passed');
+        }
+        return addTransactionalDataSource(new DataSource(options));
+      },
     }),
     AuthModule,
-    MemberDataModule
+    MemberDataModule,
+    VocModule
   ],
   controllers: [AppController],
   providers: [
@@ -25,4 +37,7 @@ import { MemberDataModule } from './member-data/member-data.module';
     AuthModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
+

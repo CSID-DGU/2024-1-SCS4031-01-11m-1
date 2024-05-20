@@ -8,15 +8,8 @@ export class AddProductDto {
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(10)
+  @MaxLength(20)
   productName: string;
-
-  @ApiProperty({
-    example: "11m suncream Image",
-    description: "상품 이미지"
-  })
-  @IsString()
-  productImage: string;
 
   @ApiProperty({
     example: "11m suncream은 매우 촉촉합니다 !",
