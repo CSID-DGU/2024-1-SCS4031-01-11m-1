@@ -1,47 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
+import axios from 'axios';
 import Product from './Product';
 
 const TableContainer = styled.div`
-  width: 100%;
-  margin: auto;
-  margin-top: 20px;
+  margin: 20px;
 `;
 
 const Table = styled.table`
-  width: 96%;
+  width: 100%;
   border-collapse: collapse;
-  margin: auto;
-  
 `;
 
 const TableRow = styled.tr`
-
   border-bottom: 1px solid #ccc;
-  height: 30px;
-  
 `;
 
-const TableCell = styled.td`
-  color: #878787;
-  font-family: "Wanted Sans";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  width: ${props => props.width || 'auto'}; 
-  
+const TableCell = styled.th`
+  color: #333;
+  text-align: left;
+  padding: 10px;
 `;
 
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
-  position: fixed;
-  bottom: 20px; 
-  width: 100%;
-  z-index: 1000; 
 `;
 
 const PaginationButton = styled.button`
@@ -101,11 +85,17 @@ function ProductTable() {
         console.error('Error fetching products:', error);
       }
     };
-
     fetchProducts();
   }, []);
 
-  //페이지네이션
+  const handleDeleteProduct = (productId) => {
+    setProducts(products.filter(product => product.id !== productId));
+  };
+
+  const handleEditProduct = (productId, updatedProduct) => {
+    setProducts(products.map(product => product.id === productId ? updatedProduct : product));
+  };
+
   const totalPages = Math.ceil(products.length / productsPerPage);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -114,14 +104,13 @@ function ProductTable() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-  
+
   return (
     <>
       <TableContainer>
         <Table>
           <thead>
             <TableRow>
-              {/* <TableCell width="5%">ID</TableCell> */}
               <TableCell width="10%">Image</TableCell>
               <TableCell width="45%">Product</TableCell>
               <TableCell width="25%">URL</TableCell>
@@ -130,13 +119,17 @@ function ProductTable() {
           </thead>
           <tbody>
             {currentProducts.map((product) => (
-              <Product key={product.id} {...product} />
+              <Product
+                key={product.id}
+                {...product}
+                onDelete={handleDeleteProduct}
+                onEdit={handleEditProduct}
+              />
             ))}
           </tbody>
         </Table>
       </TableContainer>
 
-      {/* 페이지네이션 */}
       <PaginationContainer>
         {Array.from({ length: totalPages }, (_, index) => (
           <PaginationButton

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import MinuteTitle from '../management/addminute/MinuteTitle';
-import MinuteFile from '../management/addminute/MinuteFile';
+import ProductMinuteName from '../management/addminute/MinuteTitle';
+import ProductMinute from '../management/addminute/MinuteFile';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -96,32 +96,38 @@ const CancelButton = styled.button`
 `;
 
 function Addminute( { onClose }) {
-    const [minuteTitle, setMinuteTitle] = useState('');
-    const [minuteFile, setMinuteFile] = useState('');
+    const [productMinuteName, setproductMinuteName] = useState('');
+    const [productMinute, setproductMinute] = useState('');
 
-    const handleMinuteTitle = (minuteTitle) => {
-        setMinuteTitle(minuteTitle);
+    const handleproductMinuteName = (productMinuteName) => {
+        setproductMinuteName(productMinuteName);
     };
 
-    const handleMinuteFile = (minuteFile) => {
-        setMinuteFile(minuteFile);
+    const handleproductMinute = (productMinute) => {
+        setproductMinute(productMinute);
     }
     
     const handleSave = () => {
-        const requestBody = JSON.stringify({
-            //여기에 값
-        });
-        fetch('/member-data/add-minute', {
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        const accessToken = userInfo ? userInfo.accessToken : null;
+        
+        const formData = new FormData();
+        formData.append('productMinuteName', productMinuteName);
+        formData.append('productMinute', productMinute);
+
+        //POST 요청
+        fetch('http://15.165.14.203/api/member-data/add-product-minute', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${accessToken}`,
             },
-            body: requestBody
+            body:formData
         })
         .then(response => {
             if (response.ok) {
                 console.log('Minute added successfully');
                 onClose();
+                window.location.reload();
             } else {
                 console.error('Failed to add minute');
            
@@ -140,9 +146,9 @@ function Addminute( { onClose }) {
         <ModalOverlay>
             
                 <Container>
-                    <Title>Add product</Title>
-                    <MinuteTitle onChange={handleMinuteTitle} />
-                    <MinuteFile onFileUpload={handleMinuteFile} />
+                    <Title>Add Minute</Title>
+                    <ProductMinuteName onChange={handleproductMinuteName} />
+                    <ProductMinute onFileUpload={handleproductMinute} />
                     <Line />
                     <ButtonContainer>
                         <CancelButton onClick={handleCancel}>Cancel</CancelButton>

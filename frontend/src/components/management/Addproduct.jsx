@@ -144,6 +144,7 @@ function Addproduct( { onClose }) {
                 console.log('Product added successfully');
                 
                 onClose();
+                window.location.reload();
             } else {
                 console.error('Failed to add product');
             }
