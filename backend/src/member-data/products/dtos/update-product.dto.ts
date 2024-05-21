@@ -8,7 +8,7 @@ export class UpdateProductDto {
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(10)
+  @MaxLength(30)
   productName: string;
 
   @ApiProperty({
@@ -17,6 +17,6 @@ export class UpdateProductDto {
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(100)
+  @MaxLength(300)
   productDescription: string;
 }
