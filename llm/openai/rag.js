@@ -61,7 +61,7 @@ export async function rag(pdf_path, reviews) {
     for (const keyword of positive_keywords) {
       const content = `
       해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
-      만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 ____ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 ___ 부분에 간단하게 요약해서 설명해줘.
+      만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
       관련 내용을 찾을 수 없으면 다른 설명 없이 '추가적인 논의가 필요합니다.' 라고 답변해줘.
       `;
 
@@ -80,7 +80,7 @@ export async function rag(pdf_path, reviews) {
     for (const keyword of negative_keywords) {
       const content = `
       해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
-      만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 ____ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 ___ 부분에 간단하게 요약해서 설명해줘.
+      만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
       관련 내용을 찾을 수 없으면 다른 설명 없이 '추가적인 논의가 필요합니다.' 라고 답변해줘.
       `;
 
