@@ -1,17 +1,18 @@
 import { DataCrawler } from "./data-crawler";
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
+import { DataScraperReturnDto } from "../../data-scraper-return.dto";
 
 export class OliveYoundDataCrawler implements DataCrawler{
 
     constructor(){};
 
-    public async crawl(url: string): Promise<string[]> {
+    public async crawl(url: string, mostRecentData): Promise<DataScraperReturnDto[]> {
         console.log(url + " Start!");
         const delayAfterScroll:number = 2000;
         const userAgent:string = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
         let counter:number = 1;
-        let resultArray:string[] = [];
+        let resultArray:DataScraperReturnDto[] = [];
         let isNextPage = true;
         let endNum = -1;
         let isLastSection = false;
@@ -48,13 +49,23 @@ export class OliveYoundDataCrawler implements DataCrawler{
 
         await page.click(".goods_reputation");
         await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
+        await page.mouse.wheel({deltaY:600});
+        await sleep(500);
+        const orderButton = await page.$("#gdasSort > li:nth-child(3) > a");
+        let orderCoord = await page.evaluate(response=>{
+            let x = response?.getBoundingClientRect().x;
+            let y = response?.getBoundingClientRect().y;
+            return {x, y};
+        }, orderButton);
+        await page.mouse.click(orderCoord.x!, orderCoord.y!);
+        await sleep(500);
+        await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
 
         while(isNextPage == true){
             let content = await page.content();
             let data = cheerio.load(content);
             let moveToNextPage = false;
             let nextSectionButton = data("#gdasContentsArea > div > div.pageing > a.next").text();
-            //console.log("NextSection Button: " + nextSectionButton.length);
 
             if(endNum == -1){
                 if(data("#gdasContentsArea > div > div.pageing > a.next").text().length == 0){
@@ -79,7 +90,6 @@ export class OliveYoundDataCrawler implements DataCrawler{
                     let y = response?.getBoundingClientRect().y;
                     return {x, y};
                 }, nextPageButton);
-                //console.log(coord);
                 await page.mouse.click(coord.x!, coord.y!);
                 await sleep(1000);
                 await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");
@@ -98,17 +108,25 @@ export class OliveYoundDataCrawler implements DataCrawler{
             }
 
             const reviews = data('div.review_list_wrap > .inner_list > li > div.review_cont').toArray();
-            //console.log("EndNum: " + endNum);
+
             for(let i = 0; i<reviews.length; i++){
                 let eachReview = data(reviews[i]);
                 let point = eachReview.find('.point').text();
+                let dateString = eachReview.find('.date').text();
                 let review = eachReview.find('.txt_inner').text();
                 let maxPoint = point.charAt(0)
                 let userPoint = point.charAt(6);
 
                 let convertedPoint = (100 / Number(maxPoint)) * Number(userPoint);
-                console.log(point, review);
-                resultArray.push(convertedPoint + "%" + review);
+                const splitedDate = dateString.split(".");
+                const date:Date = new Date(Number(splitedDate[0]), Number(splitedDate[1])-1, Number(splitedDate[2])+1,0,0,0,0);
+                console.log(point, review, splitedDate , Number(splitedDate[0]), Number(splitedDate[1]),Number(splitedDate[2]),date.toUTCString());
+                if(mostRecentData != "" && mostRecentData == review){
+                    isNextPage = false;
+                    break;
+                } else{
+                    resultArray.push(new DataScraperReturnDto(convertedPoint, review, date));
+                }
             }
 
             counter = counter +1;
@@ -135,8 +153,6 @@ export class OliveYoundDataCrawler implements DataCrawler{
                     init = false;
                 }
 
-                //console.log(coord);
-                //console.log("counter: " + counter + ", endNum: " + endNum);
                 await page.mouse.click(coord.x!, coord.y!);
                 await sleep(200);
                 await page.waitForSelector(".review_list_wrap > .inner_list > li > .review_cont");

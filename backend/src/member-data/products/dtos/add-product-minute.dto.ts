@@ -8,6 +8,6 @@ export class AddProductMinuteDto {
   })
   @IsString()
   @MinLength(1)
-  @MaxLength(20)
+  @MaxLength(30)
   productMinuteName: string;
 }

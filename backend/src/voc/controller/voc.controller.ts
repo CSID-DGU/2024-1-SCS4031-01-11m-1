@@ -28,6 +28,18 @@ export class VocController{
         const result:String[] = await this.vocService.testDataScraping(dataScrapRequestDto.getUrl());
         return result[0];
     }
+
+    /*@ApiOperation({summary: "크롤링 실행"})
+    @Post("/updateVoc/:productId")
+    public async updateVoc(@Param("productId") productId: number){
+        return await this.vocService.scrapeData(productId);
+    }*/
+
+    @ApiOperation({summary: "Url 엔티티 Id를 통해 Voc 업데이트"})
+    @Post("/updateVocByUrlId/:urlId")
+    public async updateVocByUrlId(@Param("urlId") urlId:string){
+        return this.vocService.scrapeDataByUrlId(urlId);
+    }
     
 
 }
