@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@langchain/community": "^0.0.57",
+    "@langchain/openai": "^0.0.31",
+    "faiss-node": "^0.5.1",
+    "hnswlib-node": "^3.0.0",
+    "langchain": "^0.1.37",
+    "openai": "^4.43.0",
+    "pdf-parse": "^1.1.1"
+  }
+}
