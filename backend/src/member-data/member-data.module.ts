@@ -9,6 +9,9 @@ import { UrlEntity } from './products/entities/url.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ProductMinuteEntity } from './products/entities/product-minute.entity';
+import { CategoryEntiy } from './category/entity/category.entity';
+import { CategoryController } from './category/category.controller';
+import { CategoryService } from './category/category.service';
 
 @Module({
   imports: [
@@ -17,14 +20,16 @@ import { ProductMinuteEntity } from './products/entities/product-minute.entity';
       ProductEntiy,
       UrlEntity,
       ProductMinuteEntity,
+      CategoryEntiy,
     ]),
     AuthModule
   ],
-  controllers: [ProductsController],
+  controllers: [ProductsController, CategoryController],
   providers: [
     ProductsService,
     AuthService,
-    JwtService
+    JwtService,
+    CategoryService,
   ],
 })
 export class MemberDataModule {}
