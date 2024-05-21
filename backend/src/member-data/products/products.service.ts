@@ -159,7 +159,7 @@ export class ProductsService {
       } else if(error instanceof NotFoundException){
         throw new NotFoundException({
           HttpStatus: HttpStatus.NOT_FOUND,
-          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다.',
+          error: '[ERROR] 제품을 삭제하는 중 오류가 발생했습니다. 해당 상품과 url을 찾지 못했습니다.',
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
@@ -307,9 +307,6 @@ export class ProductsService {
       this.nullCheckForEntity(member);
 
       const productMinutes = await this.productMinuteRepository.findBy({member});
-      if(productMinutes.length == 0){
-        throw new NotFoundException();
-      };
 
       return productMinutes;
     } catch(error){
