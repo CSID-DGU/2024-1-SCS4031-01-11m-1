@@ -1,6 +1,8 @@
+import { Injectable } from "@nestjs/common";
 import OpenAI from "openai";
 import * as process from 'process';
 
+@Injectable()
 export class CustomOpenAI {
   private readonly openai = new OpenAI({apiKey: `${process.env.OPENAI_KEY}`});
   static createNew():CustomOpenAI {
@@ -38,6 +40,8 @@ export class CustomOpenAI {
 
     const response: OpenAI.Chat.Completions.ChatCompletion = await this.openai.chat.completions.create({
       model: "gpt-3.5-turbo",
+      //model: "gpt-4-turbo",
+      temperature: 0.2,
       messages: [{ role: "user", content: content }],
       tools: tools,
     });
