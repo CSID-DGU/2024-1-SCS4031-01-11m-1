@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService } from './utils/typeorm.config';
+import { TypeOrmConfigService } from './utils/config/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { MemberDataModule } from './member-data/member-data.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';

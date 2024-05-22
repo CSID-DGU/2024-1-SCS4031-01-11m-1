@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './utils/http-exception-filter';
+import { HttpExceptionFilter } from './utils/filter/http-exception-filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'path';
 
