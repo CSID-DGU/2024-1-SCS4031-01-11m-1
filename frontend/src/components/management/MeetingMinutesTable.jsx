@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import Minute from './Minute';
 
 const TableContainer = styled.div`
@@ -54,9 +55,9 @@ const PaginationButton = styled.button`
 function MeetingMinutesTable() {
     const [currentPage, setCurrentPage] = useState(1);
     const minutesPerPage = 13;
+    const [minutes, setMinutes] = useState([]);
 
-  
-    const minutes = [Minute,Minute];
+    const serverUrl = 'http://15.165.14.203/api/'; // 서버 URL을 변수로 설정
 
     const totalPages = Math.ceil(minutes.length / minutesPerPage);
     const indexOfLastMinute = currentPage * minutesPerPage;
@@ -67,23 +68,77 @@ function MeetingMinutesTable() {
         setCurrentPage(pageNumber);
     };
 
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                const accessToken = userInfo ? userInfo.accessToken : null;
+                const memberId = userInfo ? userInfo.memberId : null;
+
+                if (!accessToken || !memberId) {
+                    console.error('Access token or member ID not found');
+                    return;
+                }
+               
+                const response = await axios.get(`${serverUrl}member-data/product-minutes/${memberId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                const minute = response.data;
+                console.log(minute.minute)
+
+                const minutesWithServerUrl = response.data.map(minute => ({
+                    ...minute,
+                    fileUrl: `${serverUrl}${minute.minute}`
+                }));
+
+                setMinutes(minutesWithServerUrl);
+
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    const handleDeleteMinute = (minuteId) => {
+        setMinutes(minutes.filter(minute => minute.id !== minuteId));
+    };
+
+    const handleEditMinute = (minuteId, updatedMinute) => {
+        const updatedMinuteWithServerUrl = {
+            ...updatedMinute,
+            fileUrl: `${serverUrl}${updatedMinute.fileUrl}`
+        };
+        setMinutes(minutes.map(minute => minute.id === minuteId ? updatedMinuteWithServerUrl : minute));
+    };
+
     return (
         <>
             <TableContainer>
                 <Table>
-                <tbody>
-                    <TableRow>
-                        <TableCell width="10%">ID</TableCell>
-                        <TableCell width="60%">Title</TableCell>
-                        <TableCell width="30%">File</TableCell>     
-                    </TableRow>
-                    {currentMinutes.map((mintue, index) => (
-                    <Minute key={index} {...minutes} />
-                    ))}
-                </tbody>
-                <Minute />
-            </Table>
+                    <thead>
+                        <TableRow>
+                            <TableCell width="60%">Title</TableCell>
+                            <TableCell width="30%">File</TableCell>
+                            <TableCell width="5%"></TableCell>     
+                        </TableRow>
+                    </thead>
+                    <tbody>
+                        {currentMinutes.map((minute) => (
+                            <Minute 
+                                key={minute.id} 
+                                {...minute}
+                                onDelete={handleDeleteMinute}
+                                onEdit={handleEditMinute} />
+                        ))}
+                    </tbody>
+                </Table>
             </TableContainer>
+
+            {/* 페이지네이션 */}
             <PaginationContainer>
                 {Array.from({ length: totalPages }, (_, index) => (
                     <PaginationButton
@@ -94,8 +149,8 @@ function MeetingMinutesTable() {
                         {index + 1}
                     </PaginationButton>
                 ))}
-        </PaginationContainer>
-      </>
+            </PaginationContainer>
+        </>
     );
 }
 

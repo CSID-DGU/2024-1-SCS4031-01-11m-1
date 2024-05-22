@@ -1,7 +1,7 @@
 import './App.css';
 import Router from "./Router";
 import { createGlobalStyle } from "styled-components";
-
+import { RecoilRoot } from 'recoil';
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -70,8 +70,11 @@ const GlobalStyle = createGlobalStyle`
 function App() {
   return (
     <>
-      <GlobalStyle />
-      <Router />
+      <RecoilRoot>
+        <GlobalStyle />
+        <Router />
+      </RecoilRoot>
+      
     </>
   );
 }
