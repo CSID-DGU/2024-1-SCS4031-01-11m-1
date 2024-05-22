@@ -9,8 +9,6 @@ import { UpdateProductDto } from './dtos/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/utils/multer.options.factory';
-import { ApiAddImageFile, ApiUpdateImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 import { ProductMinuteEntity } from './entities/product-minute.entity';
 import { UrlEntity } from './entities/url.entity';
