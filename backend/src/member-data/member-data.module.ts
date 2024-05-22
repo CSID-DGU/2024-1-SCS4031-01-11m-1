@@ -9,7 +9,7 @@ import { UrlEntity } from './products/entities/url.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ProductMinuteEntity } from './products/entities/product-minute.entity';
-import { CategoryEntiy } from './category/entity/category.entity';
+import { CategoryEntity } from './category/entity/category.entity';
 import { CategoryController } from './category/category.controller';
 import { CategoryService } from './category/category.service';
 
@@ -20,7 +20,7 @@ import { CategoryService } from './category/category.service';
       ProductEntity,
       UrlEntity,
       ProductMinuteEntity,
-      CategoryEntiy,
+      CategoryEntity,
     ]),
     AuthModule
   ],

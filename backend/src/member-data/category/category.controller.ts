@@ -4,8 +4,8 @@ import { CategoryService } from "./category.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Member } from "src/auth/get-member-decorator";
 import { MemberEntity } from "src/auth/member.entity";
-import { CategoryEntiy } from "./entity/category.entity";
-import { ApiExceptionResponse } from "src/utils/exception-response.decorater";
+import { CategoryEntity } from "./entity/category.entity";
+import { ApiExceptionResponse } from "src/utils/decorator/exception-response.decorater";
 import { AddCategoryDto } from "./dto/add-category.dto";
 
 @ApiTags('Member Data -category- Controller')
@@ -21,7 +21,7 @@ export class CategoryController {
   @ApiBearerAuth('access-token')
   async loadCategories(
     @Member() member: MemberEntity
-    ):Promise<CategoryEntiy[]>{
+    ):Promise<CategoryEntity[]>{
       return await this.categoryService.loadCategories(member.memberId);
    };
 

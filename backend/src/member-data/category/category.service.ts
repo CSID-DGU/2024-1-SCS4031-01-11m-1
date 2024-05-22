@@ -1,6 +1,6 @@
 import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CategoryEntiy } from "./entity/category.entity";
+import { CategoryEntity } from "./entity/category.entity";
 import { Repository, QueryFailedError } from 'typeorm';
 import { Transactional } from "typeorm-transactional";
 import { MemberEntity } from "src/auth/member.entity";
@@ -9,17 +9,17 @@ import { AuthService } from "src/auth/auth.service";
 @Injectable()
 export class CategoryService{
   constructor(
-    @InjectRepository(CategoryEntiy)
-    private categoryRepository: Repository<CategoryEntiy>,
+    @InjectRepository(CategoryEntity)
+    private categoryRepository: Repository<CategoryEntity>,
     private readonly authService: AuthService,
   ){}
 
-  async loadCategories(memberId: string): Promise<CategoryEntiy[]>{
+  async loadCategories(memberId: string): Promise<CategoryEntity[]>{
     try{
       const member:MemberEntity = await this.authService.findById(memberId)
       this.nullCheckForEntity(member); 
 
-      const categories: CategoryEntiy[] = await this.categoryRepository.findBy({member});
+      const categories: CategoryEntity[] = await this.categoryRepository.findBy({member});
       return categories;
     } catch(error){
         if(error instanceof NotFoundException){
@@ -50,7 +50,7 @@ export class CategoryService{
       if(checkDuplication == true){
         throw new BadRequestException()
       } else{
-        const category = CategoryEntiy.createNew(categoryName, member);
+        const category = CategoryEntity.createNew(categoryName, member);
         await this.categoryRepository.save(category);
       };
     } catch(error){

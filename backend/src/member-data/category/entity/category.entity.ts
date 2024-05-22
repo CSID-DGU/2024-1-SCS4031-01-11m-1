@@ -3,7 +3,7 @@ import { BaseEntity } from 'src/base-entity';
 import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export class CategoryEntiy extends BaseEntity {
+export class CategoryEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   
@@ -22,8 +22,8 @@ export class CategoryEntiy extends BaseEntity {
     this.member = member;
   };
 
-  static createNew(categoryName: string, member: MemberEntity): CategoryEntiy{
-    const category = new CategoryEntiy(categoryName, member);
+  static createNew(categoryName: string, member: MemberEntity): CategoryEntity{
+    const category = new CategoryEntity(categoryName, member);
     return category;
   };
 }
