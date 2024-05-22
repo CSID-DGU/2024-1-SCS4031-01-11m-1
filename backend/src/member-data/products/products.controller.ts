@@ -6,7 +6,7 @@ import { MemberEntity } from 'src/auth/member.entity';
 import { ProductsService } from './products.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
-import { ProductEntiy } from './entities/product.entity';
+import { ProductEntity } from './entities/product.entity';
 import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/utils/multer.options.factory';
@@ -28,7 +28,7 @@ export class ProductsController {
   @ApiBearerAuth('access-token')
   async loadProducts(
     @Member() member: MemberEntity
-    ):Promise<ProductEntiy[]>{
+    ):Promise<ProductEntity[]>{
       return await this.productsService.loadProducts(member.memberId);
    };
 

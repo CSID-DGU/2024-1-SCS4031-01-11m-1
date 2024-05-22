@@ -1,5 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ProductEntiy } from './entities/product.entity';
+import { ProductEntity } from './entities/product.entity';
 import { Repository, QueryFailedError } from 'typeorm';
 import { UrlEntity } from './entities/url.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,8 +14,8 @@ import { ProductMinuteEntity } from './entities/product-minute.entity';
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(ProductEntiy)
-    private readonly productRepository: Repository<ProductEntiy>,
+    @InjectRepository(ProductEntity)
+    private readonly productRepository: Repository<ProductEntity>,
     @InjectRepository(UrlEntity)
     private readonly urlRepository: Repository<UrlEntity>,
     @InjectRepository(ProductMinuteEntity)
@@ -23,12 +23,12 @@ export class ProductsService {
     private readonly authService: AuthService,
   ){};
 
-  async loadProducts(memberId: string): Promise<ProductEntiy[]>{
+  async loadProducts(memberId: string): Promise<ProductEntity[]>{
     try{
       const member:MemberEntity = await this.authService.findById(memberId)
       this.nullCheckForEntity(member);
 
-      const products: ProductEntiy[] = await this.productRepository.findBy({member})
+      const products: ProductEntity[] = await this.productRepository.findBy({member})
 
       return products;
     } catch(error){
@@ -130,7 +130,7 @@ export class ProductsService {
   @Transactional()
   async deleteProduct(productId: string): Promise<void>{
     try{
-      const productEntity:ProductEntiy = await this.productRepository.findOneBy({id: productId});
+      const productEntity:ProductEntity = await this.productRepository.findOneBy({id: productId});
       this.nullCheckForEntity(productEntity);
 
       const urlEntities:UrlEntity[] = await this.urlRepository.findBy({product: productEntity});

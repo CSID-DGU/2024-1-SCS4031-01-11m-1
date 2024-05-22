@@ -40,9 +40,5 @@ export class VocEntity extends BaseEntity{
 
     public static create(description: string, score: number, url: UrlEntity, uploadedDate:Date){
         return new VocEntity(score, description, url, uploadedDate, new Date(), new Date());
-    }
-
-
-
-    
+    } 
 }
