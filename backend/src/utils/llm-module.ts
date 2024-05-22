@@ -45,11 +45,10 @@ export class CustomOpenAI {
     const result = JSON.parse(
       response.choices[0].message.tool_calls[0].function.arguments
     );
-    
     return result.prediction;
   };
 
-  async chunkSummarize(reviews: string[], category: string){
+  async chunkSummarize(reviews: string[], category: string): Promise<string[]>{
     // 리뷰데이터 100개씩 요약문 만들기
     const chuck_size:number = 100;
     const totalChunks:number = Math.ceil(reviews.length / chuck_size);
@@ -85,7 +84,7 @@ export class CustomOpenAI {
     return summarizes;
   };
 
-  async keywordExtraction(reviews: string[], category: string){
+  async keywordExtraction(reviews: string[], category: string): Promise<string[]>{
     const summarize_reviews:string[] = await this.chunkSummarize(reviews, category);
     const content:string = `
         리뷰: ${summarize_reviews}
