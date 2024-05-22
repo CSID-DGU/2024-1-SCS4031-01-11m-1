@@ -27,6 +27,7 @@ jobs:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         SWAGGER_PREFIX: ${{ secrets.SWAGGER_PREFIX }}
+        OPENAI_KEY: ${{secrets.OPENAI_KEY}}
       run: |
         echo "DB_HOST=$DB_HOST" >> .env
         echo "DB_PORT=$DB_PORT" >> .env
@@ -34,6 +35,7 @@ jobs:
         echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
         echo "SECRET_KEY=$SECRET_KEY" >> .env
         echo "SWAGGER_PREFIX=$SWAGGER_PREFIX" >> .env
+        echo "OPENAI_KEY=$OPENAI_KEY" >> .env
       
     
     - name: Login to DockerHub
