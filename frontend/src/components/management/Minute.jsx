@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
@@ -18,6 +18,7 @@ const TableCell = styled.td`
     font-weight: 400;
     line-height: normal;
     padding: 10px;
+    position: relative; /* Added for positioning the popup */
 `;
 
 const FileName = styled.a`
@@ -27,7 +28,6 @@ const FileName = styled.a`
 `;
 
 const MoreButton = styled.button`
-    position: relative;
     width: 20px;
     height: 20px;
     background: url(${morebutton_icon}) no-repeat center;
@@ -37,9 +37,8 @@ const MoreButton = styled.button`
 `;
 
 const OptionsContainer = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 90%;
+    position: absolute;    
+    transform: translate(-50%, 0);
     z-index: 99;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -56,17 +55,21 @@ const OptionButton = styled.button`
     width: 100%;
     padding: 5px;
     text-align: left;
+    color: #000;
+    font-family: "Wanted Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
     &:hover {
         background-color: #f0f0f0;
     }
 `;
 
-
-
-
 const Minute = ({ id, minuteName, minute, fileUrl, onDelete, onEdit }) => {
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const optionsRef = useRef(null);
 
     const handleMoreButtonClick = () => {
         setOptionsVisible(!optionsVisible);
@@ -96,13 +99,13 @@ const Minute = ({ id, minuteName, minute, fileUrl, onDelete, onEdit }) => {
             });
 
             if (response.ok) {
-                console.log('Product deleted successfully');
+                console.log('Minute deleted successfully');
                 onDelete(id);
             } else {
-                console.error('Failed to delete the product');
+                console.error('Failed to delete the minute');
             }
         } catch (error) {
-            console.error('Error deleting the product:', error);
+            console.error('Error deleting the minute:', error);
         }
     };
 
@@ -115,33 +118,45 @@ const Minute = ({ id, minuteName, minute, fileUrl, onDelete, onEdit }) => {
         setIsEditing(false);
     };
 
-    // Remove the "/media/" prefix from the minute value
+    const handleClickOutside = (event) => {
+        if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+            setOptionsVisible(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const displayMinute = minute.replace('/media/', '');
 
     return (
         <>
-        <TableRow>
-            <TableCell>
-                {minuteName}
-            </TableCell>
-            <TableCell>
-                <FileName href={fileUrl} download>{displayMinute}</FileName>
-            </TableCell>
-            <TableCell>
+            <TableRow>
+                <TableCell>
+                    {minuteName}
+                </TableCell>
+                <TableCell>
+                    <FileName href={fileUrl} download>{displayMinute}</FileName>
+                </TableCell>
+                <TableCell>
                     <MoreButton onClick={handleMoreButtonClick} />
-                    <OptionsContainer visible={optionsVisible}>
+                    <OptionsContainer ref={optionsRef} visible={optionsVisible}>
                         <OptionButton onClick={handleEditClick}>Edit</OptionButton>
                         <OptionButton onClick={handleDeleteClick}>Delete</OptionButton>
                     </OptionsContainer>
-            </TableCell>
-        </TableRow>
-        {isEditing && (
-            <AddMinute
-                minuteId={id}
-                onSave={handleSave}
-                onClose={handleClose}
-            />
-        )}
+                </TableCell>
+            </TableRow>
+            {isEditing && (
+                <AddMinute
+                    minuteId={id}
+                    onSave={handleSave}
+                    onClose={handleClose}
+                />
+            )}
         </>
     );
 };

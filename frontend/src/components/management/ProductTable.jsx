@@ -14,18 +14,29 @@ const Table = styled.table`
 
 const TableRow = styled.tr`
   border-bottom: 1px solid #ccc;
+  height: 30px;
 `;
 
 const TableCell = styled.th`
-  color: #333;
   text-align: left;
   padding: 10px;
+  color: #878787;
+  font-family: "Wanted Sans";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  width: ${props => props.width || 'auto'};
 `;
 
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  position: fixed;
+  bottom: 20px; 
+  width: 100%;
+  z-index: 1000;
 `;
 
 const PaginationButton = styled.button`
@@ -58,13 +69,11 @@ function ProductTable() {
           console.error('Access token or member ID not found');
           return;
         }
-
         const response = await axios.get(`http://15.165.14.203/api/member-data/products/${memberId}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
         });
-        
         const products = response.data;
         const productsWithUrls = await Promise.all(products.map(async (product) => {
           const urlResponse = await axios.get(`http://15.165.14.203/api/member-data/product-url/${product.id}`, {

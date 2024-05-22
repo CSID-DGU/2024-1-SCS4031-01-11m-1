@@ -52,14 +52,14 @@ const Condition = styled.div`
 `;
 
 function Category({ onChange }) {
-    const [category, setCategory] = useState('');
+    const [categoryName, setCategoryName] = useState('');
     const [overflow, setOverflow] = useState(false);
 
     const handleChange = (event) => {
         const input = event.target.value;
         if (input.length <= 30) {
             setOverflow(false);
-            setCategory(input);
+            setCategoryName(input);
             onChange(input);
         } else {
             setOverflow(true);
@@ -72,11 +72,11 @@ function Category({ onChange }) {
             <Box>
                 <NameInput
                     type="text"
-                    value={category}
+                    value={categoryName}
                     onChange={handleChange}
                     placeholder="카테고리를 입력해주세요"
                 />
-                <Condition overflow={overflow}>{category.length}/30</Condition>
+                <Condition overflow={overflow}>{categoryName.length}/30</Condition>
             </Box>
         </>
     );

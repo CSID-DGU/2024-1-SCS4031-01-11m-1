@@ -142,7 +142,6 @@ function Addproduct( { onClose }) {
         .then(response => {
             if (response.ok) {
                 console.log('Product added successfully');
-                
                 onClose();
                 window.location.reload();
             } else {

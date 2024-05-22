@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Category from '../management/addcategory/Category';
-
+import Category from '../management/addcategory/Category'; // 경로를 정확하게 맞추세요
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -15,7 +14,6 @@ const ModalOverlay = styled.div`
     justify-content: center;
     align-items: center;
 `;
-
 
 const Container = styled.div`
     width: 307px;
@@ -34,7 +32,7 @@ const Title = styled.p`
     line-height: normal;
 `;
 
-const Line = styled.p`
+const Line = styled.div`
     width: 250px;
     height: 1px;
     background: #D9D9D9;
@@ -95,33 +93,39 @@ const CancelButton = styled.button`
     cursor: pointer;
 `;
 
-function Addcategory( { onClose }) {
-    const [category, setCategory] = useState('');
+function AddCategory({ onClose }) {
+    const [categoryName, setCategoryName] = useState('');
 
-    const handleCategory = (category) => {
-        setCategory(category);
+    const handleCategory = (categoryName) => {
+        setCategoryName(categoryName);
     };
 
-    
-    
     const handleSave = () => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const accessToken = userInfo ? userInfo.accessToken : null;
+
         const requestBody = JSON.stringify({
-            //여기에 값
+            categoryName: categoryName
         });
-        fetch('/member-data/add-category', {
+
+        fetch('http://15.165.14.203/api/member-data/add-category', {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
             body: requestBody
         })
         .then(response => {
             if (response.ok) {
-                console.log('Minute added successfully');
+                console.log('Category added successfully');
+                window.location.reload();
                 onClose();
             } else {
                 console.error('Failed to add category');
-           
+                return response.json().then(err => {
+                    console.error('Server error response:', err);
+                });
             }
         })
         .catch(error => {
@@ -135,19 +139,17 @@ function Addcategory( { onClose }) {
 
     return (
         <ModalOverlay>
-                <Container>
-                    <Title>Add category</Title>
-                    <Category onChange={handleCategory} />
-                    
-                    <Line />
-                    <ButtonContainer>
-                        <CancelButton onClick={handleCancel}>Cancel</CancelButton>
-                        <SaveButton onClick={handleSave}>Save</SaveButton>
-                    </ButtonContainer>
-                </Container>
+            <Container>
+                <Title>Add category</Title>
+                <Category onChange={handleCategory} />
+                <Line />
+                <ButtonContainer>
+                    <CancelButton onClick={handleCancel}>Cancel</CancelButton>
+                    <SaveButton onClick={handleSave}>Save</SaveButton>
+                </ButtonContainer>
+            </Container>
         </ModalOverlay>
-        
     );
 }
 
-export default Addcategory;
+export default AddCategory;

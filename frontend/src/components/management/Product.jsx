@@ -43,6 +43,21 @@ const ProductExplanation = styled.p`
     color: #333;
 `;
 
+const Url = styled.a`
+    width: 30vw;
+    color: #333;
+    font-family: Pretendard;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration-line: underline;
+    display: block;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+`;
+
 const MoreButton = styled.button`
     position: relative;
     width: 20px;
@@ -55,8 +70,8 @@ const MoreButton = styled.button`
 
 const OptionsContainer = styled.div`
     position: absolute;
-    top: 50%;
-    left: 90%;
+    top: 40%;
+    left: 92%;
     z-index: 99;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -73,6 +88,12 @@ const OptionButton = styled.button`
     width: 100%;
     padding: 5px;
     text-align: left;
+    color: #000;
+    font-family: "Wanted Sans";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
     &:hover {
         background-color: #f0f0f0;
     }
@@ -142,7 +163,7 @@ const Product = ({ id, productName, productImage, description, url, onDelete, on
                     </ProductDetails>
                 </TableCell>
                 <TableCell>
-                    <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                    <Url href={url} target="_blank" rel="noopener noreferrer">{url}</Url>
                 </TableCell>
                 <TableCell>
                     <MoreButton onClick={handleMoreButtonClick} />

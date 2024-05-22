@@ -51,7 +51,7 @@ function URL({ onChange }) {
   return (
     <>
         <Title>URL</Title>
-        <LinkBox href={url} target="_blank">
+        <LinkBox target="_blank">
             <URLInput 
                 type="text" 
                 value={url} 
