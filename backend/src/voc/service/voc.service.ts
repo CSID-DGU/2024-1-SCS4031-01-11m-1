@@ -4,7 +4,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { VocEntity } from "../entity/voc.entity";
 import { Repository, QueryFailedError } from 'typeorm';
 import { UrlEntity } from "src/member-data/products/entities/url.entity";
-import { ProductEntiy } from "src/member-data/products/entities/product.entity";
+import { ProductEntity } from "src/member-data/products/entities/product.entity";
+import { UrlVocListDto } from "src/voc/controller/controller-dto/get-voc-by-productId/url-voc-list.dto"
+import { VocDto } from "../dto/voc.dto";
 
 @Injectable()
 export class VocService{
@@ -17,8 +19,8 @@ export class VocService{
         @InjectRepository(UrlEntity)
         private readonly urlRepository: Repository<UrlEntity>,
 
-        @InjectRepository(ProductEntiy)
-        private readonly productRepository: Repository<ProductEntiy>
+        @InjectRepository(ProductEntity)
+        private readonly productRepository: Repository<ProductEntity>
 
     ){}
 
@@ -26,23 +28,24 @@ export class VocService{
      * Voc데이터 수집
      */
     public async scrapeDataByUrlId(url_id:string): Promise<String>{
-        await this.scrapeData(url_id);
+        const urlEntity: UrlEntity = await this.urlRepository.findOneBy({id: url_id});
+
+        await this.scrapeData(urlEntity);
+
         return "Success";
     }
 
-    /*public async scrapeDataByProductId(product_id:string): Promise<String>{
-        const productEntity:ProductEntiy = await this.productRepository.findOneBy({id:product_id});
+    public async scrapeDataByProductId(product_id:string): Promise<String>{
+        const productEntity:ProductEntity = await this.productRepository.findOneBy({id: product_id});
 
-        const result = await this.dataScrapingModuleMapping.get("Crawling")!.scrape(p, "OliveYoung");
+        console.log(productEntity.urls);
 
-        for(let i = 0; i<result.length; i++){
-            let text = result[i].split("%");
-            const vocEntity:VocEntity = VocEntity.create(text[1], Number(text[0]), urlEntity);
-            await this.vocRepository.save(vocEntity);
+        for(let i:number = 0; i<productEntity.urls.length; i++){
+            await this.scrapeData(productEntity.urls[i]);
         }
 
         return "Success";
-    }*/
+    }
 
     public async testDataScraping(url:string): Promise<String[]>{
         let resultList:String[] = [];
@@ -55,8 +58,26 @@ export class VocService{
         return resultList;
     }
 
-    private async scrapeData(url_id:string): Promise<string>{
-        const urlEntity: UrlEntity = await this.urlRepository.findOneBy({id: url_id});
+    public async getVocByProductId(product_id:string): Promise<UrlVocListDto[]>{
+        let urlVocList:UrlVocListDto[] = []
+        const productEntity:ProductEntity = await this.productRepository.findOneBy({id: product_id});
+        for(let i = 0; i<productEntity.urls.length; i++){
+            const urlVocListDto:UrlVocListDto = new UrlVocListDto(productEntity.urls[i].url);
+            const vocs:VocEntity[] = await this.vocRepository.findBy({url:productEntity.urls[i]});
+            for(let i:number = 0; i<vocs.length; i++){
+                const vocList:VocDto[] = [];
+                urlVocListDto.vocs.push(VocDto.create(vocs[i]));
+            }
+            urlVocList.push(urlVocListDto);
+        }
+
+        return urlVocList;
+    }
+
+
+    //------------------------데이터 수집-----------------------//
+
+    private async scrapeData(urlEntity:UrlEntity): Promise<string>{
         let mostRecentData:string;
 
         const mostRecentVoc:VocEntity = await this.vocRepository.findOne({

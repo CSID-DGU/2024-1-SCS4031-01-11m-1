@@ -1,5 +1,5 @@
 import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ProductEntiy } from './product.entity';
+import { ProductEntity } from './product.entity';
 import { BaseEntity } from 'src/base-entity';
 import { LazyModuleLoader } from '@nestjs/core';
 
@@ -11,12 +11,12 @@ export class UrlEntity extends BaseEntity{
   @Column()
   url: string;
 
-  @ManyToOne(()=>ProductEntiy, {eager: false})
-  product: ProductEntiy;
+  @ManyToOne(()=>ProductEntity, {eager:false})
+  product: ProductEntity;
 
   constructor(
     url: string,
-    product: ProductEntiy,
+    product: ProductEntity,
     createdAt: Date,
     updatedAt: Date,
   ){
@@ -29,7 +29,7 @@ export class UrlEntity extends BaseEntity{
 
   static createNew(
     url: string,
-    product: ProductEntiy,
+    product: ProductEntity,
     createdAt: Date,
     updatedAt: Date,
   ){
