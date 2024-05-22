@@ -6,14 +6,14 @@ import { MemberEntity } from 'src/auth/member.entity';
 import { ProductsService } from './products.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/update-product.dto';
-import { ProductEntiy } from './entities/product.entity';
-import { ApiExceptionResponse } from 'src/utils/exception-response.decorater';
+import { ProductEntity } from './entities/product.entity';
+import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/utils/multer.options.factory';
-import { ApiAddImageFile, ApiUpdateImageFile, ApiaddMinuteFile } from 'src/utils/api-file.decorator';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 import { ProductMinuteEntity } from './entities/product-minute.entity';
 import { UrlEntity } from './entities/url.entity';
+import { ApiAddImageFile, ApiaddMinuteFile, ApiUpdateImageFile } from 'src/utils/decorator/api-file.decorator';
+import { multerOptions } from 'src/utils/config/multer.options.factory';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
@@ -28,7 +28,7 @@ export class ProductsController {
   @ApiBearerAuth('access-token')
   async loadProducts(
     @Member() member: MemberEntity
-    ):Promise<ProductEntiy[]>{
+    ):Promise<ProductEntity[]>{
       return await this.productsService.loadProducts(member.memberId);
    };
 

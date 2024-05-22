@@ -1,9 +1,10 @@
 import { MemberEntity } from 'src/auth/member.entity';
 import { BaseEntity } from 'src/base-entity';
-import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { ManyToOne, Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import { UrlEntity } from './url.entity';
 
 @Entity()
-export class ProductEntiy extends BaseEntity {
+export class ProductEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -18,6 +19,9 @@ export class ProductEntiy extends BaseEntity {
 
   @ManyToOne(() => MemberEntity, {eager: false})
   member: MemberEntity;
+
+  @OneToMany(() => UrlEntity, urlEntity => urlEntity.product, {eager:true})
+  urls:UrlEntity[];
 
   constructor(
     productName: string,
@@ -44,7 +48,7 @@ export class ProductEntiy extends BaseEntity {
     createdAt: Date,
     updatedAt: Date
   ){
-    return new ProductEntiy(
+    return new ProductEntity(
       productName,
       productImage,
       description,
