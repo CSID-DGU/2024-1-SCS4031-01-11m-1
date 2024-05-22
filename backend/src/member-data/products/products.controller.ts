@@ -12,6 +12,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AddProductMinuteDto } from './dtos/add-product-minute.dto';
 import { ProductMinuteEntity } from './entities/product-minute.entity';
 import { UrlEntity } from './entities/url.entity';
+import { ApiAddImageFile, ApiaddMinuteFile, ApiUpdateImageFile } from 'src/utils/decorator/api-file.decorator';
+import { multerOptions } from 'src/utils/config/multer.options.factory';
 
 @ApiTags('Member Data -products- Controller')
 @Controller('/member-data')
