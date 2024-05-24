@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Navbar from "./Navbar";
 import plusicon from '../components/image/plus_icon.png';
 import ReportTable from '../components/analytics/ReportTable';
+import AddReport from '../components/analytics/AddReport';
 
 const Container = styled.div`
     width: 100%;
@@ -67,22 +68,31 @@ const Addicon = styled.div`
 `;
 
 function Analytics() {
-  return (
-    <>
-        <Navbar />
-        <Title>Analytics</Title>
-        <Container>
-            <ListContainer>
-                <AddRebortbtn>
-                    <Addicon src={plusicon} />
-                    Add Report
-                </AddRebortbtn>
-                <ReportTable />
-            </ListContainer>
-        </Container>
-        
-    </>
-  )
+    const [showAddReport, setShowAddReport] = useState(false);
+
+    const handleAddReportClick = () => {
+        setShowAddReport(true);
+    };
+
+    const handleCloseAddReport = () => {
+        setShowAddReport(false);
+    };
+
+    return (
+        <>
+            <Navbar />
+            <Title>Analytics</Title>
+            <Container>
+                <ListContainer>
+                    <AddRebortbtn onClick={handleAddReportClick}>
+                        <Addicon />
+                        Add Report
+                    </AddRebortbtn>
+                    {showAddReport ? <AddReport onClose={handleCloseAddReport} /> : <ReportTable />}
+                </ListContainer>
+            </Container>
+        </>
+    );
 }
 
-export default Analytics
+export default Analytics;

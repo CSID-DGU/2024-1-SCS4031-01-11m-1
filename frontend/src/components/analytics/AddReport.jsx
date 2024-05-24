@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Product from './addreport/Product';
 import Data from './addreport/Data';
+import Document from './addreport/Document';
+import DateRange from './addreport/DateRange';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -22,8 +24,9 @@ const Container = styled.div`
     border-radius: 10px;
     background: #FFF;
     padding: 26px;
+    display: flex;
+    flex-direction: column;
 `;
-
 
 const Title = styled.p`
     color: #333;
@@ -34,22 +37,32 @@ const Title = styled.p`
     line-height: normal;
 `;
 
-const Line = styled.p`
-    width: 250px;
+const Line = styled.div`
+    position:relative;
+    z-index:99;
+    width: 100%;
     height: 1px;
     background: #D9D9D9;
-    margin-top: 28px;
+    margin-top: 13px;
+`;
+
+const Content = styled.div`
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+`;
+
+const Column = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 48%;
 `;
 
 const ButtonContainer = styled.div`
     display: flex;
-    width: 172px;
-    height: 27px;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-end;
     gap: 14px;
-    flex-shrink: 0;
-    margin-left: 83px;
     margin-top: 20px;
 `;
 
@@ -95,25 +108,38 @@ const CancelButton = styled.button`
     cursor: pointer;
 `;
 
+function AddReport({ onClose }) {
+    const handleCancel = () => {
+        // 취소 버튼 클릭 시 onClose 호출
+        onClose();
+    };
 
-function AddReport() {
-
+    const handleSave = () => {
+        // 저장 버튼 클릭 시 처리 로직 작성
+    };
 
     return (
         <ModalOverlay>
             <Container>
                 <Title>Add Report</Title>
-                <Product />
-                <Data />
+                <Content>
+                    <Column>
+                        <Product />
+                        <Data />
+                    </Column>
+                    <Column>
+                        <Document />
+                        <DateRange />
+                    </Column>
+                </Content>
                 <Line />
-
-                {/* <ButtonContainer>
+                <ButtonContainer>
                     <CancelButton onClick={handleCancel}>Cancel</CancelButton>
                     <SaveButton onClick={handleSave}>Save</SaveButton>
-                </ButtonContainer> */}
+                </ButtonContainer>
             </Container>
         </ModalOverlay>
-    )
+    );
 }
 
-export default AddReport
+export default AddReport;
