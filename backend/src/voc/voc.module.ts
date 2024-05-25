@@ -11,6 +11,7 @@ import { VocEntity } from "./entity/voc.entity";
 import { VocAnalysisEntity } from "./entity/voc-analysis.entity";
 import { CategoryEntity } from "src/member-data/category/entity/category.entity";
 import { CustomOpenAI } from "src/llm/llm-module";
+import { VocKeywordEntity } from "./entity/voc-keyword.entity";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { CustomOpenAI } from "src/llm/llm-module";
             UrlEntity,
             ProductEntity,
             VocAnalysisEntity,
+            VocKeywordEntity,
             CategoryEntity,
             MemberEntity
         ])

@@ -54,7 +54,7 @@ export class CustomOpenAI {
 
   async chunkSummarize(reviews: string[], category: string): Promise<string[]>{
     // 리뷰데이터 100개씩 요약문 만들기
-    const chuck_size:number = 100;
+    const chuck_size:number = 50;
     const totalChunks:number = Math.ceil(reviews.length / chuck_size);
     let summarizes:string[] = [];
 
