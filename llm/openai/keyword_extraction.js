@@ -5,8 +5,8 @@ const openai = new OpenAI({
 });
 
 async function chunk_summarize(reviews, category) {
-  // 리뷰데이터 100개씩 요약문 만들기
-  const chuck_size = 100;
+  // 리뷰데이터 50개씩 요약문 만들기
+  const chuck_size = 50;
   const totalChunks = Math.ceil(reviews.length / chuck_size);
   let summarizes = [];
 
