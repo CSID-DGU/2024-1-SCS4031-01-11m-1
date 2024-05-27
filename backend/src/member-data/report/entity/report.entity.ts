@@ -9,4 +9,4 @@ export class ReportEntiy extends BaseEntity {
 
   @ManyToOne(() => MemberEntity, {eager: false})
   member: MemberEntity;
-}
+};
