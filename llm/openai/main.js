@@ -10,7 +10,7 @@ const reviews = JSON.parse(
 reviews["카테고리"] = {};
 
 // 사용자가 입력한 카테고리
-const categories = ["효과", "보습", "편의성"];
+const categories = ["디자인", "향", "편의성", "발림성", "제형", "가격"];
 
 // review를 카테고리/긍부정으로 나눠 저장할 배열 초기화
 const categoryReview = {};
@@ -38,16 +38,10 @@ categories.forEach((category) => {
       }
     }
   }
-  // test_category_data.json
-  // console.log(reviews);
-
   // { "카테고리1": { "긍정": ["리뷰", "리뷰", ...], "부정": ["리뷰", "리뷰", ...] }, "카테고리2": { ... }, ... }
-  // test_category_cluster_data.json
   // console.log(categoryReview);
 
-  const minute = await rag("llm/test_data/회의록_0522.pdf", categoryReview);
+  const minute = await rag("llm/test_data/회의록.pdf", categoryReview);
   // { "카테고리1": { "긍정": { "키워드": "회의록 언급 내용", "키워드": "회의록 언급 내용" }, "부정": { "키워드": "회의록 언급 내용", "키워드": "회의록 언급 내용" } }, … }
-  // test_summary.json -> 요약문 결과
-  // test_keyword_rag.json -> 키워드, 회의록 언급 내용
   console.log(minute);
 })();
