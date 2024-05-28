@@ -180,7 +180,7 @@ export class VocService{
       .getMany();
     };
 
-    public async getVocKeywordByProductId(productId: string):Promise<VocKeywordEntity[]>{
+    public async getVocKeywordsByProductId(productId: string):Promise<VocKeywordEntity[]>{
       const productEntity = await this.productRepository.findOneBy({id: productId});
       const vocKeywordEntities:VocKeywordEntity[] = await this.vocKeywordRepository.findBy({product: productEntity});
       return vocKeywordEntities;

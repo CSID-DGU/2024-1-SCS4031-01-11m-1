@@ -1,7 +1,7 @@
 import { MemberEntity } from 'src/auth/member.entity';
 import { BaseEntity } from 'src/base-entity';
 import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { CategoryAnalysisSourceDto } from '../dto/category-analysis-source.dto';
+import { ReportSource } from '../domain/report-source';
 
 @Entity()
 export class ReportEntiy extends BaseEntity {
@@ -9,8 +9,21 @@ export class ReportEntiy extends BaseEntity {
   id: string;
 
   @Column('jsonb')
-  categoryAnalysisSource: CategoryAnalysisSourceDto[];
+  reportSources: ReportSource[];
 
   @ManyToOne(() => MemberEntity, {eager: false})
   member: MemberEntity;
+
+  constructor(
+    reportSources: ReportSource[],
+    member: MemberEntity
+  ){
+    super()
+    reportSources = this.reportSources;
+    member = this.member;
+  };
+
+  static createNew(reportSources: ReportSource[], member:MemberEntity){
+    return new ReportEntiy(reportSources, member);
+  };
 };

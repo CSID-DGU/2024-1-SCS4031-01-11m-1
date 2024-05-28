@@ -10,8 +10,7 @@ import { Transactional } from "typeorm-transactional";
 import { VocService } from "src/voc/service/voc.service";
 import { VocAnalysisEntity } from "src/voc/entity/voc-analysis.entity";
 import { CustomOpenAI } from "src/llm/llm-module";
-import { CategoryAnalysisSourceDto } from "./dto/category-analysis-source.dto";
-import { KeywordSource } from "src/utils/type-definiton/type-definition";
+import { ReportSource } from "./domain/report-source";
 import { VocKeywordEntity } from "src/voc/entity/voc-keyword.entity";
 
 @Injectable()
@@ -33,8 +32,7 @@ export class ReportService {
     const categoryEntities:CategoryEntity[] = await this.categoryService.loadCategories(memberId);
     // ToDo: 카테고리 빈 리스트일 경우 예외처리
     const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
-
-    // const keywordEntities:VocKeywordEntity[] = 
+    const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
 
     // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
     const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductId(productId);
@@ -51,22 +49,25 @@ export class ReportService {
     });
 
     const ragResult = await this.customOpenAI.customRAG(categories, positiveKeywords, negativeKeywords, pdf_path);
-    const categoryResults: CategoryAnalysisSourceDto[] = [];
+    const reportSources: ReportSource[] = [];
 
     // ToDo: Category별로 ReportSource만들기:
     for(let i=0; i<ragResult.length; i++){
       const categoryName:string = ragResult[i].category;
-      const keywordsSource:KeywordSource[] = [];
+
+      const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
+      const keywords:string[] = keywordsList[0].keywords; // ToDo: refactoring
       
       const positiveAnswer = ragResult[i].sentiment.긍정;
       const negativeAnswer = ragResult[i].sentiment.부정;
       const positiveCnt = vocAnalysis.filter(result => result.primarySentiment === 'positive').length;
       const negativeCnt = vocAnalysis.filter(result => result.primarySentiment === 'negative').length;
-      const categoryResult = CategoryAnalysisSourceDto.create(categoryName, keywordsSource, positiveAnswer, negativeAnswer, positiveCnt, negativeCnt)
-      categoryResults.push(categoryResult);
+      const categoryResult = ReportSource.create(categoryName, keywords, positiveAnswer, negativeAnswer, positiveCnt, negativeCnt)
+      reportSources.push(categoryResult);
     };
-
-    return  categoryResults
+    
+    const reportEntity = ReportEntiy.createNew(reportSources, member);
+    await this.reportRepository.save(reportEntity);
   };
 
   private nullCheckForEntity(entity) {
