@@ -35,9 +35,6 @@ export class VocService{
         @InjectRepository(VocAnalysisEntity)
         private readonly vocAnalysisRepository: Repository<VocAnalysisEntity>,
 
-        @InjectRepository(MemberEntity)
-        private readonly memberRepository: Repository<MemberEntity>,
-
         @InjectRepository(VocKeywordEntity)
         private readonly vocKeywordRepository: Repository<VocKeywordEntity>,
 
@@ -144,13 +141,26 @@ export class VocService{
             for(let i:number = 0; i<vocs.length; i++){
                 const vocList:VocDto[] = [];
                 urlVocListDto.vocs.push(VocDto.create(vocs[i]));
-            }
+            };
             urlVocList.push(urlVocListDto);
-        }
-
+        };
         return urlVocList;
     }
 
+    public async getVocAnalysisByVocId(vocId: string): Promise<VocAnalysisEntity[]>{
+      const voc = await this.vocRepository.findOneBy({id: vocId});
+      const vocAnalysis = await this.vocAnalysisRepository.findBy({voc: voc});
+      return vocAnalysis;
+    };
+
+    public async getVocAnalysisByProductId(productId: string): Promise<VocAnalysisEntity[]>{
+      return this.vocAnalysisRepository.createQueryBuilder('vocAnalysis')
+      .innerJoinAndSelect('vocAnalysis.voc', 'voc')
+      .innerJoinAndSelect('voc.url', 'url')
+      .innerJoin('url.product', 'product')
+      .where('product.id = :productId', { productId })
+      .getMany();
+    };
 
     //------------------------데이터 수집-----------------------//
 

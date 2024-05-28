@@ -9,6 +9,8 @@ import {
   RunnableSequence,
   RunnablePassthrough,
 } from "@langchain/core/runnables";
+import { MessageContent } from "openai/resources/beta/threads/messages";
+import { KeywordAnswer, customRAGresult } from "src/utils/type-definiton/type-definition";
 
 @Injectable()
 export class CustomOpenAI {
@@ -156,9 +158,13 @@ export class CustomOpenAI {
     return result;
   };
 
-  async rag(reviews: string[], pdf_path: string){
+  async customRAG(
+    categories: string[], positiveKeywords: string[], negativeKeywords: string[], pdf_path: string
+  ): Promise<customRAGresult[]>{
     const loader = new PDFLoader(pdf_path);
     const docs = await loader.load();
+    console.log(pdf_path);
+    console.log(docs);
 
     const vectorstores = await FaissStore.fromDocuments(
       docs,
@@ -191,20 +197,15 @@ export class CustomOpenAI {
       chat_model,
     ]);
   
-    const minutes = {};
-    const categories = Object.keys(reviews);
+    const minutes:customRAGresult[] = [];
   
     for (const category of categories) {
-      minutes[category] = { 긍정: {}, 부정: {} };
-  
-      // 긍정 키워드 도출
-      const positive_keywords = await this.keywordExtraction(
-        reviews[category]["긍정"],
-        category
-      );
+      // ToDo: 타입 강제
+      let categoryResult: customRAGresult = {category: category, sentiment: { 긍정: [], 부정: [] }};
+      categoryResult.category = category
   
       // 긍정 키워드에 대한 검색 결과
-      for (const keyword of positive_keywords) {
+      for (const keyword of positiveKeywords) {
         const content = `
         해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
         만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
@@ -213,17 +214,15 @@ export class CustomOpenAI {
   
         const response = await chain.invoke(content);
         const result = response.content;
-        minutes[category]["긍정"][keyword] = result;
+        const keywordAnswer: KeywordAnswer = {
+          keyword: keyword,
+          answer: result
+        };
+        categoryResult.sentiment.긍정.push(keywordAnswer);
       }
-  
-      // 부정 키워드 도출
-      const negative_keywords = await this.keywordExtraction(
-        reviews[category]["부정"],
-        category
-      );
   
       // 부정 키워드에 대한 검색 결과
-      for (const keyword of negative_keywords) {
+      for (const keyword of negativeKeywords) {
         const content = `
         해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
         만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
@@ -232,10 +231,14 @@ export class CustomOpenAI {
   
         const response = await chain.invoke(content);
         const result = response.content;
-        minutes[category]["부정"][keyword] = result;
+        const keywordAnswer: KeywordAnswer = {
+          keyword: keyword,
+          answer: result
+        };
+        categoryResult.sentiment.부정.push(keywordAnswer);
       }
+      minutes.push(categoryResult);
     }
     return minutes;
-
   }
 }
