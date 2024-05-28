@@ -11,6 +11,8 @@ import { VocService } from "src/voc/service/voc.service";
 import { VocAnalysisEntity } from "src/voc/entity/voc-analysis.entity";
 import { CustomOpenAI } from "src/llm/llm-module";
 import { CategoryAnalysisSourceDto } from "./dto/category-analysis-source.dto";
+import { KeywordSource } from "src/utils/type-definiton/type-definition";
+import { VocKeywordEntity } from "src/voc/entity/voc-keyword.entity";
 
 @Injectable()
 export class ReportService {
@@ -29,9 +31,10 @@ export class ReportService {
     this.nullCheckForEntity(member);
 
     const categoryEntities:CategoryEntity[] = await this.categoryService.loadCategories(memberId);
-    const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
-    
     // ToDo: 카테고리 빈 리스트일 경우 예외처리
+    const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
+
+    // const keywordEntities:VocKeywordEntity[] = 
 
     // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
     const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductId(productId);
@@ -53,7 +56,8 @@ export class ReportService {
     // ToDo: Category별로 ReportSource만들기:
     for(let i=0; i<ragResult.length; i++){
       const categoryName:string = ragResult[i].category;
-      const keywordsSource = [];
+      const keywordsSource:KeywordSource[] = [];
+      
       const positiveAnswer = ragResult[i].sentiment.긍정;
       const negativeAnswer = ragResult[i].sentiment.부정;
       const positiveCnt = vocAnalysis.filter(result => result.primarySentiment === 'positive').length;

@@ -162,6 +162,12 @@ export class VocService{
       .getMany();
     };
 
+    public async getVocKeywordByProductId(productId: string):Promise<VocKeywordEntity[]>{
+      const productEntity = await this.productRepository.findOneBy({id: productId});
+      const vocKeywordEntities:VocKeywordEntity[] = await this.vocKeywordRepository.findBy({product: productEntity});
+      return vocKeywordEntities;
+    };
+    
     //------------------------데이터 수집-----------------------//
 
     private async scrapeData(urlEntity:UrlEntity): Promise<DataScraperReturnDto[]>{
