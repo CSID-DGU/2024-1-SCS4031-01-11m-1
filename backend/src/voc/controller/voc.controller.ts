@@ -43,6 +43,12 @@ export class VocController{
     public async updateVocByProductId(@Param("productId") productId:string){
         return this.vocService.scrapeDataByProductId(productId);
     }
+
+    @ApiOperation({summary: "VOC 키워드 추출 리프레시(테스트용)"})
+    @Post("/refresh/vockeywords/:productId")
+    public async refreshVocKeywords(@Param("productId") productId:string){
+        return this.vocService.vocKeywordExtractionRefresh(productId);
+    }
     
 
 }

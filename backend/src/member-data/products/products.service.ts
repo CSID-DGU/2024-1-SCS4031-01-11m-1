@@ -214,7 +214,7 @@ export class ProductsService {
           message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
           cause: error,
         });
-      }
+      };
     }
   }
 
@@ -226,8 +226,9 @@ export class ProductsService {
 
       const fileName = `${file.filename}`;
       const fileUrl = `/media/${fileName}`;
+      const filePath = `${file.path}`
 
-      const producMinuteEntity = ProductMinuteEntity.createNew(productMinuteName, fileUrl, member);
+      const producMinuteEntity = ProductMinuteEntity.createNew(productMinuteName, fileUrl, filePath, member);
       await this.productMinuteRepository.save(producMinuteEntity);
     } catch(error){
       if(error instanceof QueryFailedError){
