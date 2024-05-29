@@ -176,13 +176,17 @@ export class VocService{
       .innerJoinAndSelect('vocAnalysis.voc', 'voc')
       .innerJoinAndSelect('voc.url', 'url')
       .innerJoin('url.product', 'product')
+      .innerJoinAndSelect('vocAnalysis.category', 'category')
       .where('product.id = :productId', { productId })
       .getMany();
     };
 
     public async getVocKeywordsByProductId(productId: string):Promise<VocKeywordEntity[]>{
       const productEntity = await this.productRepository.findOneBy({id: productId});
-      const vocKeywordEntities:VocKeywordEntity[] = await this.vocKeywordRepository.findBy({product: productEntity});
+      const vocKeywordEntities:VocKeywordEntity[] = await this.vocKeywordRepository.find({
+        where: { product: productEntity },
+        relations: ["product", "category"]
+    });
       return vocKeywordEntities;
     };
     

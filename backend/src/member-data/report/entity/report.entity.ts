@@ -8,7 +8,7 @@ export class ReportEntiy extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('jsonb')
+  @Column('jsonb', {nullable: true})
   reportSources: ReportSource[];
 
   @ManyToOne(() => MemberEntity, {eager: false})
@@ -19,8 +19,8 @@ export class ReportEntiy extends BaseEntity {
     member: MemberEntity
   ){
     super()
-    reportSources = this.reportSources;
-    member = this.member;
+    this.reportSources = reportSources;
+    this.member = member;
   };
 
   static createNew(reportSources: ReportSource[], member:MemberEntity){

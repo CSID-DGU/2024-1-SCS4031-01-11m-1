@@ -5,7 +5,7 @@ import { TestDataScrapingRequestDto } from "./controller-dto/test-data-scraping/
 import { UrlVocListDto } from "./controller-dto/get-voc-by-productId/url-voc-list.dto";
 import { GetVocByProductIdResponseDto } from "./controller-dto/get-voc-by-productId/get-voc-by-productId-response.dto"
 
-@ApiTags('Member Data Controller')
+@ApiTags('VOC Data Controller')
 @Controller('/voc')
 export class VocController{
 

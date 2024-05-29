@@ -16,12 +16,12 @@ export class ReportSource{
   positiveCnt: number,
   negativeCnt: number
   ){
-    categoryName = this.categoryName;
-    keywords = this.keywords;
-    positiveAnswer = this.positiveAnswer;
-    negativeAnswer = this.negativeAnswer;
-    positiveCnt = this.positiveCnt;
-    negativeCnt = this.negativeCnt
+    this.categoryName=categoryName;
+    this.keywords=keywords;
+    this.positiveAnswer=positiveAnswer;
+    this.negativeAnswer=negativeAnswer;
+    this.positiveCnt=positiveCnt;
+    this.negativeCnt=negativeCnt;
   };
 
   static create(categoryName:string, keywords: string[], positiveAnswer:KeywordAnswer[], negativeAnswer:KeywordAnswer[], positiveCnt:number, negativeCnt:number){
