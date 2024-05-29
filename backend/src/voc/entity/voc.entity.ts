@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/base-entity';
 import { UrlEntity } from 'src/member-data/products/entities/url.entity';
-import { ManyToOne, Entity, PrimaryGeneratedColumn, Column, JoinColumn } from 'typeorm';
+import { ManyToOne, Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from 'typeorm';
+import { VocAnalysisEntity } from './voc-analysis.entity';
 
 @Entity()
 export class VocEntity extends BaseEntity{
@@ -20,6 +21,9 @@ export class VocEntity extends BaseEntity{
     @ManyToOne(() => UrlEntity)
     @JoinColumn({name: "url_id"})
     url: UrlEntity;
+
+    @OneToOne(() => VocAnalysisEntity, vocAnalysisEntity => vocAnalysisEntity.voc, {eager:true})
+    vocAnalysis:VocAnalysisEntity;
 
     constructor(
         score: number,

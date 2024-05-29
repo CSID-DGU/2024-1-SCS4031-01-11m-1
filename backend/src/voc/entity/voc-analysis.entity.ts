@@ -1,5 +1,5 @@
 import { BaseEntity } from "src/base-entity";
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, OneToOne } from "typeorm"
 import { VocEntity } from "./voc.entity";
 import { CategoryEntity } from "src/member-data/category/entity/category.entity";
 import { SentimentEnum } from "./sentiment.enum";
@@ -10,10 +10,10 @@ export class VocAnalysisEntity extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id:string;
 
-    @ManyToOne(() => VocEntity)
+    @ManyToOne(() => VocEntity, {eager: false})
     voc:VocEntity
 
-    @ManyToOne(() => CategoryEntity)
+    @ManyToOne(() => CategoryEntity, {eager: false})
     category:CategoryEntity;
 
     @Column({
@@ -24,8 +24,6 @@ export class VocAnalysisEntity extends BaseEntity {
 
     @Column("simple-json")
     sentiment:{category:string, sentiment:string}
-
-
 
     constructor(
         voc:VocEntity,

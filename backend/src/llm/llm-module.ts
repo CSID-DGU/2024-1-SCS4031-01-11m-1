@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import OpenAI from "openai";
 import * as process from 'process';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
@@ -9,7 +9,6 @@ import {
   RunnableSequence,
   RunnablePassthrough,
 } from "@langchain/core/runnables";
-import { MessageContent } from "openai/resources/beta/threads/messages";
 import { KeywordAnswer, customRAGresult } from "src/utils/type-definiton/type-definition";
 
 @Injectable()
@@ -159,12 +158,16 @@ export class CustomOpenAI {
   };
 
   async customRAG(
-    categories: string[], positiveKeywords: string[], negativeKeywords: string[], pdf_path: string
+    categories: string[],
+    positiveKeywords: string[],
+    negativeKeywords: string[],
+    minutePath: string
   ): Promise<customRAGresult[]>{
-    const loader = new PDFLoader(pdf_path);
+    const loader = new PDFLoader(minutePath);
     const docs = await loader.load();
-    console.log(pdf_path);
-    console.log(docs);
+    if(docs.length==0){
+      throw new NotFoundException('회의록을 찾을 수 없습니다.')
+    }
 
     const vectorstores = await FaissStore.fromDocuments(
       docs,

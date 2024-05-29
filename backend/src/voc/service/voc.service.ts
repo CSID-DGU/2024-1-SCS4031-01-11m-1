@@ -14,6 +14,10 @@ import { MemberEntity } from "src/auth/member.entity";
 import { CustomOpenAI } from "src/llm/llm-module";
 import { SentimentEnum } from "../entity/sentiment.enum";
 import { VocKeywordEntity } from "../entity/voc-keyword.entity";
+import { VocByDateDto } from "../dto/voc-by-date.dto";
+import { VocCountPerCategoryDto } from "../dto/voc-count-per-category.dto";
+import { VocCountPerDateDto } from "../dto/voc-count-per-date.dto";
+import { Transactional } from "typeorm-transactional";
 
 @Injectable()
 export class VocService{
@@ -41,6 +45,21 @@ export class VocService{
         private readonly customOpenAI:CustomOpenAI
     ){}
 
+    //---------------------------VOC 데이터 불러오기-----------------------------------//
+    public async getVocCountPerCategory(product_id:string):Promise<VocCountPerDateDto[]>{
+        const product:ProductEntity = await this.productRepository.findOneBy({id:product_id});
+        const urls:UrlEntity[] = product.urls;
+
+        const result:VocEntity[] = await this.vocRepository.find({
+            where: {url:urls[0]},
+            order: {uploadedDate:"DESC"} 
+        });
+
+        const vocList = await this.sortVocByDate(result);
+
+        return await this.countVocByCategory(vocList);
+    }
+
     /**
      * Voc데이터 수집
      */
@@ -52,6 +71,7 @@ export class VocService{
         return "Success";
     }
 
+    @Transactional()
     public async scrapeDataByProductId(product_id:string): Promise<String>{
         const product:ProductEntity = await this.productRepository.findOneBy({id: product_id});
         const newVocEntityList:VocEntity[] = [];
@@ -59,7 +79,6 @@ export class VocService{
 
         for(let i:number = 0; i<product.urls.length; i++){
             const url:UrlEntity = product.urls[i];
-            console.log(url);
             const result:DataScraperReturnDto[] = await this.scrapeData(url);
 
             for(let i = 0; i<result.length; i++){
@@ -71,14 +90,12 @@ export class VocService{
 
         const vocTextList:string[] = await this.analyzeData(newVocEntityList, member);
 
-        console.log("---------------------")
-        console.log(vocTextList);
-
         await this.extractKeywords(vocTextList, member, product);
 
         return "Success";
     }
 
+    @Transactional()
     public async scrapeDataByProductEntity(product:ProductEntity): Promise<String>{
         const newVocEntityList:VocEntity[] = [];
         const member:MemberEntity = await product.member;
@@ -113,6 +130,7 @@ export class VocService{
         return resultList;
     }
 
+    @Transactional()
     public async vocKeywordExtractionRefresh(productId:string): Promise<string>{
         const product:ProductEntity = await this.productRepository.findOneBy({id: productId});
         let vocTextList:string[] = [];
@@ -158,10 +176,20 @@ export class VocService{
       .innerJoinAndSelect('vocAnalysis.voc', 'voc')
       .innerJoinAndSelect('voc.url', 'url')
       .innerJoin('url.product', 'product')
+      .innerJoinAndSelect('vocAnalysis.category', 'category')
       .where('product.id = :productId', { productId })
       .getMany();
     };
 
+    public async getVocKeywordsByProductId(productId: string):Promise<VocKeywordEntity[]>{
+      const productEntity = await this.productRepository.findOneBy({id: productId});
+      const vocKeywordEntities:VocKeywordEntity[] = await this.vocKeywordRepository.find({
+        where: { product: productEntity },
+        relations: ["product", "category"]
+    });
+      return vocKeywordEntities;
+    };
+    
     //------------------------데이터 수집-----------------------//
 
     private async scrapeData(urlEntity:UrlEntity): Promise<DataScraperReturnDto[]>{
@@ -173,8 +201,6 @@ export class VocService{
         });
 
         mostRecentVoc !=  null ? mostRecentData = mostRecentVoc.description : mostRecentData="";
-
-        console.log(mostRecentData);
 
         const result:DataScraperReturnDto[] = await this.dataScrapingModuleMapping.get("Crawling")!.scrape(urlEntity.url, "OliveYoung", mostRecentData);
 
@@ -233,5 +259,63 @@ export class VocService{
                 }
             }
         }
+    }
+
+    private async sortVocByDate(vocList:VocEntity[]):Promise<VocByDateDto[]>{
+        const dtoByDateList:VocByDateDto[] = [];
+        let currentIndexDate:Date = null;
+
+        for(let i = 0; i<vocList.length; i++){
+            if(vocList[i].uploadedDate != currentIndexDate || currentIndexDate == null){
+                currentIndexDate = await vocList[i].uploadedDate;
+                dtoByDateList.push(new VocByDateDto(currentIndexDate, []));
+            }
+            dtoByDateList[dtoByDateList.length-1].vocs.push(vocList[i]);
+        }
+
+        return dtoByDateList;
+
+    }
+
+    private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerDateDto[]>{
+        console.log("count start")
+        const sortedResult:VocCountPerDateDto[] = [];
+
+        for(let i = 0; i<vocList.length; i++){
+            const vocCountDtoMap:Map<CategoryEntity, {positive:number, negative: number}> = new Map();
+            const categoryCountResult:VocCountPerCategoryDto[] = [];
+            const vocs: VocEntity[] = vocList[i].vocs
+
+            for(let j = 0; j<vocs.length; j++){
+                const vocEntity:VocEntity = vocs[j];
+                const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
+                const categoryEntity:CategoryEntity = vocAnalysis.category;
+
+                if(!vocCountDtoMap.has(categoryEntity)){
+                    vocCountDtoMap.set(categoryEntity, {positive:0, negative:0});
+                }
+
+                const vocCount:{positive:number, negative:number} = vocCountDtoMap.get(categoryEntity);
+
+                if(vocAnalysis.primarySentiment = SentimentEnum.positive){
+                    let num:number = vocCount.positive + 1;
+                    vocCount.positive = num;
+                } else{
+                    let num: number = vocCount.negative + 1;
+                    vocCount.negative = num;
+                }
+                
+            }
+
+            vocCountDtoMap.forEach((value, key, map) => {
+                categoryCountResult.push(new VocCountPerCategoryDto(key, value.positive, value.negative));
+            });
+
+            
+
+            sortedResult.push(new VocCountPerDateDto(vocList[i].date, categoryCountResult));
+        }
+
+        return sortedResult;
     }
 }

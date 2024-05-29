@@ -6,12 +6,12 @@ export type customRAGresult = {
     }
   };
   
-  export type KeywordAnswer = {
-    keyword: string,
-    answer: any,
-  }
+export type KeywordAnswer = {
+  keyword: string,
+  answer: any,
+}
 
-  export type KeywordSource = {
-    keyword: string,
-    review: string
-  };
+export type KeywordSource = {
+  keyword: string,
+  review: string
+};

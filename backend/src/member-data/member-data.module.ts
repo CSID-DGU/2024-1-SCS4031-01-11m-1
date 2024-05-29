@@ -12,6 +12,16 @@ import { ProductMinuteEntity } from './products/entities/product-minute.entity';
 import { CategoryEntity } from './category/entity/category.entity';
 import { CategoryController } from './category/category.controller';
 import { CategoryService } from './category/category.service';
+import { ReportController } from './report/controller/report.controller';
+import { ReportService } from './report/service/report.service';
+import { VocService } from 'src/voc/service/voc.service';
+import { CustomOpenAI } from 'src/llm/llm-module';
+import { VocModule } from 'src/voc/voc.module';
+import { VocEntity } from 'src/voc/entity/voc.entity';
+import { VocAnalysisEntity } from 'src/voc/entity/voc-analysis.entity';
+import { VocKeywordEntity } from 'src/voc/entity/voc-keyword.entity';
+import { ReportEntiy } from './report/entity/report.entity';
+import { DataScrapingModuleMapping } from 'src/voc/data-scraper/data-scraper-mapping';
 
 @Module({
   imports: [
@@ -21,15 +31,24 @@ import { CategoryService } from './category/category.service';
       UrlEntity,
       ProductMinuteEntity,
       CategoryEntity,
+      ReportEntiy,
+      VocEntity,
+      VocAnalysisEntity,
+      VocKeywordEntity,
     ]),
-    AuthModule
+    AuthModule,
+    VocModule
   ],
-  controllers: [ProductsController, CategoryController],
+  controllers: [ProductsController, CategoryController, ReportController],
   providers: [
     ProductsService,
     AuthService,
     JwtService,
     CategoryService,
+    ReportService,
+    VocService,
+    CustomOpenAI,
+    DataScrapingModuleMapping,
   ],
 })
 export class MemberDataModule {}

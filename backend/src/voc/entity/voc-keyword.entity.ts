@@ -8,10 +8,10 @@ export class VocKeywordEntity extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id:string;
 
-    @ManyToOne(() => ProductEntity)
+    @ManyToOne(() => ProductEntity, {eager: false})
     product:ProductEntity;
 
-    @ManyToOne(() => CategoryEntity)
+    @ManyToOne(() => CategoryEntity, {eager: false})
     category:CategoryEntity;
 
     @Column("text", {array:true})
