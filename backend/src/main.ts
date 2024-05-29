@@ -14,6 +14,7 @@ async function bootstrap() {
   app.useStaticAssets(path.join('./uploads/files'), {
     prefix: '/media',
   });
+  
 
   //CORS 허용
   app.enableCors({
