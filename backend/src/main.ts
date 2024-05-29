@@ -15,7 +15,6 @@ async function bootstrap() {
     prefix: '/media',
   });
   
-
   //CORS 허용
   app.enableCors({
     origin: true,
