@@ -46,8 +46,8 @@ export class ReportService {
     // ToDo: 
     // 1. 긍정 카테고리에 해당하는 리뷰데이터에서 키워드를 추출
     // review {카테고리: string, sentiment: string, review: string[]}
-    let positiveKeywords:string[] = ['촉촉한', '촉촉하고', '재구매'];
-    let negativeKeywords: string[] = ['건조한', '자극', '민감한'];
+    let positiveKeywords:string[] = [];
+    let negativeKeywords: string[] = [];
 
     // let positiveKeywords:string[] = vocAnalysis.map((result)=>{
     //   if(result.sentiment.sentiment == 'positive'){
@@ -95,5 +95,11 @@ export class ReportService {
 
   private nullCheckForEntity(entity) {
     if (entity == null) throw new NotFoundException();
+  };
+
+  async loadReport(reportId: string): Promise<ReportEntiy>{
+    const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
+    this.nullCheckForEntity(report);
+    return report;
   };
 }

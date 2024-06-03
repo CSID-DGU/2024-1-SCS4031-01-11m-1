@@ -42,6 +42,9 @@ export class VocService{
         @InjectRepository(VocKeywordEntity)
         private readonly vocKeywordRepository: Repository<VocKeywordEntity>,
 
+        @InjectRepository(MemberEntity)
+        private readonly memberRepository: Repository<MemberEntity>,
+
         private readonly customOpenAI:CustomOpenAI
     ){}
 
