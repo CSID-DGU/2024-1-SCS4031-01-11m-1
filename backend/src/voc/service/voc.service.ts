@@ -60,7 +60,25 @@ export class VocService{
 
         const vocList = await this.sortVocByDate(result);
 
+        console.log(vocList);
+
         return await this.countVocByCategory(vocList);
+    }
+
+    public async getVocCountByMemberId(member_id:string):Promise<VocCountPerDateDto[]>{
+        const member:MemberEntity = await this.memberRepository.findOneBy({memberId:member_id});
+        const productList:ProductEntity[] = await this.productRepository.findBy({member:member});
+        const vocList:VocEntity[] = [];
+
+        for(let i = 0; i<productList.length; i++){
+            const vocEntityList:VocEntity[] = await this.getVocByProduct(productList[i]);
+            vocEntityList.forEach((vocEntity) => {
+                vocList.push(vocEntity);
+            });
+        }
+
+        const sortedVocList = await this.sortVocByDate(vocList);
+        return await this.countVocByCategory(sortedVocList);
     }
 
     /**
@@ -187,7 +205,19 @@ export class VocService{
         return result;
     }
 
-    //---------------------VOC 분석 ------------------------/
+    //---------------------VOC 데이터 불러오기--------------------//
+    private async getVocByProduct(product:ProductEntity):Promise<VocEntity[]>{
+        let vocEntityList:VocEntity[] = [];
+        for(let i = 0; i<product.urls.length; i++){
+            const voc:VocEntity[] = await this.vocRepository.findBy({url:product.urls[i]});
+            voc.forEach((vocEntity) => {
+                vocEntityList.push(vocEntity);
+            });
+        }
+        return vocEntityList;
+    }
+
+    //---------------------VOC 분석 ------------------------//
     private async analyzeData(vocEntityList:VocEntity[], member:MemberEntity):Promise<string[]>{
         const categoryMap = new Map<string, CategoryEntity>();
         const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
@@ -241,20 +271,19 @@ export class VocService{
         }
     }
 
+    //-----------------------카테고리별 VOC 개수 종합----------------------------//
     private async sortVocByDate(vocList:VocEntity[]):Promise<VocByDateDto[]>{
-        const dtoByDateList:VocByDateDto[] = [];
+        const dtoByDateMap:Map<Date,VocByDateDto> = new Map();
         let currentIndexDate:Date = null;
 
         for(let i = 0; i<vocList.length; i++){
-            if(vocList[i].uploadedDate != currentIndexDate || currentIndexDate == null){
-                currentIndexDate = await vocList[i].uploadedDate;
-                dtoByDateList.push(new VocByDateDto(currentIndexDate, []));
+            if(!dtoByDateMap.has(vocList[i].uploadedDate)){
+                dtoByDateMap.set(vocList[i].uploadedDate, new VocByDateDto(vocList[i].uploadedDate, []));
             }
-            dtoByDateList[dtoByDateList.length-1].vocs.push(vocList[i]);
+            dtoByDateMap.get(vocList[i].uploadedDate).vocs.push(vocList[i]);
         }
 
-        return dtoByDateList;
-
+        return Array.from(dtoByDateMap.values());
     }
 
     private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerDateDto[]>{
@@ -268,8 +297,8 @@ export class VocService{
 
             for(let j = 0; j<vocs.length; j++){
                 const vocEntity:VocEntity = vocs[j];
-                const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
-                const categoryEntity:CategoryEntity = vocAnalysis.category;
+                const vocAnalysis:VocAnalysisEntity = await vocEntity.vocAnalysis;
+                const categoryEntity:CategoryEntity = await vocAnalysis.category;
 
                 if(!vocCountDtoMap.has(categoryEntity)){
                     vocCountDtoMap.set(categoryEntity, {positive:0, negative:0});
@@ -288,6 +317,7 @@ export class VocService{
             }
 
             vocCountDtoMap.forEach((value, key, map) => {
+                //console.log(key.categoryName);
                 categoryCountResult.push(new VocCountPerCategoryDto(key, value.positive, value.negative));
             });
 
