@@ -51,4 +51,10 @@ export class VocController{
     public async getVocCountPerCategory(@Param("productId") productId:string){
         return this.vocService.getVocCountPerCategory(productId);
     }
+
+    @ApiOperation({summary: "멤버ID로 VOC 건수 불러오기"})
+    @Get("/count/:memberId")
+    public async getVocCountByMemberId(@Param("memberId") memberId:string){
+        return this.vocService.getVocCountByMemberId(memberId);
+    }
 }
