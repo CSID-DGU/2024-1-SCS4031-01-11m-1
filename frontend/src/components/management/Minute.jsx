@@ -18,7 +18,7 @@ const TableCell = styled.td`
     font-weight: 400;
     line-height: normal;
     padding: 10px;
-    position: relative; /* Added for positioning the popup */
+    position: relative; 
 `;
 
 const FileName = styled.a`

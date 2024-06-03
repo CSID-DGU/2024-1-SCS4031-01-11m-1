@@ -18,7 +18,7 @@ const Title = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1z0px;
+  gap: 10px;
 `;
 
 const FullContainer = styled.div`
@@ -67,14 +67,14 @@ const CalenderIcon = styled.img`
 function DateRange() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false); // 추가: 시작 날짜 선택기 보이기/숨기기 상태
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false); // 추가: 종료 날짜 선택기 보이기/숨기기 상태
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false); 
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false); 
 
   return (
     <Container>
         <Title>Date Range</Title>
         <FullContainer>
-            <DateContainer onClick={() => setShowStartDatePicker(true)}> {/* 추가: 클릭 시 시작 날짜 선택기 표시 */}
+            <DateContainer onClick={() => setShowStartDatePicker(true)}> 
                 <CalenderIcon src={calenderIcon} alt="Calender" />
                 {showStartDatePicker && (
                     <DateInput

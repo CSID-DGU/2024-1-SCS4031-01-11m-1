@@ -14,7 +14,7 @@ const Title = styled.div`
 
 const Container = styled.div`
     width: 305px;
-    max-height: 173px;
+    height: 173px;
     flex-shrink: 0;
     overflow-y: auto;
     &::-webkit-scrollbar {
@@ -43,21 +43,33 @@ const Item = styled.div`
     }
 `;
 
-function Product({ memberId, accessToken }) {
+function Product({ onProductSelect }) {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [products, setProducts] = useState([]);
+    const [memberId, setMemberId] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
+
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo && userInfo.memberId && userInfo.accessToken) {
+            setMemberId(userInfo.memberId);
+            setAccessToken(userInfo.accessToken);
+        }
+    }, []);
 
     useEffect(() => {
         const fetchProducts = async () => {
-            try {
-                const response = await axios.get(`http://15.165.14.203/api/member-data/products/${memberId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
-                setProducts(response.data); // Adjust based on the actual response structure
-            } catch (error) {
-                console.error("Failed to fetch products", error);
+            if (memberId && accessToken) {
+                try {
+                    const response = await axios.get(`http://15.165.14.203/api/member-data/products/${memberId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    setProducts(response.data);
+                } catch (error) {
+                    console.error("Failed to fetch products", error);
+                }
             }
         };
 
@@ -65,20 +77,22 @@ function Product({ memberId, accessToken }) {
     }, [memberId, accessToken]);
 
     const handleItemClick = (product) => {
-        setSelectedProduct(product);
+        const newSelectedProduct = selectedProduct === product ? null : product;
+        setSelectedProduct(newSelectedProduct);
+        onProductSelect(newSelectedProduct);
     };
 
     return (
         <>
             <Title>Product</Title>
             <Container>
-                {products.map((product, index) => (
+                {products.map((product) => (
                     <Item
-                        key={index}
+                        key={product.id}
                         isSelected={selectedProduct === product}
                         onClick={() => handleItemClick(product)}
                     >
-                        {product}
+                        {product.productName}
                     </Item>
                 ))}
             </Container>

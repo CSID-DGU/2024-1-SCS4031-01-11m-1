@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import Product from './addreport/Product';
 import Data from './addreport/Data';
 import Document from './addreport/Document';
@@ -109,13 +110,67 @@ const CancelButton = styled.button`
 `;
 
 function AddReport({ onClose }) {
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [memberId, setMemberId] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo && userInfo.memberId && userInfo.accessToken) {
+            setMemberId(userInfo.memberId);
+            setAccessToken(userInfo.accessToken);
+        }
+
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
     const handleCancel = () => {
-        // 취소 버튼 클릭 시 onClose 호출
         onClose();
     };
 
-    const handleSave = () => {
-        // 저장 버튼 클릭 시 처리 로직 작성
+    const handleSave = async () => {
+        if (!selectedProduct || !selectedDocument) {
+            alert("Please select both a product and a document.");
+            return;
+        }
+
+        try {
+            const requestBody = {
+                productId: selectedProduct.id,
+                minuteId: selectedDocument.id
+            };
+
+            console.log('Request Body:', requestBody);
+
+            const response = await axios.post(
+                `http://15.165.14.203/api/member-data/report/${memberId}`,
+                requestBody,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error(`Failed to save report: ${response.statusText}`);
+            }
+
+            if (isMounted.current) {
+                alert("Report saved successfully!");
+                onClose();
+            }
+        } catch (error) {
+            if (isMounted.current) {
+                console.error("Failed to save report", error);
+                alert("Failed to save report");
+            }
+        }
     };
 
     return (
@@ -124,11 +179,11 @@ function AddReport({ onClose }) {
                 <Title>Add Report</Title>
                 <Content>
                     <Column>
-                        <Product />
+                        <Product onProductSelect={setSelectedProduct} />
                         <Data />
                     </Column>
                     <Column>
-                        <Document />
+                        <Document onDocumentSelect={setSelectedDocument} />
                         <DateRange />
                     </Column>
                 </Content>

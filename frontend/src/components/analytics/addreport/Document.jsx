@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const Title = styled.div`
     color: #333;
@@ -13,7 +14,7 @@ const Title = styled.div`
 
 const Container = styled.div`
     width: 305px;
-    max-height: 173px;
+    height: 173px;
     flex-shrink: 0;
     overflow-y: auto;
     &::-webkit-scrollbar {
@@ -24,7 +25,7 @@ const Container = styled.div`
         background: #ccc;
     }
     border-radius: 2.5px;
-    border: 1px solid #D9D9D9;  
+    border: 1px solid #D9D9D9;
 `;
 
 const Item = styled.div`
@@ -34,8 +35,7 @@ const Item = styled.div`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    margin-top: 0px;
-    cursor: pointer; 
+    cursor: pointer;
     padding: 13px;
     background-color: ${({ isSelected }) => (isSelected ? 'rgba(28, 49, 89, 0.30)' : 'transparent')};
     &:hover {
@@ -43,34 +43,61 @@ const Item = styled.div`
     }
 `;
 
-function Document() {
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const products = [
-        'Document 1', 'Document 2', 'Document 3', 'Document 4', 
-        'Document 5', 'Document 6', 'Document 7', 'Document 8', 
-        'Document 9', 'Document 10'
-    ];
+function Document({ onDocumentSelect }) {
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [documents, setDocuments] = useState([]);
+    const [memberId, setMemberId] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
+
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo && userInfo.memberId && userInfo.accessToken) {
+            setMemberId(userInfo.memberId);
+            setAccessToken(userInfo.accessToken);
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchDocuments = async () => {
+            if (memberId && accessToken) {
+                try {
+                    const response = await axios.get(`http://15.165.14.203/api/member-data/product-minutes/${memberId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    setDocuments(response.data);
+                } catch (error) {
+                    console.error("Failed to fetch documents", error);
+                }
+            }
+        };
+
+        fetchDocuments();
+    }, [memberId, accessToken]);
 
     const handleItemClick = (document) => {
-        setSelectedProduct(document);
+        const newSelectedDocument = selectedDocument === document ? null : document;
+        setSelectedDocument(newSelectedDocument);
+        onDocumentSelect(newSelectedDocument);
     };
 
     return (
         <>
             <Title>Document</Title>
             <Container>
-                {products.map((document, index) => (
-                    <Item 
-                        key={index} 
-                        isSelected={selectedProduct === document}
+                {documents.map((document) => (
+                    <Item
+                        key={document.id}
+                        isSelected={selectedDocument === document}
                         onClick={() => handleItemClick(document)}
                     >
-                        {document}
+                        {document.minuteName}
                     </Item>
                 ))}
             </Container>
         </>
-    )
+    );
 }
 
 export default Document;
