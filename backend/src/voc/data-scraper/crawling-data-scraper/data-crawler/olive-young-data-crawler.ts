@@ -22,12 +22,12 @@ export class OliveYoundDataCrawler implements DataCrawler{
             executablePath: '/usr/bin/chromium-browser',
             headless: true,
             args: [
-                "--disable-gpu",
-                "--disable-dev-shm-usage",
-                "--no-sandbox",
-                "--headless",
-                "--enable-chrome-browser-cloud-management"
-            ]
+                  "--disable-gpu",
+                  "--disable-dev-shm-usage",
+                  "--no-sandbox",
+                  "--headless",
+                  "--enable-chrome-browser-cloud-management"
+             ]
         });
 
         let page = await browser.newPage();

@@ -10,7 +10,7 @@ export class VocAnalysisEntity extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id:string;
 
-    @ManyToOne(() => VocEntity)
+    @ManyToOne(() => VocEntity, {eager: false})
     voc:VocEntity
 
     @ManyToOne(() => CategoryEntity, {eager:true})

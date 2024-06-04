@@ -5,7 +5,7 @@ import { UrlVocListDto } from "./controller-dto/get-voc-by-productId/url-voc-lis
 import { GetVocByProductIdResponseDto } from "./controller-dto/get-voc-by-productId/get-voc-by-productId-response.dto"
 import { VocService } from "../service/voc.service";
 
-@ApiTags('Member Data Controller')
+@ApiTags('VOC Data Controller')
 @Controller('/voc')
 export class VocController{
 
