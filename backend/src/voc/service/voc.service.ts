@@ -15,9 +15,9 @@ import { CustomOpenAI } from "src/llm/llm-module";
 import { SentimentEnum } from "../entity/sentiment.enum";
 import { VocKeywordEntity } from "../entity/voc-keyword.entity";
 import { VocByDateDto } from "../dto/voc-by-date.dto";
-import { VocCountPerCategoryDto } from "../dto/voc-count-per-category.dto";
-import { VocCountPerDateDto } from "../dto/voc-count-per-date.dto";
 import { Transactional } from "typeorm-transactional";
+import { VocCountPerCategoryDto } from "../dto/voc-count-per-category";
+import { VocCountPerWeekDto } from "../dto/voc-count-per-week.dto";
 
 @Injectable()
 export class VocService{
@@ -49,7 +49,7 @@ export class VocService{
     ){}
 
     //---------------------------VOC 데이터 불러오기-----------------------------------//
-    public async getVocCountPerCategory(product_id:string):Promise<VocCountPerDateDto[]>{
+    public async getVocCountPerCategory(product_id:string):Promise<VocCountPerCategoryDto[]>{
         const product:ProductEntity = await this.productRepository.findOneBy({id:product_id});
         const urls:UrlEntity[] = product.urls;
 
@@ -65,7 +65,7 @@ export class VocService{
         return await this.countVocByCategory(vocList);
     }
 
-    public async getVocCountByMemberId(member_id:string):Promise<VocCountPerDateDto[]>{
+    public async getVocCountByMemberId(member_id:string):Promise<VocCountPerCategoryDto[]>{
         const member:MemberEntity = await this.memberRepository.findOneBy({memberId:member_id});
         const productList:ProductEntity[] = await this.productRepository.findBy({member:member});
         const vocList:VocEntity[] = [];
@@ -77,7 +77,7 @@ export class VocService{
             });
         }
 
-        const sortedVocList = await this.sortVocByDate(vocList);
+        const sortedVocList = await this.sortVocByWeek(vocList);
         return await this.countVocByCategory(sortedVocList);
     }
 
@@ -274,7 +274,6 @@ export class VocService{
     //-----------------------카테고리별 VOC 개수 종합----------------------------//
     private async sortVocByDate(vocList:VocEntity[]):Promise<VocByDateDto[]>{
         const dtoByDateMap:Map<Date,VocByDateDto> = new Map();
-        let currentIndexDate:Date = null;
 
         for(let i = 0; i<vocList.length; i++){
             if(!dtoByDateMap.has(vocList[i].uploadedDate)){
@@ -286,46 +285,63 @@ export class VocService{
         return Array.from(dtoByDateMap.values());
     }
 
-    private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerDateDto[]>{
-        console.log("count start")
-        const sortedResult:VocCountPerDateDto[] = [];
+    private async sortVocByWeek(vocList:VocEntity[]):Promise<VocByDateDto[]>{
+        const dtoByDateMap:Map<String,VocByDateDto> = new Map();
 
         for(let i = 0; i<vocList.length; i++){
-            const vocCountDtoMap:Map<CategoryEntity, {positive:number, negative: number}> = new Map();
-            const categoryCountResult:VocCountPerCategoryDto[] = [];
-            const vocs: VocEntity[] = vocList[i].vocs
+            let day:number = vocList[i].uploadedDate.getDay()-2;
 
-            for(let j = 0; j<vocs.length; j++){
-                const vocEntity:VocEntity = vocs[j];
-                const vocAnalysis:VocAnalysisEntity = await vocEntity.vocAnalysis;
-                const categoryEntity:CategoryEntity = await vocAnalysis.category;
-
-                if(!vocCountDtoMap.has(categoryEntity)){
-                    vocCountDtoMap.set(categoryEntity, {positive:0, negative:0});
-                }
-
-                const vocCount:{positive:number, negative:number} = vocCountDtoMap.get(categoryEntity);
-
-                if(vocAnalysis.primarySentiment = SentimentEnum.positive){
-                    let num:number = vocCount.positive + 1;
-                    vocCount.positive = num;
-                } else{
-                    let num: number = vocCount.negative + 1;
-                    vocCount.negative = num;
-                }
-                
+            if(day<0){
+                day = day +7
             }
 
-            vocCountDtoMap.forEach((value, key, map) => {
-                //console.log(key.categoryName);
-                categoryCountResult.push(new VocCountPerCategoryDto(key, value.positive, value.negative));
-            });
+            let date:Date = new Date(vocList[i].uploadedDate);
+            date.setDate(date.getDate() - day);
 
-            
-
-            sortedResult.push(new VocCountPerDateDto(vocList[i].date, categoryCountResult));
+            if(!dtoByDateMap.has(date.toUTCString())){
+                dtoByDateMap.set(date.toUTCString(), new VocByDateDto(date, []));
+            }
+            dtoByDateMap.get(date.toUTCString()).vocs.push(vocList[i]);
         }
 
-        return sortedResult;
+        return Array.from(dtoByDateMap.values());
+    }
+
+    private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerCategoryDto[]>{
+        let resultMap:Map<string,VocCountPerCategoryDto> = new Map();
+
+        for(let i = 0; i<vocList.length; i++){
+            let countPerCategory:Map<string, number[]> = new Map();
+            let vocs = vocList[i].vocs;
+
+            for(let j = 0 ; j < vocs.length; j++){
+                const vocEntity:VocEntity = vocs[j];
+                const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
+                const category:CategoryEntity = vocAnalysis.category;
+                const categoryName:string = category.categoryName;
+
+                if(!resultMap.has(categoryName)){
+                    resultMap.set(categoryName, new VocCountPerCategoryDto(category));
+                }
+
+                if(!countPerCategory.has(categoryName)){
+                    countPerCategory.set(categoryName, [0,0]);
+                }
+
+                if(vocAnalysis.primarySentiment == SentimentEnum.positive){
+                    countPerCategory.get(categoryName)[0]++;
+                } else if(vocAnalysis.primarySentiment == SentimentEnum.negative){
+                    countPerCategory.get(categoryName)[1]++;
+                }
+            }
+
+            const categoryArray:string[] = Array.from(countPerCategory.keys());
+            for(let j = 0; j<categoryArray.length; j++){
+                const countArray:number[] = countPerCategory.get(categoryArray[j]);
+                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date, countArray[0], countArray[1]));
+            }
+        }
+
+        return Array.from(resultMap.values());
     }
 }
