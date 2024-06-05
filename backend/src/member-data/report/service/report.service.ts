@@ -34,7 +34,7 @@ export class ReportService {
   ){}
 
   @Transactional()
-  async createReport(productId: string, memberId: string, minuteId:string, startDate: Date, endDate:Date){
+  async createReport(productId: string, memberId: string, minuteId:string, startDate: Date, endDate:Date):Promise<string>{
     const member:MemberEntity = await this.authService.findById(memberId);
     this.nullCheckForEntity(member);
 
@@ -59,8 +59,6 @@ export class ReportService {
       const vocAnalysisAndCategory: VocAnalysisesAndCategory = {categoryName: category.categoryName, vocAnalysises: vocAnalysisByCtg};
       vocAnalysisesGroupByCtg.push(vocAnalysisAndCategory);
     };
-    console.log('------------------------')
-    console.log(vocAnalysisesGroupByCtg)
 
     const positiveKeywordsByCtg: KeywordsBySentimentCtg[] = []
     const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = []
@@ -105,6 +103,8 @@ export class ReportService {
 
     const reportEntity = ReportEntiy.createNew(reportSources, member, productName);
     await this.reportRepository.save(reportEntity);
+
+    return reportEntity.id;
   };
 
   async loadReports(memberId: string):Promise<ReportListDto[]>{
