@@ -54,10 +54,12 @@ export class ReportService {
     
     const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = [];
     for (const category of categoryEntities){
-      const vocAnalysisByCtg = vocAnalysis.filter((result)=>{result.category == category})
+      const vocAnalysisByCtg:VocAnalysisEntity[] = vocAnalysis.filter(result => result.category.categoryName == category.categoryName)
       const vocAnalysisAndCategory: VocAnalysisesAndCategory = {categoryName: category.categoryName, vocAnalysises: vocAnalysisByCtg};
       vocAnalysisesGroupByCtg.push(vocAnalysisAndCategory);
     };
+    console.log('------------------------')
+    console.log(vocAnalysisesGroupByCtg)
 
     const positiveKeywordsByCtg: KeywordsBySentimentCtg[] = []
     const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = []
@@ -91,12 +93,8 @@ export class ReportService {
         answers.push(answer);
       };
 
-      let vocSummaries: string[];
-      for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
-        if(vocAnalysisByCtg.categoryName === categoryName){
-          vocSummaries = await this.summarizeVocReviews(vocAnalysisByCtg);
-        }
-      }
+      const vocAnalysisByCtg: VocAnalysisesAndCategory[] = vocAnalysisesGroupByCtg.filter( result => result.categoryName==categoryName );
+      const vocSummaries: string[] = await this.summarizeVocReviews(vocAnalysisByCtg[0]);
       
       const positiveCnt = vocAnalysis.filter(result => result.primarySentiment === 'positive').length;
       const negativeCnt = vocAnalysis.filter(result => result.primarySentiment === 'negative').length;
