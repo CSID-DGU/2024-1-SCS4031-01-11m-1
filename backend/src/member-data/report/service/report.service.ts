@@ -63,13 +63,10 @@ export class ReportService {
     const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = []
   
     for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
-      const keywordsByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg)
-      positiveKeywordsByCtg.push(keywordsByCtg);
-    };
-
-    for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
-      const keywordsByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg)
-      negativeKeywordsByCtg.push(keywordsByCtg);
+      const positiveKeywordByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg, 'positive')
+      positiveKeywordsByCtg.push(positiveKeywordByCtg);
+      const negativeKeywordByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg, 'negative')
+      negativeKeywordsByCtg.push(negativeKeywordByCtg);
     };
 
     const ragResult:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
@@ -80,12 +77,30 @@ export class ReportService {
 
       const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
       const keywords:string[] = keywordsList[0].keywords; // ToDo: refactoring
+
+      const positiveAnswers = ragResult[i].sentiment.긍정;
+      const negativeAnswers = ragResult[i].sentiment.부정;
+
+      const answers: string[] = [];
+      for(const positiveAnswer of positiveAnswers){
+        const answer: string = positiveAnswer.answer
+        answers.push(answer);
+      };
+      for(const negativeAnswer of negativeAnswers){
+        const answer: string = negativeAnswer.answer
+        answers.push(answer);
+      };
+
+      let vocSummaries: string[];
+      for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
+        if(vocAnalysisByCtg.categoryName === categoryName){
+          vocSummaries = await this.summarizeVocReviews(vocAnalysisByCtg);
+        }
+      }
       
-      const positiveAnswer = ragResult[i].sentiment.긍정;
-      const negativeAnswer = ragResult[i].sentiment.부정;
       const positiveCnt = vocAnalysis.filter(result => result.primarySentiment === 'positive').length;
       const negativeCnt = vocAnalysis.filter(result => result.primarySentiment === 'negative').length;
-      const categoryResult = ReportSource.create(categoryName, keywords, positiveAnswer, negativeAnswer, positiveCnt, negativeCnt)
+      const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries, answers, positiveCnt, negativeCnt)
       reportSources.push(categoryResult);
     };
 
@@ -116,12 +131,27 @@ export class ReportService {
     if (entity == null) throw new NotFoundException();
   };
 
-  private async createKeywordsByCtg(vocAnalysisByCtg:VocAnalysisesAndCategory):Promise<KeywordsBySentimentCtg>{
-    const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises.filter((result)=>{result.primarySentiment == "positive"})
+  @Transactional()
+  async deleteReport(reportId: string): Promise<void>{
+    const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
+    this.nullCheckForEntity(report);
+    await this.reportRepository.remove(report);
+  };
+
+  private async createKeywordsByCtg(vocAnalysisByCtg:VocAnalysisesAndCategory, sentiment: string):Promise<KeywordsBySentimentCtg>{
+    const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises.filter((result)=>{result.primarySentiment == `${sentiment}`})
     const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
     const vocReviews = vocEntities.map((result)=>{return result.description});
     const keywords = await this.customOpenAI.keywordExtraction(vocReviews,vocAnalysisByCtg.categoryName);
     const keywordsByCtg: KeywordsBySentimentCtg = {categotyName:vocAnalysisByCtg.categoryName, keywords:keywords}
     return keywordsByCtg;
   };
+
+  private async summarizeVocReviews(vocAnalysisByCtg:VocAnalysisesAndCategory):Promise<string[]>{
+    const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises;
+    const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
+    const vocReviews = vocEntities.map((result)=>{return result.description})
+    const vocSummarizeResults = await this.customOpenAI.chunkSummarize(vocReviews, vocAnalysisByCtg.categoryName);
+    return vocSummarizeResults;
+  }
 }
