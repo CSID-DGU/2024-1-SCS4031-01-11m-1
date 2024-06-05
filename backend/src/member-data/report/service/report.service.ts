@@ -131,6 +131,13 @@ export class ReportService {
     if (entity == null) throw new NotFoundException();
   };
 
+  @Transactional()
+  async deleteReport(reportId: string): Promise<void>{
+    const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
+    this.nullCheckForEntity(report);
+    await this.reportRepository.remove(report);
+  };
+
   private async createKeywordsByCtg(vocAnalysisByCtg:VocAnalysisesAndCategory, sentiment: string):Promise<KeywordsBySentimentCtg>{
     const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises.filter((result)=>{result.primarySentiment == `${sentiment}`})
     const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
