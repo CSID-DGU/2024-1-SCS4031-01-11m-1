@@ -13,7 +13,7 @@ export class VocAnalysisEntity extends BaseEntity {
     @ManyToOne(() => VocEntity, {eager: false})
     voc:VocEntity
 
-    @ManyToOne(() => CategoryEntity, {eager: false})
+    @ManyToOne(() => CategoryEntity, {eager:true})
     category:CategoryEntity;
 
     @Column({

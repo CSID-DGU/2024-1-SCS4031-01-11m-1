@@ -27,7 +27,7 @@ jobs:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         SWAGGER_PREFIX: ${{ secrets.SWAGGER_PREFIX }}
-        OPENAI_KEY: ${{secrets.OPENAI_KEY}}
+        OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
       run: |
         echo "DB_HOST=$DB_HOST" >> .env
         echo "DB_PORT=$DB_PORT" >> .env
