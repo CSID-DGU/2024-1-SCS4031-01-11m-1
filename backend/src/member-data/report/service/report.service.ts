@@ -14,6 +14,9 @@ import { ReportSource } from "../domain/report-source";
 import { VocKeywordEntity } from "src/voc/entity/voc-keyword.entity";
 import { ProductMinuteEntity } from "src/member-data/products/entities/product-minute.entity";
 import { KeywordsBySentimentCtg, VocAnalysisesAndCategory, customRAGresult } from "src/utils/type-definiton/type-definition";
+import { ProductEntity } from "src/member-data/products/entities/product.entity";
+import { ReportListDto } from "./dto/report-list.dto";
+import { ReportMapper } from "./mapper/report-mapper";
 
 @Injectable()
 export class ReportService {
@@ -25,13 +28,18 @@ export class ReportService {
     private readonly categoryService: CategoryService,
     private readonly customOpenAI:CustomOpenAI,
     @InjectRepository(ProductMinuteEntity)
-    private readonly productMinuteRepository: Repository<ProductMinuteEntity>
+    private readonly productMinuteRepository: Repository<ProductMinuteEntity>,
+    @InjectRepository(ProductEntity)
+    private readonly productRepository: Repository<ProductEntity>
   ){}
 
   @Transactional()
   async createReport(productId: string, memberId: string, minuteId:string){
     const member:MemberEntity = await this.authService.findById(memberId);
     this.nullCheckForEntity(member);
+
+    const product: ProductEntity = await this.productRepository.findOneBy({id:productId});
+    const productName:string = product.productName;
 
     const minute:ProductMinuteEntity = await this.productMinuteRepository.findOneBy({id: minuteId});
     this.nullCheckForEntity(minute);
@@ -44,7 +52,6 @@ export class ReportService {
     // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
     const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductId(productId);
     
-    // 카테고리별로 vocanalysis를 나눔
     const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = [];
     for (const category of categoryEntities){
       const vocAnalysisByCtg = vocAnalysis.filter((result)=>{result.category == category})
@@ -82,16 +89,21 @@ export class ReportService {
       reportSources.push(categoryResult);
     };
 
-    const reportEntity = ReportEntiy.createNew(reportSources, member);
+    const reportEntity = ReportEntiy.createNew(reportSources, member, productName);
     await this.reportRepository.save(reportEntity);
   };
 
-  async loadReports(memberId: string):Promise<ReportEntiy[]>{
+  async loadReports(memberId: string):Promise<ReportListDto[]>{
     const member:MemberEntity = await this.authService.findById(memberId)
     this.nullCheckForEntity(member);
 
     const reports = await this.reportRepository.findBy({member});
-    return reports;
+    const reportListDtos:ReportListDto[] = []
+    for(const report of reports){
+      const reportListDto = ReportMapper.reportEntityToReportListDto(report)
+      reportListDtos.push(reportListDto);
+    }
+    return reportListDtos
   };
 
   async loadReport(reportId: string): Promise<ReportEntiy>{
