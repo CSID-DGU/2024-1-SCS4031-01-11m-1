@@ -1,3 +1,5 @@
+import { VocAnalysisEntity } from "src/voc/entity/voc-analysis.entity";
+
 export type customRAGresult = {
     category: string,
     sentiment: {
@@ -15,3 +17,13 @@ export type KeywordSource = {
   keyword: string,
   review: string
 };
+
+export type VocAnalysisesAndCategory = {
+  categoryName: string,
+  vocAnalysises: VocAnalysisEntity[]
+}
+
+export type KeywordsBySentimentCtg = {
+  categotyName: string,
+  keywords: string[]
+}

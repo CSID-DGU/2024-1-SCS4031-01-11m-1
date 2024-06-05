@@ -13,6 +13,7 @@ import { CustomOpenAI } from "src/llm/llm-module";
 import { ReportSource } from "../domain/report-source";
 import { VocKeywordEntity } from "src/voc/entity/voc-keyword.entity";
 import { ProductMinuteEntity } from "src/member-data/products/entities/product-minute.entity";
+import { KeywordsBySentimentCtg, VocAnalysisesAndCategory, customRAGresult } from "src/utils/type-definiton/type-definition";
 
 @Injectable()
 export class ReportService {
@@ -42,31 +43,31 @@ export class ReportService {
 
     // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
     const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductId(productId);
+    
+    // 카테고리별로 vocanalysis를 나눔
+    const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = [];
+    for (const category of categoryEntities){
+      const vocAnalysisByCtg = vocAnalysis.filter((result)=>{result.category == category})
+      const vocAnalysisAndCategory: VocAnalysisesAndCategory = {categoryName: category.categoryName, vocAnalysises: vocAnalysisByCtg};
+      vocAnalysisesGroupByCtg.push(vocAnalysisAndCategory);
+    };
 
-    // ToDo: 
-    // 1. 긍정 카테고리에 해당하는 리뷰데이터에서 키워드를 추출
-    // review {카테고리: string, sentiment: string, review: string[]}
-    let positiveKeywords:string[] = [];
-    let negativeKeywords: string[] = [];
+    const positiveKeywordsByCtg: KeywordsBySentimentCtg[] = []
+    const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = []
+  
+    for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
+      const keywordsByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg)
+      positiveKeywordsByCtg.push(keywordsByCtg);
+    };
 
-    // let positiveKeywords:string[] = vocAnalysis.map((result)=>{
-    //   if(result.sentiment.sentiment == 'positive'){
-    //     return result.sentiment.category;
-    //   };
-    // });
+    for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
+      const keywordsByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg)
+      negativeKeywordsByCtg.push(keywordsByCtg);
+    };
 
-    // let negativeKeywords: string[] = vocAnalysis.map((result)=>{
-    //   if(result.sentiment.sentiment == 'negative'){
-    //     return result.sentiment.category
-    //   };
-    // });
-    // positiveKeywords = [...new Set(positiveKeywords)];
-    // negativeKeywords = [...new Set(negativeKeywords)];
-
-    const ragResult = await this.customOpenAI.customRAG(categories, positiveKeywords, negativeKeywords, minute.path);
+    const ragResult:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
     const reportSources: ReportSource[] = [];
 
-    // ToDo: Category별로 ReportSource만들기:
     for(let i=0; i<ragResult.length; i++){
       const categoryName:string = ragResult[i].category;
 
@@ -93,13 +94,22 @@ export class ReportService {
     return reports;
   }
 
-  private nullCheckForEntity(entity) {
-    if (entity == null) throw new NotFoundException();
-  };
-
   async loadReport(reportId: string): Promise<ReportEntiy>{
     const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
     this.nullCheckForEntity(report);
     return report;
+  };
+
+  private nullCheckForEntity(entity) {
+    if (entity == null) throw new NotFoundException();
+  };
+
+  private async createKeywordsByCtg(vocAnalysisByCtg:VocAnalysisesAndCategory):Promise<KeywordsBySentimentCtg>{
+    const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises.filter((result)=>{result.primarySentiment == "positive"})
+    const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
+    const vocReviews = vocEntities.map((result)=>{return result.description});
+    const keywords = await this.customOpenAI.keywordExtraction(vocReviews,vocAnalysisByCtg.categoryName);
+    const keywordsByCtg: KeywordsBySentimentCtg = {categotyName:vocAnalysisByCtg.categoryName, keywords:keywords}
+    return keywordsByCtg;
   };
 }

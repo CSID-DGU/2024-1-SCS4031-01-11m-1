@@ -9,7 +9,7 @@ import {
   RunnableSequence,
   RunnablePassthrough,
 } from "@langchain/core/runnables";
-import { KeywordAnswer, customRAGresult } from "src/utils/type-definiton/type-definition";
+import { KeywordAnswer, KeywordsBySentimentCtg, customRAGresult } from "src/utils/type-definiton/type-definition";
 
 @Injectable()
 export class CustomOpenAI {
@@ -159,8 +159,8 @@ export class CustomOpenAI {
 
   async customRAG(
     categories: string[],
-    positiveKeywords: string[],
-    negativeKeywords: string[],
+    positiveKeywordsByCtg: KeywordsBySentimentCtg[],
+    negativeKeywordsByCtg: KeywordsBySentimentCtg[],
     minutePath: string
   ): Promise<customRAGresult[]>{
     const loader = new PDFLoader(minutePath);
@@ -203,11 +203,11 @@ export class CustomOpenAI {
     const minutes:customRAGresult[] = [];
   
     for (const category of categories) {
-      // ToDo: 타입 강제
       let categoryResult: customRAGresult = {category: category, sentiment: { 긍정: [], 부정: [] }};
       categoryResult.category = category
-  
+
       // 긍정 키워드에 대한 검색 결과
+      const positiveKeywords:string[] = (positiveKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords;
       for (const keyword of positiveKeywords) {
         const content = `
         해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
@@ -223,8 +223,9 @@ export class CustomOpenAI {
         };
         categoryResult.sentiment.긍정.push(keywordAnswer);
       }
-  
+    
       // 부정 키워드에 대한 검색 결과
+      const negativeKeywords:string[] = (negativeKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords
       for (const keyword of negativeKeywords) {
         const content = `
         해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
