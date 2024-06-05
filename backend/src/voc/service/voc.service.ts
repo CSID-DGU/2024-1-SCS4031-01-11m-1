@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { DataScrapingModuleMapping } from "../data-scraper/data-scraper-mapping";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VocEntity } from "../entity/voc.entity";
-import { Repository, QueryFailedError } from 'typeorm';
+import { Repository, QueryFailedError, Between } from 'typeorm';
 import { UrlEntity } from "src/member-data/products/entities/url.entity";
 import { ProductEntity } from "src/member-data/products/entities/product.entity";
 import { UrlVocListDto } from "src/voc/controller/controller-dto/get-voc-by-productId/url-voc-list.dto"
@@ -187,20 +187,41 @@ export class VocService{
     }
 
     public async getVocAnalysisByVocId(vocId: string): Promise<VocAnalysisEntity[]>{
-      const voc = await this.vocRepository.findOneBy({id: vocId});
-      const vocAnalysis = await this.vocAnalysisRepository.findBy({voc: voc});
-      return vocAnalysis;
+        const voc = await this.vocRepository.findOneBy({id: vocId});
+        const vocAnalysis = await this.vocAnalysisRepository.findBy({voc: voc});
+        return vocAnalysis;
     };
 
-    public async getVocAnalysisByProductId(productId: string): Promise<VocAnalysisEntity[]>{
-      return this.vocAnalysisRepository.createQueryBuilder('vocAnalysis')
-      .innerJoinAndSelect('vocAnalysis.voc', 'voc')
-      .innerJoinAndSelect('voc.url', 'url')
-      .innerJoin('url.product', 'product')
-      .innerJoinAndSelect('vocAnalysis.category', 'category')
-      .where('product.id = :productId', { productId })
-      .getMany();
-    };
+    public async getVocAnalysisByProductId(productId: string): Promise<VocAnalysisEntity[]> {
+        return this.vocAnalysisRepository.find({
+            where: {
+                voc: {
+                    url: {
+                        product: {
+                            id: productId
+                        }
+                    }
+                }
+            },
+            relations: ['voc', 'voc.url', 'voc.url.product', 'category']
+        });
+    }
+
+    public async getVocAnalysisByProductIdAndDate(productId: string, startDate: Date, endDate: Date): Promise<VocAnalysisEntity[]> {
+        return this.vocAnalysisRepository.find({
+            where: {
+                voc: {
+                    url: {
+                        product: {
+                            id: productId
+                        }
+                    },
+                    uploadedDate: Between(startDate, endDate)
+                }
+            },
+            relations: ['voc', 'voc.url', 'voc.url.product', 'category']
+        });
+    }
 
     public async getVocKeywordsByProductId(productId: string):Promise<VocKeywordEntity[]>{
       const productEntity = await this.productRepository.findOneBy({id: productId});

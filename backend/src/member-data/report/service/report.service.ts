@@ -34,7 +34,7 @@ export class ReportService {
   ){}
 
   @Transactional()
-  async createReport(productId: string, memberId: string, minuteId:string){
+  async createReport(productId: string, memberId: string, minuteId:string, startDate: Date, endDate:Date){
     const member:MemberEntity = await this.authService.findById(memberId);
     this.nullCheckForEntity(member);
 
@@ -50,7 +50,8 @@ export class ReportService {
     const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
 
     // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
-    const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductId(productId);
+    const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductIdAndDate(productId, startDate, endDate);
+    
     
     const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = [];
     for (const category of categoryEntities){

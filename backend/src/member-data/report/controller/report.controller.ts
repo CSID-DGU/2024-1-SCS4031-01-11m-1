@@ -23,8 +23,8 @@ export class ReportController {
     @Body() createReportDto: CreateReportDto,
     @Member() member: MemberEntity
   ){
-    const { productId, minuteId } = createReportDto;
-    return await this.reportService.createReport(productId, member.memberId, minuteId)
+    const { productId, minuteId, startDate, endDate } = createReportDto;
+    return await this.reportService.createReport(productId, member.memberId, minuteId, startDate, endDate);
   };
 
   @ApiOperation({ summary: '사용자의 VOC 분석 레포트를 불러옵니다.' })
