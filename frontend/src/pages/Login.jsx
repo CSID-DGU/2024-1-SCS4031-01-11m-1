@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from '../api/axios';
+import { useRecoilState } from "recoil";
+import { userState } from "../context/authState";
 
 const Container = styled.div`
     width: 100%;
@@ -118,35 +121,54 @@ const ErrorMessage = styled.p`
 `;
 
 function Login() {
-    const [id, setId] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [userInfo, setUserInfo] = useRecoilState(userState);
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://localhost:3000/auth/sign-in', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: id,
-                    password: password,
-                }),
+            const response = await axios.post('http://15.165.14.203/api/auth/sign-in', { 
+                name: name,
+                password: password,
             });
+            
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Login successful:', data);
+            if (response.status === 201) {
+                console.log('Login successful:', response.data);
                 // 로그인 성공 시 원하는 동작 - dashboard로 이동
+                const accessToken = response.data.accessToken;
+                const memberId = response.data.memberId;
+                const memberName = response.data.memberName;
+                
+                setUserInfo({
+                    accessToken: accessToken,
+                    memberId: memberId,
+                    memberName: memberName,
+                    name: name,
+                });
+
+                localStorage.setItem(
+                    "userInfo",
+                    JSON.stringify({
+                    accessToken: accessToken,
+                    memberId: memberId,
+                    memberName: memberName,
+                    name: name,
+                    })
+                );
+                navigate('/dashboard')
             } else {
                 setError('로그인에 실패하였습니다.');
                 console.error('Login failed:', response.statusText);
             }
         } catch (error) {
+            setError('로그인에 실패하였습니다.');
             console.error('Error during login:', error);
         }
     };
+
 
     return (
         <Container>
@@ -163,8 +185,8 @@ function Login() {
                     <Input
                         type="text"
                         placeholder="ID"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                     />
                     <Input
                         type="password"
@@ -174,7 +196,7 @@ function Login() {
                     />
                     <Button onClick={handleLogin}>Login</Button>
                     <SignUpLink to="/signup">Sign Up</SignUpLink>
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
+                    
                 </RightBox>
             </Right>
         </Container>

@@ -1,43 +1,65 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import productimg from '../image/image1_example.jpg';
+import PropTypes from 'prop-types';
+
 import morebutton_icon from '../image/morebutton_icon.png';
-
-
+import AddProduct from './AddProduct';
 
 const TableRow = styled.tr`
     border-bottom: 1px solid #ccc;
+    position: relative;
 `;
 
 const TableCell = styled.td`
     color: #333;
     text-align: left;
-    font-family: Pretendard;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
     padding: 10px;
 `;
 
-
-
-const Image = styled.img`
-    max-width: 100%;
-    max-height: 80%;
+const ProductImage = styled.img`
+    width: 85px;
+    height: 85px;
     border-radius: 5px;
+    vertical-align: top;
 `;
 
-const ImageContainer = styled.div`
+const ProductDetails = styled.div`
     width: 100%;
-    height: 100px;
-    background: url(${productimg});
-    background-size: cover;
-    flex-shrink: 0;
-    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+`;
+
+const ProductName = styled.p`
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+`;
+
+const ProductExplanation = styled.p`
+    margin: 0;
+    font-size: 12px;
+    color: #333;
+`;
+
+const Url = styled.a`
+    width: 30vw;
+    color: #333;
+    font-family: Pretendard;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration-line: underline;
+    display: block;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
 `;
 
 const MoreButton = styled.button`
+    position: relative;
     width: 20px;
     height: 20px;
     background: url(${morebutton_icon}) no-repeat center;
@@ -47,24 +69,16 @@ const MoreButton = styled.button`
 `;
 
 const OptionsContainer = styled.div`
-    position: relative;
+    position: absolute;
+    top: 40%;
+    left: 92%;
+    z-index: 99;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 5px;
     display: ${({ visible }) => (visible ? 'block' : 'none')};
-    top: 0;
-    right: calc(100%);   
-    width: 58px;
-    height: 65px;
-    flex-shrink: 0;
-    border-radius: 5px;
-    border: 0.5px solid #B4B4B4;
-    background: #FFF;
-    box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.25);
-   
 `;
-
 
 const OptionButton = styled.button`
     background: none;
@@ -72,7 +86,7 @@ const OptionButton = styled.button`
     cursor: pointer;
     display: block;
     width: 100%;
-    padding: 5px ;
+    padding: 5px;
     text-align: left;
     color: #000;
     font-family: "Wanted Sans";
@@ -80,93 +94,104 @@ const OptionButton = styled.button`
     font-style: normal;
     font-weight: 500;
     line-height: normal;
-    text-align: center;
-    
+    &:hover {
+        background-color: #f0f0f0;
+    }
 `;
 
-const ProductContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 2px;
-    
-`;
-
-const ProductName = styled.p`
-    flex-shrink: 0;
-    color: #333;
-    font-family: Pretendard;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
-`;
-
-const ProductExplanation = styled.p`
-    flex-shrink: 0;
-    color: #333;
-    font-family: Pretendard;
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 1px;
-    text-align: left;
-`;
-
-
-const Product = () => {
+const Product = ({ id, productName, productImage, description, url, onDelete, onEdit }) => {
     const [optionsVisible, setOptionsVisible] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleMoreButtonClick = () => {
         setOptionsVisible(!optionsVisible);
     };
 
     const handleEditClick = () => {
-        console.log('Edit button clicked');
-        //수정로직 여기에
+        setOptionsVisible(false);
+        setIsEditing(true);
     };
 
-    const handleDeleteClick = () => {
-        console.log('Delete button clicked');
-        //삭제로직 여기에
+    const handleDeleteClick = async () => {
+        setOptionsVisible(false);
+        try {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            const accessToken = userInfo ? userInfo.accessToken : null;
+
+            if (!accessToken) {
+                console.error('Access token not found');
+                return;
+            }
+
+            const response = await fetch(`http://15.165.14.203/api/member-data/delete-product/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (response.ok) {
+                console.log('Product deleted successfully');
+                onDelete(id);
+            } else {
+                console.error('Failed to delete the product');
+            }
+        } catch (error) {
+            console.error('Error deleting the product:', error);
+        }
+    };
+
+    const handleSave = (updatedProduct) => {
+        onEdit(id, updatedProduct);
+        setIsEditing(false);
+    };
+
+    const handleClose = () => {
+        setIsEditing(false);
     };
 
     return (
         <>
-        <TableRow>
-            <TableCell>1</TableCell>
-            <TableCell>
-                <ImageContainer>
-                    <Image />
-                </ImageContainer>
-            </TableCell>
-            <TableCell>
-                <ProductContainer>
-                    <ProductName>에버모이스트 리프레쉬 수분 크림</ProductName>
-                    <ProductExplanation>피부를 즉각적으로 촉촉하게 가득 채워주는 효과적인 보습 크림입니다. 이 제품은 풍부한 수분 공급과 동시에 가벼운 질감으로 피부에 무겁지 않게 흡수되어 촉촉한 윤기를 선사합니다. 특히, 피부의 건조함을 완화하고 탄력을 증진하여 건조한 피부를 위한 이ideal한 보습 솔루션입니다. 에버모이스트 리프레쉬 수분 크림은 자연유래 성분으로 피부를 부드럽게 케어하며, 지루함 없는 즉각적인 보습 효과를 제공하여 피부를 촉촉하고 생기 있게 가꿔줍니다.
-                    피부를 즉각적으로 촉촉하게 가득 채워주는 효과적인 보습 크림입니다. 이 제품은 풍부한 수분 공급과 동시에 가벼운 질감으로 피부에 무겁지 않게 흡수되어 촉촉한 윤기를 선사합니다. 특히, 피부의 건조함을 완화하고 탄력을 증진하여 건조한 피부를 위한 이ideal한 보습 솔루션입니다. 에버모이스트 리프레쉬 수분 크림은 자연유래 성분으로 피부를 부드럽게 케어하며, 지루함 없는 즉각적인 보습 효과를 제공하여 피부를 촉촉하고 생기 있게 가꿔줍니다.
-                    </ProductExplanation>
-                </ProductContainer>
-            </TableCell>
-            <TableCell>
-                <a href="https://example.com/product" target="_blank" rel="noopener noreferrer">
-                    https://example.com/product
-                </a>
-            </TableCell>
-            <TableCell>
+            <TableRow>
+                <TableCell>
+                    <ProductImage src={productImage} alt="Product Image" />
+                </TableCell>
+                <TableCell>
+                    <ProductDetails>
+                        <ProductName>{productName}</ProductName>
+                        <ProductExplanation>{description}</ProductExplanation>
+                    </ProductDetails>
+                </TableCell>
+                <TableCell>
+                    <Url href={url} target="_blank" rel="noopener noreferrer">{url}</Url>
+                </TableCell>
+                <TableCell>
                     <MoreButton onClick={handleMoreButtonClick} />
                     <OptionsContainer visible={optionsVisible}>
-                            <OptionButton onClick={handleEditClick}>Edit</OptionButton>
-                            <OptionButton onClick={handleDeleteClick}>Delete</OptionButton>
+                        <OptionButton onClick={handleEditClick}>Edit</OptionButton>
+                        <OptionButton onClick={handleDeleteClick}>Delete</OptionButton>
                     </OptionsContainer>
-            </TableCell>
-            
-        </TableRow>
-            
+                </TableCell>
+            </TableRow>
+            {isEditing && (
+                <AddProduct
+                    productId={id}
+                    onSave={handleSave}
+                    onClose={handleClose}
+                />
+            )}
         </>
     );
+};
+
+Product.propTypes = {
+    id: PropTypes.string.isRequired,
+    productName: PropTypes.string.isRequired,
+    productImage: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
 };
 
 export default Product;

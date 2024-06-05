@@ -8,7 +8,7 @@ const Container = styled.div`
     align-items: center;
     width: 98%;
     margin: auto;
-    margin-top: 29px;
+    margin-top: 62px;
 `;
 
 const LineContainer = styled.div`   

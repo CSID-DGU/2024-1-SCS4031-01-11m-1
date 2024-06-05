@@ -9,9 +9,9 @@ const NavbarContainer = styled.div`
     background-color: #FDFDFD;
     display: inline-flex;
     padding: 8px 28px 9px 30px;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    gap: 50%;
+    gap: 20%;
     
 `;
 
