@@ -6,6 +6,7 @@ import { MemberEntity } from 'src/auth/member.entity';
 import { Member } from 'src/auth/get-member-decorator';
 import { CreateReportDto } from './dto/create-report.dto';
 import { ReportEntiy } from '../entity/report.entity';
+import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
 
 @ApiTags('Member Data -report- Controller')
 @Controller('/member-data')
@@ -45,5 +46,28 @@ export class ReportController {
   @Get('/report/:reportId')
   async laodReport(@Param('reportId') reportId): Promise<ReportEntiy>{
     return await this.reportService.loadReport(reportId);
+  };
+
+  @ApiOperation({ summary: 'voc 분석 레포트를 삭제합니다.' })
+  @ApiExceptionResponse(
+    404,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    '[ERROR] 해당 report id를 찾을 수 없습니다.',
+  )
+  @ApiExceptionResponse(
+    500,
+    '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+    `[ERROR] voc 분석 레포트를 삭제하는 중 예상치 못한 에러가 발생했습니다.`,
+  )
+  @Delete('/delete-report/:reportId')
+  @ApiParam({
+    name: 'reportId',
+    example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
+    required: true,
+  })
+  async deleteReport(
+    @Param('reportId') reportId
+  ):Promise<void>{
+    await this.reportService.deleteReport(reportId);
   };
 }
