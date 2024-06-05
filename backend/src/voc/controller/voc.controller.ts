@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { VocService } from "../service/voc.service";
 import { TestDataScrapingRequestDto } from "./controller-dto/test-data-scraping/test-data-scraping-request.dto";
 import { UrlVocListDto } from "./controller-dto/get-voc-by-productId/url-voc-list.dto";
 import { GetVocByProductIdResponseDto } from "./controller-dto/get-voc-by-productId/get-voc-by-productId-response.dto"
+import { VocService } from "../service/voc.service";
 
 @ApiTags('VOC Data Controller')
 @Controller('/voc')
@@ -47,13 +47,13 @@ export class VocController{
 
     //-------------------------------------VOC 데이터 가져오기------------------------------------//
     @ApiOperation({summary: "카테고리별 VOC 건수 불러오기"})
-    @Get("/count/:productId")
+    @Get("/count/productId/:productId")
     public async getVocCountPerCategory(@Param("productId") productId:string){
         return this.vocService.getVocCountPerCategory(productId);
     }
 
     @ApiOperation({summary: "멤버ID로 VOC 건수 불러오기"})
-    @Get("/count/:memberId")
+    @Get("/count/member/:memberId")
     public async getVocCountByMemberId(@Param("memberId") memberId:string){
         return this.vocService.getVocCountByMemberId(memberId);
     }

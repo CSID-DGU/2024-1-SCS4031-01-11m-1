@@ -92,7 +92,7 @@ export class ReportService {
 
     const reports = await this.reportRepository.findBy({member});
     return reports;
-  }
+  };
 
   async loadReport(reportId: string): Promise<ReportEntiy>{
     const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
