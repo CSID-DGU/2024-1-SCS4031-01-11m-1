@@ -5,7 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { MemberEntity } from 'src/auth/member.entity';
 import { Member } from 'src/auth/get-member-decorator';
 import { CreateReportDto } from './dto/create-report.dto';
-import { ReportEntiy } from '../entity/report.entity';
+import { ReportEntity } from '../entity/report.entity';
 import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
 
 @ApiTags('Member Data -report- Controller')
@@ -44,7 +44,7 @@ export class ReportController {
     required: true,
   })
   @Get('/report/:reportId')
-  async laodReport(@Param('reportId') reportId): Promise<ReportEntiy>{
+  async laodReport(@Param('reportId') reportId): Promise<ReportEntity>{
     return await this.reportService.loadReport(reportId);
   };
 
