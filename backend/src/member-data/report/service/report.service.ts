@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ReportEntiy } from "../entity/report.entity";
+import { ReportEntity } from "../entity/report.entity";
 import { Repository, QueryFailedError } from 'typeorm';
 import { AuthService } from "src/auth/auth.service";
 import { MemberEntity } from "src/auth/member.entity";
@@ -21,8 +21,8 @@ import { ReportMapper } from "./mapper/report-mapper";
 @Injectable()
 export class ReportService {
   constructor(
-    @InjectRepository(ReportEntiy)
-    private readonly reportRepository: Repository<ReportEntiy>,
+    @InjectRepository(ReportEntity)
+    private readonly reportRepository: Repository<ReportEntity>,
     private readonly authService: AuthService,
     private readonly vocService: VocService,
     private readonly categoryService: CategoryService,
@@ -101,7 +101,7 @@ export class ReportService {
       reportSources.push(categoryResult);
     };
 
-    const reportEntity = ReportEntiy.createNew(reportSources, member, productName);
+    const reportEntity = ReportEntity.createNew(reportSources, member, productName);
     await this.reportRepository.save(reportEntity);
 
     return reportEntity.id;
@@ -120,8 +120,8 @@ export class ReportService {
     return reportListDtos
   };
 
-  async loadReport(reportId: string): Promise<ReportEntiy>{
-    const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
+  async loadReport(reportId: string): Promise<ReportEntity>{
+    const report: ReportEntity = await this.reportRepository.findOneBy({id: reportId});
     this.nullCheckForEntity(report);
     return report;
   };
@@ -132,7 +132,7 @@ export class ReportService {
 
   @Transactional()
   async deleteReport(reportId: string): Promise<void>{
-    const report: ReportEntiy = await this.reportRepository.findOneBy({id: reportId});
+    const report: ReportEntity = await this.reportRepository.findOneBy({id: reportId});
     this.nullCheckForEntity(report);
     await this.reportRepository.remove(report);
   };

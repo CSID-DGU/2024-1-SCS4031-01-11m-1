@@ -4,7 +4,7 @@ import { ManyToOne, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { ReportSource } from '../domain/report-source';
 
 @Entity()
-export class ReportEntiy extends BaseEntity {
+export class ReportEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -29,6 +29,6 @@ export class ReportEntiy extends BaseEntity {
   };
 
   static createNew(reportSources: ReportSource[], member:MemberEntity, productName: string){
-    return new ReportEntiy(reportSources, productName, member);
+    return new ReportEntity(reportSources, productName, member);
   };
 };

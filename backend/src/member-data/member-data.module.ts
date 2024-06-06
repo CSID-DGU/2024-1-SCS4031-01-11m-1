@@ -20,7 +20,7 @@ import { VocModule } from 'src/voc/voc.module';
 import { VocEntity } from 'src/voc/entity/voc.entity';
 import { VocAnalysisEntity } from 'src/voc/entity/voc-analysis.entity';
 import { VocKeywordEntity } from 'src/voc/entity/voc-keyword.entity';
-import { ReportEntiy } from './report/entity/report.entity';
+import { ReportEntity } from './report/entity/report.entity';
 import { DataScrapingModuleMapping } from 'src/voc/data-scraper/data-scraper-mapping';
 
 @Module({
@@ -31,7 +31,7 @@ import { DataScrapingModuleMapping } from 'src/voc/data-scraper/data-scraper-map
       UrlEntity,
       ProductMinuteEntity,
       CategoryEntity,
-      ReportEntiy,
+      ReportEntity,
       VocEntity,
       VocAnalysisEntity,
       VocKeywordEntity,
