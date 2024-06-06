@@ -1,7 +1,7 @@
 import { VocAnalysisEntity } from "src/voc/entity/voc-analysis.entity";
 
 export type customRAGresult = {
-    category: string,
+    categoryName: string,
     sentiment: {
       긍정: KeywordAnswer[],
       부정: KeywordAnswer[],
