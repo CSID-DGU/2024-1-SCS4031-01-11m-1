@@ -56,7 +56,7 @@ const AddRebortbtn = styled.button`
     line-height: normal;
     position:relative;
     left:88%;
-    top:-7%;
+    top:20px;
 `;
 
 const Addicon = styled.div`
@@ -84,15 +84,15 @@ function Analytics() {
             <Title>Analytics</Title>
             <Container>
                 <ListContainer>
+                    {showAddReport && <AddReport onClose={handleCloseAddReport} />}
                     <AddRebortbtn onClick={handleAddReportClick}>
                         <Addicon />
                         Add Report
                     </AddRebortbtn>
-                    {showAddReport ? <AddReport onClose={handleCloseAddReport} /> : <ReportTable />}
+                    <ReportTable />
                 </ListContainer>
             </Container>
         </>
     );
 }
-
 export default Analytics;

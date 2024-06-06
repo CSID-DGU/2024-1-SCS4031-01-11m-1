@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const CardButton = styled.button`
@@ -14,14 +15,14 @@ const CardContainer = styled.div`
 `;
 
 const Container = styled.div`
-    width: 300px;
-    height: 350px;
+    width: 270px;
+    height: 370px;
     flex-shrink: 0;
     border-radius: 10px;
-    border: 1px solid #1c3159;
+    border: ${({ isSelected }) => (isSelected ? '1px solid #1c3159' : '1px solid #DFDFDF')};
     background: #fff;
-    box-shadow: 2px 4px 10px 2px rgba(28, 49, 89, 0.6);
-    margin: 30px;
+    box-shadow: ${({ isSelected }) => (isSelected ? '2px 4px 10px 2px rgba(28, 49, 89, 0.6)' : '0px 4px 5px 2px rgba(0, 0, 0, 0.25)')};
+    margin: 24px;
 `;
 
 const Category = styled.div`
@@ -60,30 +61,70 @@ const Keyword = styled.div`
     background: #bbc1cd;
 `;
 
-function CategoryCard() {
+const ReviewSum = styled.div`
+    color: #333;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    display: flex;
+    width: 203px;
+    height: 40px;
+    align-items: flex-start;
+    margin-left: 30px;
+    margin-top: 10px;
+`;
+
+const MinuteSum = styled.div`
+    color: #333;
+    font-family: Pretendard;
+    display: flex;
+    width: 203px;
+    height: 40px;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin-left: 30px;
+    margin-top: 10px;
+`;
+
+function CategoryCard({ cards = [], onCardClick }) {
+    const [selectedCard, setSelectedCard] = useState(null);
+
+    const handleCardClick = (reportSource) => {
+        setSelectedCard(reportSource);
+        onCardClick(reportSource);
+        console.log(reportSource.categoryName); 
+    };
+
     return (
         <CardContainer>
-            <CardButton>
-                <Container>
-                    <Category>카테고리</Category>
-                    <KeywordContainer>
-                        <Keyword>키워드1</Keyword>
-                        <Keyword>키워드2</Keyword>
-                    </KeywordContainer>
-                </Container>
-            </CardButton>
-            <CardButton>
-                <Container>
-                    <Category>카테고리</Category>
-                    <KeywordContainer>
-                        <Keyword>키워드1</Keyword>
-                        <Keyword>키워드2</Keyword>
-                    </KeywordContainer>
-                </Container>
-            </CardButton>
-            {/* Repeat for other containers */}
+    
+            {cards.flatMap((card, index) => (
+                card.reportSources.map((reportSource, sourceIndex) => (
+                    <CardButton key={`${index}-${sourceIndex}`} onClick={() => handleCardClick(reportSource)}>
+                        <Container isSelected={selectedCard === reportSource}>
+                            <Category>{reportSource.categoryName}</Category>
+                            <KeywordContainer>
+                                {reportSource.keywords.map((keyword, idx) => (
+                                    <Keyword key={idx}>{keyword}</Keyword>
+                                ))}
+                            </KeywordContainer>
+                            <ReviewSum>{reportSource.vocSummaries.join(', ')}</ReviewSum>
+                            <MinuteSum>{reportSource.answer.join(', ')}</MinuteSum>
+                        </Container>
+                    </CardButton>
+                ))
+            ))}
         </CardContainer>
     );
 }
+
+CategoryCard.propTypes = {
+    cards: PropTypes.array.isRequired,
+    onCardClick: PropTypes.func.isRequired
+};
 
 export default CategoryCard;

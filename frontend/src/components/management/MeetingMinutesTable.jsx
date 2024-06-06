@@ -6,7 +6,7 @@ import Minute from './Minute';
 const TableContainer = styled.div`
     width: 100%;
     margin: auto;
-    margin-top: 20px;
+   
 `;
 
 const Table = styled.table`
@@ -17,7 +17,7 @@ const Table = styled.table`
 
 const TableRow = styled.tr`
     border-bottom: 1px solid #ccc;
-    height: 30px;
+    height: 20px;
 `;
 
 const TableCell = styled.td`

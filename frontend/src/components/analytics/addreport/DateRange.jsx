@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -12,7 +12,6 @@ const Title = styled.div`
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-
 `;
 
 const Container = styled.div`
@@ -61,48 +60,57 @@ const CalenderIcon = styled.img`
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-
 `;
 
-function DateRange() {
+function DateRange({ onDateRangeSelect }) {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false); 
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false); 
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      onDateRangeSelect(startDate, endDate);
+    }
+  }, [startDate, endDate, onDateRangeSelect]);
 
   return (
     <Container>
-        <Title>Date Range</Title>
-        <FullContainer>
-            <DateContainer onClick={() => setShowStartDatePicker(true)}> 
-                <CalenderIcon src={calenderIcon} alt="Calender" />
-                {showStartDatePicker && (
-                    <DateInput
-                        selected={startDate}
-                        onChange={date => setStartDate(date)}
-                        selectsStart
-                        startDate={startDate}
-                        endDate={endDate}
-                        dateFormat="yyyy/MM/dd"
-                    />
-                )}
-            </DateContainer>
-            <Arrow src={arrowRight} alt="Arrow" />
-            <DateContainer onClick={() => setShowEndDatePicker(true)}> {/* 추가: 클릭 시 종료 날짜 선택기 표시 */}
-                <CalenderIcon src={calenderIcon} alt="Calender" />
-                {showEndDatePicker && (
-                    <DateInput
-                        selected={endDate}
-                        onChange={date => setEndDate(date)}
-                        selectsEnd
-                        startDate={startDate}
-                        endDate={endDate}
-                        minDate={startDate}
-                        dateFormat="yyyy/MM/dd"
-                    />
-                )}
-            </DateContainer>
-        </FullContainer>
+      <Title>Date Range</Title>
+      <FullContainer>
+        <DateContainer onClick={() => setShowStartDatePicker(true)}>
+          <CalenderIcon src={calenderIcon} alt="Calender" />
+          <DateInput
+            selected={startDate}
+            onChange={(date) => {
+              setStartDate(date);
+              setShowStartDatePicker(false);
+            }}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            dateFormat="yyyy/MM/dd"
+            onClickOutside={() => setShowStartDatePicker(false)}
+          />
+        </DateContainer>
+        <Arrow src={arrowRight} alt="Arrow" />
+        <DateContainer onClick={() => setShowEndDatePicker(true)}>
+          <CalenderIcon src={calenderIcon} alt="Calender" />
+          <DateInput
+            selected={endDate}
+            onChange={(date) => {
+              setEndDate(date);
+              setShowEndDatePicker(false);
+            }}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            dateFormat="yyyy/MM/dd"
+            onClickOutside={() => setShowEndDatePicker(false)}
+          />
+        </DateContainer>
+      </FullContainer>
     </Container>
   );
 }

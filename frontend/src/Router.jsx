@@ -19,7 +19,8 @@ function Router() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/analytics/report" element={<ReportDetail />} />
                     <Route path="/analytics/addreport" element={<AddReport />} />
-                    <Route path="/analytics/reportdetail" element={<ReportDetail/>} />
+                    <Route path="/analytics/:reportId" element={<ReportDetail/>} />
+                    
                 </Route>
                 {/* 로그인할 필요 없이 접근 가능한 페이지들 */}
                 <Route path="/login" element={<Login />}/>

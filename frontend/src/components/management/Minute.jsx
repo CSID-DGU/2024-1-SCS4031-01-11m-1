@@ -17,7 +17,8 @@ const TableCell = styled.td`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    padding: 10px;
+    vertical-align: middle;
+    padding: 5px;
     position: relative; 
 `;
 

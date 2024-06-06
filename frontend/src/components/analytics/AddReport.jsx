@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import Product from './addreport/Product';
-import Data from './addreport/Data';
-import Document from './addreport/Document';
-import DateRange from './addreport/DateRange';
+import { useNavigate } from 'react-router-dom';
+import { TailSpin } from 'react-loader-spinner';
+import Product from './addreport/Product'; // Ensure this path is correct
+import Data from './addreport/Data'; // Ensure this path is correct
+import Document from './addreport/Document'; // Ensure this path is correct
+import DateRange from './addreport/DateRange'; // Ensure this path is correct
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -27,6 +29,7 @@ const Container = styled.div`
     padding: 26px;
     display: flex;
     flex-direction: column;
+    position: relative;
 `;
 
 const Title = styled.p`
@@ -109,12 +112,30 @@ const CancelButton = styled.button`
     cursor: pointer;
 `;
 
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    z-index: 2000;
+`;
+
 function AddReport({ onClose }) {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedDocument, setSelectedDocument] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [memberId, setMemberId] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
+    const [loading, setLoading] = useState(false); 
     const isMounted = useRef(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -133,18 +154,20 @@ function AddReport({ onClose }) {
     };
 
     const handleSave = async () => {
-        if (!selectedProduct || !selectedDocument) {
-            alert("Please select both a product and a document.");
+        if (!selectedProduct || !selectedDocument || !startDate || !endDate) {
+            alert("Please select a product, a document, and date range.");
             return;
         }
+
+        setLoading(true); 
 
         try {
             const requestBody = {
                 productId: selectedProduct.id,
-                minuteId: selectedDocument.id
+                minuteId: selectedDocument.id,
+                startDate: startDate.toISOString().replace('T', ' ').substring(0, 19),
+                endDate: endDate.toISOString().replace('T', ' ').substring(0, 19)
             };
-
-            console.log('Request Body:', requestBody);
 
             const response = await axios.post(
                 `http://15.165.14.203/api/member-data/report/${memberId}`,
@@ -157,12 +180,9 @@ function AddReport({ onClose }) {
                 }
             );
 
-            if (response.status !== 200) {
-                throw new Error(`Failed to save report: ${response.statusText}`);
-            }
-
-            if (isMounted.current) {
-                alert("Report saved successfully!");
+            if (response.status === 201) {
+                // alert("Report saved successfully!");
+                navigate(`${response.data}`); 
                 onClose();
             }
         } catch (error) {
@@ -170,7 +190,16 @@ function AddReport({ onClose }) {
                 console.error("Failed to save report", error);
                 alert("Failed to save report");
             }
+        } finally {
+            if (isMounted.current) {
+                setLoading(false); 
+            }
         }
+    };
+
+    const handleDateRangeSelect = (start, end) => {
+        setStartDate(start);
+        setEndDate(end);
     };
 
     return (
@@ -184,7 +213,7 @@ function AddReport({ onClose }) {
                     </Column>
                     <Column>
                         <Document onDocumentSelect={setSelectedDocument} />
-                        <DateRange />
+                        <DateRange onDateRangeSelect={handleDateRangeSelect} />
                     </Column>
                 </Content>
                 <Line />
@@ -192,6 +221,11 @@ function AddReport({ onClose }) {
                     <CancelButton onClick={handleCancel}>Cancel</CancelButton>
                     <SaveButton onClick={handleSave}>Save</SaveButton>
                 </ButtonContainer>
+                {loading && (
+                    <SpinnerContainer>
+                        <TailSpin height={80} width={80} color="#1C3159" ariaLabel="loading" />
+                    </SpinnerContainer>
+                )}
             </Container>
         </ModalOverlay>
     );
