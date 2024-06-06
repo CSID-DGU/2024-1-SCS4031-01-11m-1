@@ -64,7 +64,7 @@ const PaginationButton = styled.button`
 
 function ReportTable() {
     const [currentPage, setCurrentPage] = useState(1);
-    const reportPerPage = 15;
+    const reportPerPage = 14;
     const [reportList, setReportList] = useState([]);
     const navigate = useNavigate();
 

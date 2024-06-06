@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -16,7 +16,7 @@ const CardContainer = styled.div`
 
 const Container = styled.div`
     width: 270px;
-    height: 370px;
+    height: 320px;
     flex-shrink: 0;
     border-radius: 10px;
     border: ${({ isSelected }) => (isSelected ? '1px solid #1c3159' : '1px solid #DFDFDF')};
@@ -64,67 +64,77 @@ const Keyword = styled.div`
 const ReviewSum = styled.div`
     color: #333;
     font-family: Pretendard;
-    font-size: 14px;
+    font-size: 11px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
     display: flex;
-    width: 203px;
-    height: 40px;
+    width: 220px;
+    height: auto;
     align-items: flex-start;
     margin-left: 30px;
     margin-top: 10px;
+    text-align: left;
+    white-space: pre-line;
 `;
 
 const MinuteSum = styled.div`
     color: #333;
     font-family: Pretendard;
     display: flex;
-    width: 203px;
-    height: 40px;
-    font-size: 14px;
+    width: 200px;
+    height: auto;
+    font-size: 11px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
     margin-left: 30px;
     margin-top: 10px;
+    text-align: left;
+    white-space: pre-line;
 `;
 
-function CategoryCard({ cards = [], onCardClick }) {
+function CategoryCard({ reportSources = [], onSelectCard }) {
     const [selectedCard, setSelectedCard] = useState(null);
 
-    const handleCardClick = (reportSource) => {
-        setSelectedCard(reportSource);
-        onCardClick(reportSource);
-        console.log(reportSource.categoryName); 
+    useEffect(() => {
+        console.log('Received reportSources:', reportSources);
+    }, [reportSources]);
+
+    const handleCardClick = (index, reportSource) => {
+        setSelectedCard(index);
+        onSelectCard(reportSource);
     };
 
     return (
         <CardContainer>
-    
-            {cards.flatMap((card, index) => (
-                card.reportSources.map((reportSource, sourceIndex) => (
-                    <CardButton key={`${index}-${sourceIndex}`} onClick={() => handleCardClick(reportSource)}>
-                        <Container isSelected={selectedCard === reportSource}>
+            {reportSources.map((reportSource, index) => {
+                const vocSummariesArray = reportSource.vocSummaries[0]?.split('.').slice(0, 1) || [];
+                const vocSummariesWithHeader = `\n${vocSummariesArray.join('\n')}`;
+                const minuteSumWithHeader = `\n${reportSource.answer.slice(0, 2).join('\n')}`;
+
+                return (
+                    <CardButton key={index} onClick={() => handleCardClick(index, reportSource)}>
+                        <Container isSelected={selectedCard === index}>
                             <Category>{reportSource.categoryName}</Category>
                             <KeywordContainer>
                                 {reportSource.keywords.map((keyword, idx) => (
                                     <Keyword key={idx}>{keyword}</Keyword>
                                 ))}
                             </KeywordContainer>
-                            <ReviewSum>{reportSource.vocSummaries.join(', ')}</ReviewSum>
-                            <MinuteSum>{reportSource.answer.join(', ')}</MinuteSum>
+                            {/* <ReviewSum>{vocSummariesWithHeader}</ReviewSum> */}
+                            <MinuteSum>{minuteSumWithHeader}</MinuteSum>
                         </Container>
                     </CardButton>
-                ))
-            ))}
+                );
+            })}
         </CardContainer>
     );
 }
 
 CategoryCard.propTypes = {
-    cards: PropTypes.array.isRequired,
-    onCardClick: PropTypes.func.isRequired
+    reportSources: PropTypes.array.isRequired,
+    onSelectCard: PropTypes.func.isRequired
 };
 
 export default CategoryCard;
