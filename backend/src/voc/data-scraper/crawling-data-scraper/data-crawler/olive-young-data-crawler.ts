@@ -19,15 +19,15 @@ export class OliveYoundDataCrawler implements DataCrawler{
         let init = true;
         
         const browser = await puppeteer.launch({
-            executablePath: '/usr/bin/chromium-browser',
-            headless: true,
-            args: [
-                  "--disable-gpu",
-                  "--disable-dev-shm-usage",
-                  "--no-sandbox",
-                  "--headless",
-                  "--enable-chrome-browser-cloud-management"
-             ]
+            //executablePath: '/usr/bin/chromium-browser',
+            headless: false,
+            /*args: [
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--no-sandbox",
+                "--headless",
+                "--enable-chrome-browser-cloud-management"
+            ]*/
         });
 
         let page = await browser.newPage();
@@ -119,8 +119,8 @@ export class OliveYoundDataCrawler implements DataCrawler{
 
                 let convertedPoint = (100 / Number(maxPoint)) * Number(userPoint);
                 const splitedDate = dateString.split(".");
-                const date:Date = new Date(Number(splitedDate[0]), Number(splitedDate[1])-1, Number(splitedDate[2])+1,0,0,0,0);
-                console.log(point, review, splitedDate , Number(splitedDate[0]), Number(splitedDate[1]),Number(splitedDate[2]),date.toUTCString());
+                const date:Date = new Date(Number(splitedDate[0]), Number(splitedDate[1])-1, Number(splitedDate[2]),0,0,0,0);
+                console.log(point, review, splitedDate , Number(splitedDate[0]), Number(splitedDate[1]),Number(splitedDate[2]),date.toLocaleString());
                 if(mostRecentData != "" && mostRecentData == review){
                     isNextPage = false;
                     break;

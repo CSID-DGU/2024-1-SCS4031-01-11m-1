@@ -13,4 +13,12 @@ export class AppController {
   async getHello(): Promise<string> {
     return "Hello 11M !";
   }
+
+  @Get("/test/time")
+  async testTime(){
+    const date:Date = new Date();
+    console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log(date);
+    return date.toLocaleDateString() + date.toLocaleTimeString();
+  }
 }
