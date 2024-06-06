@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ReportEntity } from "../entity/report.entity";
-import { Repository, QueryFailedError } from 'typeorm';
+import { Repository} from 'typeorm';
 import { AuthService } from "src/auth/auth.service";
 import { MemberEntity } from "src/auth/member.entity";
 import { CategoryService } from "../../category/category.service";
@@ -35,34 +35,37 @@ export class ReportService {
 
   @Transactional()
   async createReport(productId: string, memberId: string, minuteId:string, startDate: Date, endDate:Date):Promise<string>{
+    // DB에서 데이터 수집
     const member:MemberEntity = await this.authService.findById(memberId);
     this.nullCheckForEntity(member);
 
     const product: ProductEntity = await this.productRepository.findOneBy({id:productId});
+    this.nullCheckForEntity(product);
     const productName:string = product.productName;
 
     const minute:ProductMinuteEntity = await this.productMinuteRepository.findOneBy({id: minuteId});
     this.nullCheckForEntity(minute);
 
     const categoryEntities:CategoryEntity[] = await this.categoryService.loadCategories(memberId);
-    // ToDo: 카테고리 빈 리스트일 경우 예외처리
+    this.nullCheckForList(categoryEntities);
     const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
-    const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
 
-    // ToDo: VOC ANALYSIS 데이터 불러오기 & RAG 적용
-    const vocAnalysis:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductIdAndDate(productId, startDate, endDate);
-    
-    
-    const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = [];
+    const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
+    this.nullCheckForList(keywordEntities);
+
+    const vocAnalysises:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductIdAndDate(productId, startDate, endDate);
+    this.nullCheckForList(vocAnalysises);
+
+    // 데이터 가공
+    const vocAnalysisesGroupByCtg: VocAnalysisesAndCategory[] = []; // 카테고리별 voc 분석결과
     for (const category of categoryEntities){
-      const vocAnalysisByCtg:VocAnalysisEntity[] = vocAnalysis.filter(result => result.category.categoryName == category.categoryName)
+      const vocAnalysisByCtg:VocAnalysisEntity[] = vocAnalysises.filter(result => result.category.categoryName == category.categoryName)
       const vocAnalysisAndCategory: VocAnalysisesAndCategory = {categoryName: category.categoryName, vocAnalysises: vocAnalysisByCtg};
       vocAnalysisesGroupByCtg.push(vocAnalysisAndCategory);
     };
 
-    const positiveKeywordsByCtg: KeywordsBySentimentCtg[] = []
-    const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = []
-  
+    const positiveKeywordsByCtg: KeywordsBySentimentCtg[] = [] // 카테고리별 "긍정 키워드" 리스트
+    const negativeKeywordsByCtg: KeywordsBySentimentCtg[] = [] // 카테고리별 "부정 키워드" 리스트
     for(const vocAnalysisByCtg of vocAnalysisesGroupByCtg){
       const positiveKeywordByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg, 'positive')
       positiveKeywordsByCtg.push(positiveKeywordByCtg);
@@ -70,34 +73,12 @@ export class ReportService {
       negativeKeywordsByCtg.push(negativeKeywordByCtg);
     };
 
-    const ragResult:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
+    // 레포트 생성
+    const ragResults:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
+
     const reportSources: ReportSource[] = [];
-
-    for(let i=0; i<ragResult.length; i++){
-      const categoryName:string = ragResult[i].category;
-
-      const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
-      const keywords:string[] = keywordsList[0].keywords; // ToDo: refactoring
-
-      const positiveAnswers = ragResult[i].sentiment.긍정;
-      const negativeAnswers = ragResult[i].sentiment.부정;
-
-      const answers: string[] = [];
-      for(const positiveAnswer of positiveAnswers){
-        const answer: string = positiveAnswer.answer
-        answers.push(answer);
-      };
-      for(const negativeAnswer of negativeAnswers){
-        const answer: string = negativeAnswer.answer
-        answers.push(answer);
-      };
-
-      const vocAnalysisByCtg: VocAnalysisesAndCategory[] = vocAnalysisesGroupByCtg.filter( result => result.categoryName==categoryName );
-      const vocSummaries: string[] = await this.summarizeVocReviews(vocAnalysisByCtg[0]);
-      
-      const positiveCnt = vocAnalysis.filter(result => result.primarySentiment === 'positive').length;
-      const negativeCnt = vocAnalysis.filter(result => result.primarySentiment === 'negative').length;
-      const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries, answers, positiveCnt, negativeCnt)
+    for(const ragResult of ragResults){
+      const categoryResult = await this.createReportSource(ragResult, keywordEntities, vocAnalysisesGroupByCtg, vocAnalysises)
       reportSources.push(categoryResult);
     };
 
@@ -126,10 +107,6 @@ export class ReportService {
     return report;
   };
 
-  private nullCheckForEntity(entity) {
-    if (entity == null) throw new NotFoundException();
-  };
-
   @Transactional()
   async deleteReport(reportId: string): Promise<void>{
     const report: ReportEntity = await this.reportRepository.findOneBy({id: reportId});
@@ -153,4 +130,40 @@ export class ReportService {
     const vocSummarizeResults = await this.customOpenAI.chunkSummarize(vocReviews, vocAnalysisByCtg.categoryName);
     return vocSummarizeResults;
   }
+
+  private async createReportSource(ragResult: customRAGresult, keywordEntities: VocKeywordEntity[], vocAnalysisesGroupByCtg:VocAnalysisesAndCategory[], vocAnalysises: VocAnalysisEntity[]){
+    const categoryName:string = ragResult.categoryName;
+
+      const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
+      const keywords:string[] = keywordsList[0]?.keywords;
+
+      const positiveAnswers = ragResult.sentiment.긍정;
+      const negativeAnswers = ragResult.sentiment.부정;
+
+      const answers: string[] = [];
+      for(const positiveAnswer of positiveAnswers){
+        const answer: string = positiveAnswer.answer
+        answers.push(answer);
+      };
+      for(const negativeAnswer of negativeAnswers){
+        const answer: string = negativeAnswer.answer
+        answers.push(answer);
+      };
+
+      const vocAnalysisByCtg: VocAnalysisesAndCategory[] = vocAnalysisesGroupByCtg.filter( result => result.categoryName==categoryName );
+      const vocSummaries: string[] = await this.summarizeVocReviews(vocAnalysisByCtg[0]);
+      
+      const positiveCnt = vocAnalysises.filter(result => result.primarySentiment === 'positive').length;
+      const negativeCnt = vocAnalysises.filter(result => result.primarySentiment === 'negative').length;
+      const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries, answers, positiveCnt, negativeCnt)
+      return categoryResult;
+  }
+
+  private nullCheckForEntity(entity) {
+    if (entity == null) throw new NotFoundException();
+  };
+
+  private nullCheckForList(lst){
+    if(lst.length == 0) throw new NotFoundException();
+  };
 }
