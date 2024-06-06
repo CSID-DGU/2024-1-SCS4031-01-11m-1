@@ -8,8 +8,8 @@ export class ReportListDto{
   constructor(id: string, productNama: string, createdAt: Date, updatedAt: Date){
     this.id = id;
     this.productName = productNama;
-    this.createdAt = createdAt.toLocaleString();
-    this.updatedAt = updatedAt.toLocaleString();
+    this.createdAt = createdAt.toLocaleDateString();
+    this.updatedAt = updatedAt.toLocaleDateString();
   }
 
   static createNew(id: string, productNama: string, createdAt: Date, updatedAt: Date){
