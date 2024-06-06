@@ -191,9 +191,9 @@ export class VocService{
     }
 
     public async getVocAnalysisByVocId(vocId: string): Promise<VocAnalysisEntity[]>{
-        const voc = await this.vocRepository.findOneBy({id: vocId});
-        const vocAnalysis = await this.vocAnalysisRepository.findBy({voc: voc});
-        return vocAnalysis;
+      const voc = await this.vocRepository.findOneBy({id: vocId});
+      const vocAnalysis = await this.vocAnalysisRepository.findBy({voc: voc});
+      return vocAnalysis;
     };
 
     public async getVocAnalysisByProductId(productId: string): Promise<VocAnalysisEntity[]> {
@@ -235,7 +235,12 @@ export class VocService{
     });
       return vocKeywordEntities;
     };
-    
+
+
+    /**
+     * 추출 메서드
+     */
+
     //------------------------데이터 수집-----------------------//
 
     private async scrapeData(urlEntity:UrlEntity): Promise<DataScraperReturnDto[]>{
@@ -295,7 +300,7 @@ export class VocService{
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
-            if(toBeProcessedVocEntityList.length == 10 || i == vocEntityList.length -1){
+            if(toBeProcessedVocEntityList.length == 1 || i == vocEntityList.length -1){
                 const processedVocTextList:string[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
                 processedVocTextList.forEach((voc) => {
                     vocTextList.push(voc);
