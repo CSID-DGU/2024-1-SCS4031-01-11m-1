@@ -23,4 +23,12 @@ export class AppController {
     console.log(ragResult[0].sentiment.긍정);
     return ragResult;
   }
+
+  @Get("/test/time")
+  async testTime(){
+    const date:Date = new Date();
+    console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log(date);
+    return date.toLocaleDateString() + date.toLocaleTimeString();
+  }
 }
