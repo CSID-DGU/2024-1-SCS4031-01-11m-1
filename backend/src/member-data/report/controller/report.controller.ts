@@ -5,8 +5,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { MemberEntity } from 'src/auth/member.entity';
 import { Member } from 'src/auth/get-member-decorator';
 import { CreateReportDto } from './dto/create-report.dto';
-import { ReportEntiy } from '../entity/report.entity';
+import { ReportEntity } from '../entity/report.entity';
 import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
+import { LoadReportResponseDto } from './dto/load-report-response.dto';
 
 @ApiTags('Member Data -report- Controller')
 @Controller('/member-data')
@@ -44,8 +45,9 @@ export class ReportController {
     required: true,
   })
   @Get('/report/:reportId')
-  async laodReport(@Param('reportId') reportId): Promise<ReportEntiy>{
-    return await this.reportService.loadReport(reportId);
+  async laodReport(@Param('reportId') reportId): Promise<LoadReportResponseDto>{
+    const report:ReportEntity = await this.reportService.loadReport(reportId);
+    return LoadReportResponseDto.createFromEntity(report);
   };
 
   @ApiOperation({ summary: 'voc 분석 레포트를 삭제합니다.' })

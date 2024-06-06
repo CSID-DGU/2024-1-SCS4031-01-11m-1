@@ -203,8 +203,8 @@ export class CustomOpenAI {
     const minutes:customRAGresult[] = [];
   
     for (const category of categories) {
-      let categoryResult: customRAGresult = {category: category, sentiment: { 긍정: [], 부정: [] }};
-      categoryResult.category = category
+      let categoryResult: customRAGresult = {categoryName: category, sentiment: { 긍정: [], 부정: [] }};
+      categoryResult.categoryName = category
 
       // 긍정 키워드에 대한 검색 결과
       const positiveKeywords:string[] = (positiveKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords;
