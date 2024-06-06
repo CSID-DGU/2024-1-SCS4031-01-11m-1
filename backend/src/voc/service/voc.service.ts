@@ -94,6 +94,8 @@ export class VocService{
 
     @Transactional()
     public async scrapeDataByProductId(product_id:string): Promise<String>{
+        console.time("measure");
+
         const product:ProductEntity = await this.productRepository.findOneBy({id: product_id});
         const newVocEntityList:VocEntity[] = [];
         const member:MemberEntity = await product.member;
@@ -112,6 +114,8 @@ export class VocService{
         const vocTextList:string[] = await this.analyzeData(newVocEntityList, member);
 
         await this.extractKeywords(vocTextList, member, product);
+
+        console.timeEnd('measure');
 
         return "Success";
     }
@@ -265,13 +269,13 @@ export class VocService{
     private async analyzeData(vocEntityList:VocEntity[], member:MemberEntity):Promise<string[]>{
         const categoryMap = new Map<string, CategoryEntity>();
         const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
-        let vocTextList:string[] = [];
+        const vocTextList:string[] = [];
 
         for(let i = 0; i<categoryList.length; i++){
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
 
-        for(let i = 0; i<vocEntityList.length; i++){
+       /*for(let i = 0; i<vocEntityList.length; i++){
             const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const classifiedCategory:string = classifiedCategoryList[0];
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
@@ -285,10 +289,39 @@ export class VocService{
             const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntityList[i], categoryMap.get(classifiedCategory), primarySentiment, sentiments);
             await this.vocAnalysisRepository.save(vocAnalysis);
             vocTextList.push(vocEntityList[i].description);
+        }*/
+
+        let toBeProcessedVocEntityList:VocEntity[] = [];
+
+        for(let i = 0; i<vocEntityList.length; i++){
+            toBeProcessedVocEntityList.push(vocEntityList[i]);
+            if(toBeProcessedVocEntityList.length == 10 || i == vocEntityList.length -1){
+                const processedVocTextList:string[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
+                processedVocTextList.forEach((voc) => {
+                    vocTextList.push(voc);
+                });
+
+                toBeProcessedVocEntityList = [];
+            }
         }
 
+        
         return vocTextList;
+    }
 
+    private async classifyVoc(vocEntity:VocEntity, categoryMap:Map<string, CategoryEntity>):Promise<string>{
+        const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntity.description, Array.from(categoryMap.keys()));
+        const classifiedCategory:string = classifiedCategoryList[0];
+        const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntity.description, Array.from(categoryMap.keys()));
+        let primarySentiment:SentimentEnum = null;
+        if(sentiments[classifiedCategory] == "긍정"){
+            primarySentiment = SentimentEnum.positive;
+        } else{
+            primarySentiment = SentimentEnum.negative;
+        }
+        const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntity, categoryMap.get(classifiedCategory), primarySentiment, sentiments);
+        this.vocAnalysisRepository.save(vocAnalysis);
+        return vocEntity.description;
     }
 
     private async extractKeywords(vocTextList:string[], member:MemberEntity, product:ProductEntity){
