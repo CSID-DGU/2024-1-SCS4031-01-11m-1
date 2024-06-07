@@ -4,12 +4,14 @@ import axios from 'axios';
 import Product from './Product';
 
 const TableContainer = styled.div`
-  margin: 20px;
+  width: 100%;
+  margin: auto;
 `;
 
 const Table = styled.table`
-  width: 100%;
+  width: 96%;
   border-collapse: collapse;
+  margin:auto;
 `;
 
 const TableRow = styled.tr`

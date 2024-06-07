@@ -4,18 +4,19 @@ import axios from 'axios';
 import Category from './Category';
 
 const TableContainer = styled.div`
-  margin: 20px;
+  width: 100%;
+  margin: auto;
 `;
 
 const Table = styled.table`
-  width: 100%;
+  width: 96%;
   border-collapse: collapse;
   margin: auto;
 `;
 
 const TableRow = styled.tr`
   border-bottom: 1px solid #ccc;
-  height: 30px;
+  height: 20px;
 `;
 
 const TableCell = styled.td`
