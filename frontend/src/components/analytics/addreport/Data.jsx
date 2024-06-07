@@ -44,7 +44,7 @@ const Item = styled.div`
 
 function Data() {
     const [selectedData, setSelectedData] = useState(null);
-    const data = ['1', '2'];
+    const data = ['Review', 'Q&A'];
 
     const handleItemClick = (item) => {
         setSelectedData(item);

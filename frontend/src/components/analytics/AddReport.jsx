@@ -165,9 +165,10 @@ function AddReport({ onClose }) {
             const requestBody = {
                 productId: selectedProduct.id,
                 minuteId: selectedDocument.id,
-                startDate: startDate.toISOString().replace('T', ' ').substring(0, 19),
-                endDate: endDate.toISOString().replace('T', ' ').substring(0, 19)
+                startDate: formatDate(startDate),
+                endDate: formatDate(endDate),
             };
+            console.log(requestBody)
 
             const response = await axios.post(
                 `http://15.165.14.203/api/member-data/report/${memberId}`,
@@ -179,11 +180,12 @@ function AddReport({ onClose }) {
                     }
                 }
             );
+            
 
             if (response.status === 201) {
-                // alert("Report saved successfully!");
                 navigate(`${response.data}`); 
                 onClose();
+    
             }
         } catch (error) {
             if (isMounted.current) {
@@ -201,6 +203,14 @@ function AddReport({ onClose }) {
         setStartDate(start);
         setEndDate(end);
     };
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const yyyy = d.getFullYear();
+        const MM = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${MM}-${dd} 00:00:00`;
+    };
+    
 
     return (
         <ModalOverlay>

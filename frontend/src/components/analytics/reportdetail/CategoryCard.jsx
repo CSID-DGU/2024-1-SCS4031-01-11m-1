@@ -111,7 +111,7 @@ function CategoryCard({ reportSources = [], onSelectCard }) {
             {reportSources.map((reportSource, index) => {
                 const vocSummariesArray = reportSource.vocSummaries[0]?.split('.').slice(0, 1) || [];
                 const vocSummariesWithHeader = `\n${vocSummariesArray.join('\n')}`;
-                const minuteSumWithHeader = `\n${reportSource.answer.slice(0, 2).join('\n')}`;
+                const minuteSumWithHeader = `\n${reportSource.answer.slice(0, 1).join('\n')}`;
 
                 return (
                     <CardButton key={index} onClick={() => handleCardClick(index, reportSource)}>

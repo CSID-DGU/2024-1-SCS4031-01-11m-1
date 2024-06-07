@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import nexticon from '../image/nexticon.png';
 import CategoryCard from './reportdetail/CategoryCard';
 import CategoryDetail from './reportdetail/CategoryDetail';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 
 const Report = styled.div`
@@ -19,6 +19,13 @@ const Report = styled.div`
   margin-top: 20px;
 `;
 
+const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 13px;
+  margin-left: 30px;
+`;
+
 const Title = styled.div`
   color: #333;
   font-family: Pretendard;
@@ -26,8 +33,23 @@ const Title = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  margin-top: 13px;
-  margin-left: 30px;
+`;
+
+const DeleteButton = styled.button`
+  padding: 7px 10px;
+  background-color: #a4a4a4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Wanted Sans';
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 1115px;
+
+  &:hover {
+    background-color: #878787;
+  }
 `;
 
 const Container = styled.div`
@@ -78,20 +100,18 @@ const SubTitle = styled.div`
 
 const ReportDetail = () => {
   const { reportId } = useParams();
+  const navigate = useNavigate();
   const [reportData, setReportData] = useState({
     productName: "",
     reportSources: []
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [reportSources, setReportSources] = useState([]);
-
-  
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const accessToken = userInfo?.accessToken;
-  
+
     if (accessToken) {
       axios.get(`http://15.165.14.203/api/member-data/report/${reportId}`, {
         headers: {
@@ -100,7 +120,6 @@ const ReportDetail = () => {
       })
       .then(response => {
         console.log(response.data);
-        console.log(response.data.reportSources);
         const { productName, reportSources } = response.data;
         setReportData({
           productName,
@@ -114,20 +133,44 @@ const ReportDetail = () => {
       console.error('No access token, or report ID found'); 
     }
   }, [reportId]);
-  
+
   const handleCardSelect = (reportSource) => {
     setSelectedCard(reportSource);
     console.log(reportSource);
-  }
-  
+  };
 
+  const handleDelete = async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const accessToken = userInfo?.accessToken;
+
+    if (accessToken) {
+      try {
+        console.log(reportId);
+        await axios.delete(`http://15.165.14.203/api/member-data/delete-report/${reportId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        alert('Report deleted successfully');
+        navigate('/analytics'); 
+      } catch (error) {
+        console.error('Error deleting report:', error);
+        alert('Failed to delete report');
+      }
+    } else {
+      console.error('No access token found');
+      alert('No access token found');
+    }
+  };
 
   return (
     <>
-      
       <Navbar />
       <Report>Report</Report>
-      <Title>{reportData.productName}</Title>
+      <TitleContainer>
+        <Title>{reportData.productName}</Title>
+        <DeleteButton onClick={handleDelete}>Delete Report</DeleteButton>
+      </TitleContainer>
       <Container>
         <LeftContainer>
           <SubTitle>VOC - Minute Analysis</SubTitle>
@@ -138,7 +181,6 @@ const ReportDetail = () => {
           className="box"
           animate={{ x: 10 }}
           transition={{ type: "spring" }}>
-          
           <RightContainer>
             {selectedCard && (
               <CategoryDetail reportSource={selectedCard}/>
@@ -146,7 +188,6 @@ const ReportDetail = () => {
           </RightContainer>
         </motion.div>
       </Container>
-      
     </>
   );
 };
