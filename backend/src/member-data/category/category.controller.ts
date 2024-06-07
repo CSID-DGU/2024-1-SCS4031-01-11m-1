@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { CategoryService } from "./category.service";
 import { AuthGuard } from "@nestjs/passport";
 import { Member } from "src/auth/get-member-decorator";
@@ -23,7 +23,7 @@ export class CategoryController {
     @Member() member: MemberEntity
     ):Promise<CategoryEntity[]>{
       return await this.categoryService.loadCategories(member.memberId);
-   };
+  };
 
    @ApiOperation({ summary: '카테고리를 등록합니다.' })
    @Post('/add-category')
@@ -39,10 +39,33 @@ export class CategoryController {
      '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
      `[ERROR] 카테고리를 추가하는 중 예상치 못한 에러가 발생했습니다.`,
    )
-   async addCategory(
-     @Body() addCategoryDto: AddCategoryDto,
-     @Member() member: MemberEntity
-     ):Promise<void>{
-       await this.categoryService.addCategory(addCategoryDto.categoryName, member.memberId);
-     };
+  async addCategory(
+    @Body() addCategoryDto: AddCategoryDto,
+    @Member() member: MemberEntity
+    ):Promise<void>{
+      await this.categoryService.addCategory(addCategoryDto.categoryName, member.memberId);
+    };
+
+    @ApiOperation({ summary: '카테고리를 삭제합니다.' })
+    @ApiExceptionResponse(
+      404,
+      '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+      '[ERROR] 해당 category id를 찾을 수 없습니다.',
+    )
+    @ApiExceptionResponse(
+      500,
+      '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+      `[ERROR] 카테고리를 삭제하는 중 예상치 못한 에러가 발생했습니다.`,
+    )
+    @Delete('/delete-category/:categoryId')
+    @ApiParam({
+      name: 'categoryId',
+      example: '998e64d9-472b-44c3-b0c5-66ac04dfa594',
+      required: true,
+    })
+  async deleteCategory(
+    @Param('categoryId') categoryId
+    ): Promise<void>{
+      await this.categoryService.deleteCategory(categoryId);
+    };
 }
