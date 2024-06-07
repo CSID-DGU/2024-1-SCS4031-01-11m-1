@@ -124,11 +124,19 @@ export class ReportService {
   };
 
   private async summarizeVocReviews(vocAnalysisByCtg:VocAnalysisesAndCategory):Promise<string[]>{
+    // const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises;
+    // const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
+    // const vocReviews = vocEntities.map((result)=>{return result.description})
+    const vocReviews = await this.getVocDescription(vocAnalysisByCtg);
+    const vocSummarizeResults = await this.customOpenAI.chunkSummarize(vocReviews, vocAnalysisByCtg.categoryName);
+    return vocSummarizeResults;
+  }
+
+  private async getVocDescription(vocAnalysisByCtg:VocAnalysisesAndCategory):Promise<string[]>{
     const vocAnalysisResults = vocAnalysisByCtg.vocAnalysises;
     const vocEntities = [...new Set(vocAnalysisResults.map((result)=>{return result.voc}))];
     const vocReviews = vocEntities.map((result)=>{return result.description})
-    const vocSummarizeResults = await this.customOpenAI.chunkSummarize(vocReviews, vocAnalysisByCtg.categoryName);
-    return vocSummarizeResults;
+    return vocReviews;
   }
 
   private async createReportSource(ragResult: customRAGresult, keywordEntities: VocKeywordEntity[], vocAnalysisesGroupByCtg:VocAnalysisesAndCategory[], vocAnalysises: VocAnalysisEntity[]){
@@ -151,11 +159,12 @@ export class ReportService {
       };
 
       const vocAnalysisByCtg: VocAnalysisesAndCategory[] = vocAnalysisesGroupByCtg.filter( result => result.categoryName==categoryName );
+      const vocReviews: string[] = await this.getVocDescription(vocAnalysisByCtg[0]); // ToDo: voc review data
       const vocSummaries: string[] = await this.summarizeVocReviews(vocAnalysisByCtg[0]);
       
       const positiveCnt = vocAnalysises.filter(result => result.primarySentiment === 'positive' && result.category.categoryName==categoryName).length;
       const negativeCnt = vocAnalysises.filter(result => result.primarySentiment === 'negative' && result.category.categoryName==categoryName).length;
-      const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries, answers, positiveCnt, negativeCnt)
+      const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries,vocReviews, answers, positiveCnt, negativeCnt)
       return categoryResult;
   }
 
