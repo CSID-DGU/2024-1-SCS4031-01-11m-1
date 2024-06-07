@@ -153,8 +153,8 @@ export class ReportService {
       const vocAnalysisByCtg: VocAnalysisesAndCategory[] = vocAnalysisesGroupByCtg.filter( result => result.categoryName==categoryName );
       const vocSummaries: string[] = await this.summarizeVocReviews(vocAnalysisByCtg[0]);
       
-      const positiveCnt = vocAnalysises.filter(result => result.primarySentiment === 'positive').length;
-      const negativeCnt = vocAnalysises.filter(result => result.primarySentiment === 'negative').length;
+      const positiveCnt = vocAnalysises.filter(result => result.primarySentiment === 'positive' && result.category.categoryName==categoryName).length;
+      const negativeCnt = vocAnalysises.filter(result => result.primarySentiment === 'negative' && result.category.categoryName==categoryName).length;
       const categoryResult = ReportSource.create(categoryName, keywords, vocSummaries, answers, positiveCnt, negativeCnt)
       return categoryResult;
   }
