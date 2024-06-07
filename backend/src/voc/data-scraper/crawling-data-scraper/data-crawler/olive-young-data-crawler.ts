@@ -19,15 +19,15 @@ export class OliveYoundDataCrawler implements DataCrawler{
         let init = true;
         
         const browser = await puppeteer.launch({
-            //executablePath: '/usr/bin/chromium-browser',
+            executablePath: '/usr/bin/chromium-browser',
             headless: false,
-            /*args: [
+            args: [
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
                 "--no-sandbox",
                 "--headless",
                 "--enable-chrome-browser-cloud-management"
-            ]*/
+            ]
         });
 
         let page = await browser.newPage();
