@@ -368,10 +368,11 @@ export class VocService{
     }
 
     private async sortVocByWeek(vocList:VocEntity[]):Promise<VocByDateDto[]>{
-        const dtoByDateMap:Map<String,VocByDateDto> = new Map();
+        const dtoByDateMap:Map<number,VocByDateDto> = new Map();
+        const sortedDtoByDateMap:Map<Date, VocByDateDto> = new Map();
 
         for(let i = 0; i<vocList.length; i++){
-            let day:number = vocList[i].uploadedDate.getDay()-2;
+            let day:number = vocList[i].uploadedDate.getDay()-1;
 
             if(day<0){
                 day = day +7
@@ -380,13 +381,20 @@ export class VocService{
             let date:Date = new Date(vocList[i].uploadedDate);
             date.setDate(date.getDate() - day);
 
-            if(!dtoByDateMap.has(date.toUTCString())){
-                dtoByDateMap.set(date.toUTCString(), new VocByDateDto(date, []));
+            if(!dtoByDateMap.has(date.valueOf())){
+                dtoByDateMap.set(date.valueOf(), new VocByDateDto(date, []));
             }
-            dtoByDateMap.get(date.toUTCString()).vocs.push(vocList[i]);
+            dtoByDateMap.get(date.valueOf()).vocs.push(vocList[i]);
         }
 
-        return Array.from(dtoByDateMap.values());
+        const keysArray:number[] = Array.from(dtoByDateMap.keys()).sort().reverse();
+        console.log(keysArray);
+        for(let i = 0; i< keysArray.length; i++){
+            sortedDtoByDateMap.set(new Date(keysArray[i]), dtoByDateMap.get(keysArray[i]));
+        }
+
+
+        return Array.from(sortedDtoByDateMap.values());
     }
 
     private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerCategoryDto[]>{
@@ -403,7 +411,7 @@ export class VocService{
                 const categoryName:string = category.categoryName;
 
                 if(!resultMap.has(categoryName)){
-                    resultMap.set(categoryName, new VocCountPerCategoryDto(category));
+                    resultMap.set(categoryName, new VocCountPerCategoryDto(category.categoryName, category.id));
                 }
 
                 if(!countPerCategory.has(categoryName)){
@@ -420,9 +428,10 @@ export class VocService{
             const categoryArray:string[] = Array.from(countPerCategory.keys());
             for(let j = 0; j<categoryArray.length; j++){
                 const countArray:number[] = countPerCategory.get(categoryArray[j]);
-                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date, countArray[0], countArray[1]));
+                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date.toLocaleString(), countArray[0], countArray[1]));
             }
         }
+
 
         return Array.from(resultMap.values());
     }
