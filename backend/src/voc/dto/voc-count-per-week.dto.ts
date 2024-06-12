@@ -1,11 +1,11 @@
 export class VocCountPerWeekDto{
-    date:Date
+    date:string
     positive:number;
     negative:number;
     total:number;
 
     constructor(
-        date:Date,
+        date:string,
         positive:number,
         negative:number
     ){
@@ -15,7 +15,7 @@ export class VocCountPerWeekDto{
         this.total = positive+negative;
     }
 
-    public static create(date:Date, positive:number, negative:number):VocCountPerWeekDto{
+    public static create(date:string, positive:number, negative:number):VocCountPerWeekDto{
         return new VocCountPerWeekDto(date, positive, negative);
     }
 }

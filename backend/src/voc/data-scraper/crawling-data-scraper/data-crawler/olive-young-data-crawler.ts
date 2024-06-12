@@ -20,7 +20,7 @@ export class OliveYoundDataCrawler implements DataCrawler{
         
         const browser = await puppeteer.launch({
             executablePath: '/usr/bin/chromium-browser',
-            headless: false,
+            headless: true,
             args: [
                 "--disable-gpu",
                 "--disable-dev-shm-usage",
