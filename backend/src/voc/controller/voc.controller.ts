@@ -57,4 +57,16 @@ export class VocController{
     public async getVocCountByMemberId(@Param("memberId") memberId:string){
         return this.vocService.getVocCountByMemberId(memberId);
     }
+
+    @ApiOperation({summary: "멤버ID로 카테고리별 최신 VOC 10건 불러오기"})
+    @Get("/get/latest/:memberId")
+    public async getLatest10VocByMemberId(@Param("memberId") memberId:string){
+        return this.vocService.getLatest10VocByMemberId(memberId);
+    }
+
+    @ApiOperation({summary: "멤버ID와 카테고리ID로 해당 카테고리의 최신 VOC 10건 불러오기"})
+    @Get("/get/latest/:memberId/:categoryId")
+    public async getLatest10VocByMemberIdAndCategoryId(@Param("memberId") memberId:string, @Param("categoryId") categoryId:string){
+        return this.vocService.getLatest10VocByMemberIdAndCategoryId(memberId, categoryId);
+    }
 }
