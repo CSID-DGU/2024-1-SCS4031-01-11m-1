@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ReportEntity } from "../entity/report.entity";
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, In } from 'typeorm';
 import { AuthService } from "src/auth/auth.service";
 import { MemberEntity } from "src/auth/member.entity";
 import { CategoryService } from "../../category/category.service";
@@ -20,6 +20,7 @@ import { ReportMapper } from "./mapper/report-mapper";
 import { CountPerCategoryDto } from "./dto/count-per-category.dto";
 import { VocEntity } from "src/voc/entity/voc.entity";
 import { ReportDto } from "./dto/report.dto";
+import { UrlEntity } from "src/member-data/products/entities/url.entity";
 
 @Injectable()
 export class ReportService {
@@ -125,6 +126,11 @@ export class ReportService {
     this.nullCheckForEntity(report);
 
     const member:MemberEntity = report.member;
+    const product:ProductEntity = await this.productRepository.findOne({
+      where:{member:member, productName:report.productName}
+    });
+    const urlIdList:string[] = [];
+    product.urls.forEach((url) => {urlIdList.push(url.id)});
     (await this.categoryRepository.findBy({member: member})).forEach((category) => {
       vocCountMap.set(category.categoryName, [0,0]);
       categoryMap.set(category.categoryName, category);
@@ -147,7 +153,7 @@ export class ReportService {
       where: {
         uploadedDate: Between(
           date, nextWeekDate
-        ),
+        ), url: In(urlIdList)
       }
     });
 
@@ -160,7 +166,7 @@ export class ReportService {
       where: {
         uploadedDate: Between(
           previousWeekDate, date
-        ),
+        ), url: In(urlIdList)
       }
     });
 

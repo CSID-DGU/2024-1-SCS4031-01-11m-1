@@ -18,7 +18,7 @@ export class VocEntity extends BaseEntity{
     @Column()
     uploadedDate:Date
 
-    @ManyToOne(() => UrlEntity)
+    @ManyToOne(() => UrlEntity, {eager:true})
     @JoinColumn({name: "url_id"})
     url: UrlEntity;
 
