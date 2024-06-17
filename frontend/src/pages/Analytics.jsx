@@ -18,12 +18,12 @@ const Container = styled.div`
 const Title = styled.p`
     color: #333;
     font-family: "Wanted Sans";
-    font-size: 32px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
     margin-top: 27px;
-    margin-left: 57px;
+    margin-left: 40px;
 `;
 
 const ListContainer = styled.div`

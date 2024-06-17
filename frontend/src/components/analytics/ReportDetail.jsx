@@ -33,6 +33,7 @@ const Title = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+  width:500px;
 `;
 
 const DeleteButton = styled.button`
@@ -45,7 +46,7 @@ const DeleteButton = styled.button`
   font-family: 'Wanted Sans';
   font-size: 12px;
   font-weight: 600;
-  margin-left: 1115px;
+  margin-left: 870px;
 
   &:hover {
     background-color: #878787;

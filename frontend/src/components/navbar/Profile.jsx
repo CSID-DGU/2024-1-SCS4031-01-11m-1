@@ -4,12 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import logout_icon from '../image/logout_icon.png';
 
 const ProfileContainer = styled.div`
-    width: 202px;
+    width: 100px;
     height: 61px;
     flex-shrink: 0;
     margin-top: 8px;
+
     display: flex;
-    align-items: center; /* Align items vertically */
+    align-items: center;
 `;
 
 const ProfileInfo = styled.div`
@@ -21,7 +22,7 @@ const ProfileInfo = styled.div`
 const NameLabel = styled.span`
     color: #000;
     font-family: Pretendard;
-    font-size: 15px;
+    font-size: 12px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -30,15 +31,15 @@ const NameLabel = styled.span`
 const IdLabel = styled.span`
     color: #000;
     font-family: Pretendard;
-    font-size: 13px;
+    font-size: 10px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
 `;
 
 const Logout = styled.img`
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     cursor: pointer;
 `;

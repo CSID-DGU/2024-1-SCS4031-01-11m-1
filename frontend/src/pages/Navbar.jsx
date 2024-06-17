@@ -10,13 +10,13 @@ const NavbarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 28px 9px 30px;
+    padding: 8px 28px 9px ;
 `;
 
 const TextContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: 85px;
+    gap: 95px;
 `;
 
 const NavbarLink = styled(Link)`
