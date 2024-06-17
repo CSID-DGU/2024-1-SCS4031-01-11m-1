@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import Navbar from './Navbar';
 import VocChart from '../components/dashboard/VocChart';
-
+import CategoryVocTable from '../components/dashboard/CategoryVocTable';
 const Container = styled.div`
     width: 100%;
-    height: 83vh;
+    height: 100%;
     background-color: #F5F7FA;
     display: flex;
     flex-direction: column;
@@ -64,8 +64,7 @@ function Dashboard() {
           <ChartContainer>
             <VocChart />
           </ChartContainer>
-          
-          
+          <CategoryVocTable />
         </TrendContainer>
       </Container>
     </>

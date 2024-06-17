@@ -38,23 +38,21 @@ const VocChart = () => {
 
           // 최근 10개만
           vocCountList = vocCountList.slice(0, 10).reverse(); 
-          const labels = vocCountList.map((vocItem, idx) => {
-            //YYYY-MM-DD
-            const slicedDate = vocItem.date.slice(0, 10);
-            const formatDate = new Date(slicedDate);
+          const labels = vocCountList.map((vocItem) => {
+            const slicedDate = vocItem.date.slice(0, 12); // YYYY-MM-DD 형식의 날짜 문자열 가져오기
+            const startDate = new Date(slicedDate); 
+            const endDate = new Date(startDate); 
+            endDate.setDate(endDate.getDate() + 6); // 7일 더하기
+          
+            const formattedStartDate = startDate.toISOString().slice(5, 10); 
+            const formattedEndDate = endDate.toISOString().slice(5, 10); 
+            const dateResult = `${formattedStartDate} ~ ${formattedEndDate}`; 
             
-            // YYYY-MM-DD ~ YYYY-MM-DD+7
-            const startDate = new Date(formatDate);
-            startDate.setDate(startDate.getDate() + idx * 7); 
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 6);
-            const formattedStartDate = startDate.toISOString().slice(5, 10);
-            const formattedEndDate = endDate.toISOString().slice(5, 10);
-            const dateResult = `${formattedStartDate} ~ ${formattedEndDate}`;
             return dateResult;
           });
-          const totalData = vocCountList.map(vocItem => vocItem.total);
-
+          console.log(labels);
+          const totalData = vocCountList.map(vocItem => vocItem.total); 
+          
           if (index === 0) {
             setChartData(prevState => ({
               ...prevState,

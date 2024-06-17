@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const TableContainer = styled.div`
   width: 100%;
-  height: 83vh;
+  height: 342px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #F5F7FA;
+  margin-left: 40px;
+  margin-top: 40px;
 `;
 
 const StyledTable = styled.div`
-  width: 90%;
+  width: 92%;
   border-collapse: collapse;
 `;
 
@@ -30,19 +30,56 @@ const TableCell = styled.div`
   &:last-child {
     border-right: none;
   }
+  font-weight: ${(props) => (props.header ? 'bold' : 'normal')};
 `;
 
-const CategoryVocTable= () => {
+const CategoryVocTable = () => {
+  const [tableData, setTableData] = useState([]);
+  const [headerDates, setHeaderDates] = useState([]);
 
-  const rows = Array(8).fill(Array(8).fill(""));
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const accessToken = userInfo ? userInfo.accessToken : null;
+    const memberId = userInfo ? userInfo.memberId : null;
+
+    if (accessToken && memberId) {
+      axios
+        .get(`http://15.165.14.203/api/voc/count/member/${memberId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then((response) => {
+          setTableData(response.data);
+
+          // Assuming the first category has the complete date range
+          if (response.data.length > 0) {
+            const dates = response.data[0].vocCountList.map((item) => item.date.slice(0, 10));
+            setHeaderDates(dates.slice(0, 10));
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    }
+  }, []);
 
   return (
     <TableContainer>
       <StyledTable>
-        {rows.map((row, rowIndex) => (
+        <TableRow>
+          <TableCell header>Category</TableCell>
+          {headerDates.map((date, index) => (
+            <TableCell key={index} header>
+              {date}
+            </TableCell>
+          ))}
+        </TableRow>
+        {tableData.map((row, rowIndex) => (
           <TableRow key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              <TableCell key={cellIndex}></TableCell>
+            <TableCell>{row.categoryName}</TableCell>
+            {row.vocCountList.slice(0, 10).map((cell, cellIndex) => (
+              <TableCell key={cellIndex}>{cell.total}</TableCell>
             ))}
           </TableRow>
         ))}
