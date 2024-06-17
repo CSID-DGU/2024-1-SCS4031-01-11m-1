@@ -10,6 +10,7 @@ const StyledSelect = styled.select`
   background: #FFF;
   font-size: 10px; 
   color: #333;
+
 `;
 
 const ProductDropdown = ({ onSelect }) => {

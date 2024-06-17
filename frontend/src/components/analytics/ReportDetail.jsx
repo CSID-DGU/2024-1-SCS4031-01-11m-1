@@ -104,7 +104,8 @@ const ReportDetail = () => {
   const navigate = useNavigate();
   const [reportData, setReportData] = useState({
     productName: "",
-    reportSources: []
+    reportSources: [],
+    vocCounts: []
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -121,10 +122,11 @@ const ReportDetail = () => {
       })
       .then(response => {
         console.log(response.data);
-        const { productName, reportSources } = response.data;
+        const { productName, reportSources, vocCount } = response.data;
         setReportData({
           productName,
-          reportSources
+          reportSources,
+          vocCount 
         });
       })
       .catch(error => {
@@ -175,7 +177,11 @@ const ReportDetail = () => {
       <Container>
         <LeftContainer>
           <SubTitle>VOC - Minute Analysis</SubTitle>
-          <CategoryCard reportSources={reportData.reportSources} onSelectCard={handleCardSelect} />
+          <CategoryCard 
+            reportSources={reportData.reportSources} 
+            vocCount={reportData.vocCount} 
+            onSelectCard={handleCardSelect} 
+          />
         </LeftContainer>
         <RightIcon src={nexticon} />
         <motion.div 
