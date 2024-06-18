@@ -364,7 +364,7 @@ export class VocService{
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
 
-       for(let i = 0; i<vocEntityList.length; i++){
+       /*for(let i = 0; i<vocEntityList.length; i++){
             const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const classifiedCategory:string = classifiedCategoryList[0];
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
@@ -378,9 +378,9 @@ export class VocService{
             const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntityList[i], categoryMap.get(classifiedCategory), primarySentiment, sentiments);
             await this.vocAnalysisRepository.save(vocAnalysis);
             vocTextList.push(vocEntityList[i].description);
-        }
+        }*/
 
-        /*let toBeProcessedVocEntityList:VocEntity[] = [];
+        let toBeProcessedVocEntityList:VocEntity[] = [];
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
@@ -421,7 +421,7 @@ export class VocService{
                     }
                 }
             }
-        }*/
+        }
         
         return vocTextList;
     }
@@ -545,6 +545,9 @@ export class VocService{
             }
 
             const categoryArray:string[] = Array.from(countPerCategory.keys());
+
+            console.log(resultMap);
+
             for(let j = 0; j<categoryArray.length; j++){
                 const countArray:number[] = countPerCategory.get(categoryArray[j]);
                 resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date.toLocaleString(), countArray[0], countArray[1]));
@@ -554,54 +557,6 @@ export class VocService{
 
         return Array.from(resultMap.values());
     }
-
-    /*private async countVocByCategory(vocList:VocByDateDto[], categoryList:CategoryEntity[]):Promise<VocCountPerCategoryDto[]>{
-        let resultMap:Map<string,VocCountPerCategoryDto> = new Map();
-
-        for(let i = 0; i<vocList.length; i++){
-            let countPerCategory:Map<string, number[]> = new Map();
-            let vocs = vocList[i].vocs;
-
-            for(let j = 0; j<categoryList.length; j++){
-                resultMap.set(categoryList[j].categoryName, new VocCountPerCategoryDto(categoryList[j].categoryName, categoryList[j].id));
-                countPerCategory.set(categoryList[j].categoryName, [0,0]);
-            }
-
-            for(let j = 0 ; j < vocs.length; j++){
-                const vocEntity:VocEntity = vocs[j];
-                
-                if(vocEntity.vocAnalysis == null){
-                    if(vocEntity.url.id != 'bb76508f-f27d-42f4-9d53-8842bbb56c28'){
-                        console.log(vocEntity.url);
-                    }
-                    
-                } else {
-                    const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
-                    const category:CategoryEntity = vocAnalysis.category;
-                    const categoryName:string = category.categoryName;
-
-                    if(!countPerCategory.has(categoryName)){
-                        countPerCategory.set(categoryName, [0,0]);
-                    }
-
-                    if(vocAnalysis.primarySentiment == SentimentEnum.positive){
-                        countPerCategory.get(categoryName)[0]++;
-                    } else if(vocAnalysis.primarySentiment == SentimentEnum.negative){
-                        countPerCategory.get(categoryName)[1]++;
-                    }
-                }
-            }
-
-            const categoryArray:string[] = Array.from(countPerCategory.keys());
-            for(let j = 0; j<categoryArray.length; j++){
-                const countArray:number[] = countPerCategory.get(categoryArray[j]);
-                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date.toLocaleString(), countArray[0], countArray[1]));
-            }
-        }
-
-
-        return Array.from(resultMap.values());
-    }*/
 
     private nullCheckForEntity(entity) {
         if (entity == null) throw new NotFoundException();
