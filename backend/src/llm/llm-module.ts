@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import OpenAI from "openai";
 import * as process from 'process';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
@@ -163,86 +163,96 @@ export class CustomOpenAI {
     negativeKeywordsByCtg: KeywordsBySentimentCtg[],
     minutePath: string
   ): Promise<customRAGresult[]>{
-    const loader = new PDFLoader(minutePath);
-    const docs = await loader.load();
-    if(docs.length==0){
-      throw new NotFoundException('회의록을 찾을 수 없습니다.')
-    }
-
-    const vectorstores = await FaissStore.fromDocuments(
-      docs,
-      new OpenAIEmbeddings({
-        apiKey: `${process.env.OPENAI_KEY}`,
-      })
-    );
-  
-    const retriever = vectorstores.asRetriever();
-  
-    const template = `
-    Answer the question based only on the following context, and
-    Strictly Use ONLY the following pieces of context to answer the question at the end:
-    {context}
-  
-    Question: {question}
-    `;
-    const prompt = PromptTemplate.fromTemplate(template);
-  
-    const chat_model = new ChatOpenAI({
-      apiKey: `${process.env.OPENAI_KEY}`,
-    });
-  
-    const chain = RunnableSequence.from([
-      {
-        context: retriever,
-        question: new RunnablePassthrough(),
-      },
-      prompt,
-      chat_model,
-    ]);
-  
-    const minutes:customRAGresult[] = [];
-  
-    for (const category of categories) {
-      let categoryResult: customRAGresult = {categoryName: category, sentiment: { 긍정: [], 부정: [] }};
-      categoryResult.categoryName = category
-
-      // 긍정 키워드에 대한 검색 결과
-      const positiveKeywords:string[] = (positiveKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords;
-      for (const keyword of positiveKeywords) {
-        const content = `
-        해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
-        만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
-        관련 내용을 찾을 수 없으면 다른 설명 없이 '추가적인 논의가 필요합니다.' 라고 답변해줘.
-        `;
-  
-        const response = await chain.invoke(content);
-        const result = response.content;
-        const keywordAnswer: KeywordAnswer = {
-          keyword: keyword,
-          answer: result
-        };
-        categoryResult.sentiment.긍정.push(keywordAnswer);
+    try{
+      const loader = new PDFLoader(minutePath);
+      const docs = await loader.load();
+      if(docs.length==0){
+        throw new NotFoundException('회의록을 찾을 수 없습니다.')
       }
+
+      const vectorstores = await FaissStore.fromDocuments(
+        docs,
+        new OpenAIEmbeddings({
+          apiKey: `${process.env.OPENAI_KEY}`,
+        })
+      );
     
-      // 부정 키워드에 대한 검색 결과
-      const negativeKeywords:string[] = (negativeKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords
-      for (const keyword of negativeKeywords) {
-        const content = `
-        해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
-        만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
-        관련 내용을 찾을 수 없으면 다른 설명 없이 '${category}에서 ${keyword}에 대한 추가적인 논의가 필요합니다.' 라고 답변해줘.
-        `;
-  
-        const response = await chain.invoke(content);
-        const result = response.content;
-        const keywordAnswer: KeywordAnswer = {
-          keyword: keyword,
-          answer: result
-        };
-        categoryResult.sentiment.부정.push(keywordAnswer);
+      const retriever = vectorstores.asRetriever();
+    
+      const template = `
+      Answer the question based only on the following context, and
+      Strictly Use ONLY the following pieces of context to answer the question at the end:
+      {context}
+    
+      Question: {question}
+      `;
+      const prompt = PromptTemplate.fromTemplate(template);
+    
+      const chat_model = new ChatOpenAI({
+        apiKey: `${process.env.OPENAI_KEY}`,
+      });
+    
+      const chain = RunnableSequence.from([
+        {
+          context: retriever,
+          question: new RunnablePassthrough(),
+        },
+        prompt,
+        chat_model,
+      ]);
+    
+      const minutes:customRAGresult[] = [];
+    
+      for (const category of categories) {
+        let categoryResult: customRAGresult = {categoryName: category, sentiment: { 긍정: [], 부정: [] }};
+        categoryResult.categoryName = category
+
+        // 긍정 키워드에 대한 검색 결과
+        const positiveKeywords:string[] = (positiveKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords;
+        for (const keyword of positiveKeywords) {
+          const content = `
+          해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
+          만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
+          관련 내용을 찾을 수 없으면 다른 설명 없이 '추가적인 논의가 필요합니다.' 라고 답변해줘.
+          `;
+    
+          const response = await chain.invoke(content);
+          const result = response.content;
+          const keywordAnswer: KeywordAnswer = {
+            keyword: keyword,
+            answer: result
+          };
+          categoryResult.sentiment.긍정.push(keywordAnswer);
+        }
+      
+        // 부정 키워드에 대한 검색 결과
+        const negativeKeywords:string[] = (negativeKeywordsByCtg.filter((result)=>result.categotyName==category))[0].keywords
+        for (const keyword of negativeKeywords) {
+          const content = `
+          해당 문서 안에 ${category}와 관련된 내용들 중 ${keyword}에 대한 내용이 등장하는지 파악해줘.
+          만약 관련 내용이 있다면, '${category}에서 ${keyword}에 대한 논의가 _ 이루어졌습니다.' 라고 답변해줘. 이때, 어떤 식으로 이루어졌는지 _ 부분에 간단하게 요약해서 설명해줘.
+          관련 내용을 찾을 수 없으면 다른 설명 없이 '${category}에서 ${keyword}에 대한 추가적인 논의가 필요합니다.' 라고 답변해줘.
+          `;
+    
+          const response = await chain.invoke(content);
+          const result = response.content;
+          const keywordAnswer: KeywordAnswer = {
+            keyword: keyword,
+            answer: result
+          };
+          categoryResult.sentiment.부정.push(keywordAnswer);
+        }
+        minutes.push(categoryResult);
       }
-      minutes.push(categoryResult);
+      return minutes;
+    } catch(error){
+      if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 잘못된 형식의 회의록입니다. 올바른 형식의 회의록을 입력해주세요.',
+          message: '잘못된 형식의 회의록입니다. 희외록 형식이 올바른지 확인해주세요.',
+          cause: error,
+        });
     }
-    return minutes;
-  }
+  }}
 }

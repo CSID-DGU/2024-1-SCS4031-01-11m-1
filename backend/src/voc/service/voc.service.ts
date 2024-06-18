@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataScrapingModuleMapping } from "../data-scraper/data-scraper-mapping";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VocEntity } from "../entity/voc.entity";
@@ -18,6 +18,8 @@ import { VocByDateDto } from "../dto/voc-by-date.dto";
 import { Transactional } from "typeorm-transactional";
 import { VocCountPerCategoryDto } from "../dto/voc-count-per-category";
 import { VocCountPerWeekDto } from "../dto/voc-count-per-week.dto";
+import { TenLatestVocDto } from "../dto/10-latest-voc.dto";
+import { TenLatestIndividualDto } from "../dto/10-latest-individual-voc.dto";
 
 @Injectable()
 export class VocService{
@@ -236,6 +238,52 @@ export class VocService{
       return vocKeywordEntities;
     };
 
+    public async getLatest10VocByMemberId(memberId: string):Promise<TenLatestVocDto[]>{
+        const latestVocList:TenLatestVocDto[] = [];
+        const member:MemberEntity = await this.memberRepository.findOneBy({memberId: memberId});
+        this.nullCheckForEntity(member);
+
+        const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
+
+        for(let i = 0; i<categoryList.length; i++){
+            const vocList:TenLatestIndividualDto[] = [];
+            (await this.vocRepository
+            .createQueryBuilder("voc")
+            .leftJoinAndSelect("voc.vocAnalysis", "vocAnalysis")
+            .where("vocAnalysis.categoryId = :categoryId", {categoryId: categoryList[i].id})
+            .orderBy({"voc.\"uploadedDate\"":"DESC"})
+            .limit(10)
+            .getMany()).forEach((voc) => {
+                vocList.push(TenLatestIndividualDto.createFromEntity(voc));
+            });
+
+            latestVocList.push(new TenLatestVocDto(categoryList[i].categoryName, categoryList[i].id, vocList));
+        }
+
+        return latestVocList;
+    }
+
+    public async getLatest10VocByMemberIdAndCategoryId(memberId: string, categoryId:string):Promise<TenLatestVocDto>{
+        const member:MemberEntity = await this.memberRepository.findOneBy({memberId: memberId});
+        this.nullCheckForEntity(member);
+
+        const category:CategoryEntity = await this.categoryRepository.findOneBy({id:categoryId});
+        const vocList:TenLatestIndividualDto[] = [];
+
+        (await this.vocRepository
+            .createQueryBuilder("voc")
+            .leftJoinAndSelect("voc.vocAnalysis", "vocAnalysis")
+            .where("vocAnalysis.categoryId = :categoryId", {categoryId: category.id})
+            .orderBy({"voc.\"uploadedDate\"":"DESC"})
+            .limit(10)
+            .getMany())
+        .forEach((voc) => {
+        vocList.push(TenLatestIndividualDto.createFromEntity(voc));
+        });
+
+        return new TenLatestVocDto(category.categoryName, category.id, vocList);
+    }
+
 
     /**
      * 추출 메서드
@@ -280,7 +328,7 @@ export class VocService{
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
 
-       /*for(let i = 0; i<vocEntityList.length; i++){
+       for(let i = 0; i<vocEntityList.length; i++){
             const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const classifiedCategory:string = classifiedCategoryList[0];
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
@@ -294,21 +342,22 @@ export class VocService{
             const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntityList[i], categoryMap.get(classifiedCategory), primarySentiment, sentiments);
             await this.vocAnalysisRepository.save(vocAnalysis);
             vocTextList.push(vocEntityList[i].description);
-        }*/
+        }
 
-        let toBeProcessedVocEntityList:VocEntity[] = [];
+        /*let toBeProcessedVocEntityList:VocEntity[] = [];
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
-            if(toBeProcessedVocEntityList.length == 1 || i == vocEntityList.length -1){
-                const processedVocTextList:string[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
+            if(toBeProcessedVocEntityList.length == 20 || i == vocEntityList.length -1){
+                let processedVocTextList:string[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
+                
                 processedVocTextList.forEach((voc) => {
                     vocTextList.push(voc);
                 });
 
                 toBeProcessedVocEntityList = [];
             }
-        }
+        }*/
 
         
         return vocTextList;
@@ -368,10 +417,11 @@ export class VocService{
     }
 
     private async sortVocByWeek(vocList:VocEntity[]):Promise<VocByDateDto[]>{
-        const dtoByDateMap:Map<String,VocByDateDto> = new Map();
+        const dtoByDateMap:Map<number,VocByDateDto> = new Map();
+        const sortedDtoByDateMap:Map<Date, VocByDateDto> = new Map();
 
         for(let i = 0; i<vocList.length; i++){
-            let day:number = vocList[i].uploadedDate.getDay()-2;
+            let day:number = vocList[i].uploadedDate.getDay()-1;
 
             if(day<0){
                 day = day +7
@@ -380,13 +430,20 @@ export class VocService{
             let date:Date = new Date(vocList[i].uploadedDate);
             date.setDate(date.getDate() - day);
 
-            if(!dtoByDateMap.has(date.toUTCString())){
-                dtoByDateMap.set(date.toUTCString(), new VocByDateDto(date, []));
+            if(!dtoByDateMap.has(date.valueOf())){
+                dtoByDateMap.set(date.valueOf(), new VocByDateDto(date, []));
             }
-            dtoByDateMap.get(date.toUTCString()).vocs.push(vocList[i]);
+            dtoByDateMap.get(date.valueOf()).vocs.push(vocList[i]);
         }
 
-        return Array.from(dtoByDateMap.values());
+        const keysArray:number[] = Array.from(dtoByDateMap.keys()).sort().reverse();
+        console.log(keysArray);
+        for(let i = 0; i< keysArray.length; i++){
+            sortedDtoByDateMap.set(new Date(keysArray[i]), dtoByDateMap.get(keysArray[i]));
+        }
+
+
+        return Array.from(sortedDtoByDateMap.values());
     }
 
     private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerCategoryDto[]>{
@@ -403,7 +460,7 @@ export class VocService{
                 const categoryName:string = category.categoryName;
 
                 if(!resultMap.has(categoryName)){
-                    resultMap.set(categoryName, new VocCountPerCategoryDto(category));
+                    resultMap.set(categoryName, new VocCountPerCategoryDto(category.categoryName, category.id));
                 }
 
                 if(!countPerCategory.has(categoryName)){
@@ -420,10 +477,15 @@ export class VocService{
             const categoryArray:string[] = Array.from(countPerCategory.keys());
             for(let j = 0; j<categoryArray.length; j++){
                 const countArray:number[] = countPerCategory.get(categoryArray[j]);
-                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date, countArray[0], countArray[1]));
+                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date.toLocaleString(), countArray[0], countArray[1]));
             }
         }
 
+
         return Array.from(resultMap.values());
     }
+
+    private nullCheckForEntity(entity) {
+        if (entity == null) throw new NotFoundException();
+      };
 }

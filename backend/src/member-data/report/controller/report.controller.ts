@@ -8,6 +8,7 @@ import { CreateReportDto } from './dto/create-report.dto';
 import { ReportEntity } from '../entity/report.entity';
 import { ApiExceptionResponse } from 'src/utils/decorator/exception-response.decorater';
 import { LoadReportResponseDto } from './dto/load-report-response.dto';
+import { ReportDto } from '../service/dto/report.dto';
 
 @ApiTags('Member Data -report- Controller')
 @Controller('/member-data')
@@ -45,9 +46,8 @@ export class ReportController {
     required: true,
   })
   @Get('/report/:reportId')
-  async laodReport(@Param('reportId') reportId): Promise<LoadReportResponseDto>{
-    const report:ReportEntity = await this.reportService.loadReport(reportId);
-    return LoadReportResponseDto.createFromEntity(report);
+  async laodReport(@Param('reportId') reportId): Promise<ReportDto>{
+    return await this.reportService.loadReport(reportId);
   };
 
   @ApiOperation({ summary: 'voc 분석 레포트를 삭제합니다.' })
