@@ -33,6 +33,7 @@ const Title = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+  width:500px;
 `;
 
 const DeleteButton = styled.button`
@@ -45,7 +46,7 @@ const DeleteButton = styled.button`
   font-family: 'Wanted Sans';
   font-size: 12px;
   font-weight: 600;
-  margin-left: 1115px;
+  margin-left: 870px;
 
   &:hover {
     background-color: #878787;
@@ -103,7 +104,8 @@ const ReportDetail = () => {
   const navigate = useNavigate();
   const [reportData, setReportData] = useState({
     productName: "",
-    reportSources: []
+    reportSources: [],
+    vocCounts: []
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -120,10 +122,11 @@ const ReportDetail = () => {
       })
       .then(response => {
         console.log(response.data);
-        const { productName, reportSources } = response.data;
+        const { productName, reportSources, vocCount } = response.data;
         setReportData({
           productName,
-          reportSources
+          reportSources,
+          vocCount 
         });
       })
       .catch(error => {
@@ -174,7 +177,11 @@ const ReportDetail = () => {
       <Container>
         <LeftContainer>
           <SubTitle>VOC - Minute Analysis</SubTitle>
-          <CategoryCard reportSources={reportData.reportSources} onSelectCard={handleCardSelect} />
+          <CategoryCard 
+            reportSources={reportData.reportSources} 
+            vocCount={reportData.vocCount} 
+            onSelectCard={handleCardSelect} 
+          />
         </LeftContainer>
         <RightIcon src={nexticon} />
         <motion.div 
