@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ReportEntity } from "../entity/report.entity";
 import { Repository, Between, In } from 'typeorm';
@@ -47,7 +47,8 @@ export class ReportService {
 
   @Transactional()
   async createReport(productId: string, memberId: string, minuteId:string, startDate: Date, endDate:Date):Promise<string>{
-    // DB에서 데이터 수집
+    try{
+      // DB에서 데이터 수집
     const member:MemberEntity = await this.authService.findById(memberId);
     this.nullCheckForEntity(member);
 
@@ -98,6 +99,17 @@ export class ReportService {
     await this.reportRepository.save(reportEntity);
 
     return reportEntity.id;
+    }catch(error){
+      if(error instanceof NotFoundException){
+        throw new NotFoundException({
+          HttpStatus: HttpStatus.NOT_FOUND,
+          error: '[ERROR] 레포트를 생성하는중 오류가 발생했습니다.',
+          message: '서버에 오류가 발생했습니다. 잠시후 다시 시도해주세요.',
+          cause: error,
+        });
+      }
+    }
+    
   };
 
   async loadReports(memberId: string):Promise<ReportListDto[]>{
