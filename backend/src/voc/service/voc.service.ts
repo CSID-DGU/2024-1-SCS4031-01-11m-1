@@ -47,13 +47,15 @@ export class VocService{
         @InjectRepository(MemberEntity)
         private readonly memberRepository: Repository<MemberEntity>,
 
-        private readonly customOpenAI:CustomOpenAI
+        private readonly customOpenAI:CustomOpenAI,
     ){}
 
     //---------------------------VOC 데이터 불러오기-----------------------------------//
     public async getVocCountPerCategory(product_id:string):Promise<VocCountPerCategoryDto[]>{
         const product:ProductEntity = await this.productRepository.findOneBy({id:product_id});
         const urls:UrlEntity[] = product.urls;
+        const member:MemberEntity = product.member;
+        const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
 
         const result:VocEntity[] = await this.vocRepository.find({
             where: {url:urls[0]},
@@ -64,13 +66,14 @@ export class VocService{
 
         console.log(vocList);
 
-        return await this.countVocByCategory(vocList);
+        return await this.countVocByCategory(vocList,categoryList);
     }
 
     public async getVocCountByMemberId(member_id:string):Promise<VocCountPerCategoryDto[]>{
         const member:MemberEntity = await this.memberRepository.findOneBy({memberId:member_id});
         const productList:ProductEntity[] = await this.productRepository.findBy({member:member});
         const vocList:VocEntity[] = [];
+        const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
 
         for(let i = 0; i<productList.length; i++){
             const vocEntityList:VocEntity[] = await this.getVocByProduct(productList[i]);
@@ -80,7 +83,7 @@ export class VocService{
         }
 
         const sortedVocList = await this.sortVocByWeek(vocList);
-        return await this.countVocByCategory(sortedVocList);
+        return await this.countVocByCategory(sortedVocList, categoryList);
     }
 
     /**
@@ -96,10 +99,8 @@ export class VocService{
 
     @Transactional()
     public async scrapeDataByProductId(product_id:string): Promise<String>{
-        console.time("measure");
-
+        console.time("scrape_measure");
         const product:ProductEntity = await this.productRepository.findOneBy({id: product_id});
-        const newVocEntityList:VocEntity[] = [];
         const member:MemberEntity = await product.member;
 
         for(let i:number = 0; i<product.urls.length; i++){
@@ -109,22 +110,40 @@ export class VocService{
             for(let i = 0; i<result.length; i++){
                 const vocEntity:VocEntity = VocEntity.create(result[i].getDescription(), result[i].getScore(), url, result[i].getDate());
                 await this.vocRepository.save(vocEntity);
-                newVocEntityList.push(vocEntity);
             }
         }
 
-        const vocTextList:string[] = await this.analyzeData(newVocEntityList, member);
+        console.timeEnd('scrape_measure');
+
+        return "Success";
+    }
+
+    @Transactional()
+    public async analyzeVocByProductId(productId:string): Promise<String>{
+        console.time("analyze_measure");
+        const product:ProductEntity = await this.productRepository.findOneBy({id:productId});
+        const member:MemberEntity = product.member;
+        const urlList:UrlEntity[] = await this.urlRepository.findBy({product:product});
+        const unAnalyzedData:VocEntity[] = [];
+
+        for(let i = 0; i<urlList.length; i++){
+            const voc:VocEntity[] = await this.vocRepository.find({
+                where: {url: urlList[i], vocAnalysis: null}
+            });
+            unAnalyzedData.push(...voc);
+        }
+
+        const vocTextList:string[] = await this.analyzeData(unAnalyzedData, member);
 
         await this.extractKeywords(vocTextList, member, product);
 
-        console.timeEnd('measure');
+        console.timeEnd('analyze_measure');
 
         return "Success";
     }
 
     @Transactional()
     public async scrapeDataByProductEntity(product:ProductEntity): Promise<String>{
-        const newVocEntityList:VocEntity[] = [];
         const member:MemberEntity = await product.member;
 
         console.log(product.urls);
@@ -135,13 +154,30 @@ export class VocService{
             for(let i = 0; i<result.length; i++){
                 const vocEntity:VocEntity = VocEntity.create(result[i].getDescription(), result[i].getScore(), product.urls[i], result[i].getDate());
                 await this.vocRepository.save(vocEntity);
-                newVocEntityList.push(vocEntity);
             }
         }
 
-        const vocTextList:string[] = await this.analyzeData(newVocEntityList, member);
+        return "Success";
+    }
+
+    @Transactional()
+    public async analyzeVocByProductEntity(product:ProductEntity): Promise<string>{
+        const member:MemberEntity = product.member;
+        const urlList:UrlEntity[] = await this.urlRepository.findBy({product:product});
+        const unAnalyzedData:VocEntity[] = [];
+
+        for(let i = 0; i<urlList.length; i++){
+            const voc:VocEntity[] = await this.vocRepository.find({
+                where: {url: urlList[i], vocAnalysis: null}
+            });
+            unAnalyzedData.push(...voc);
+        }
+
+        const vocTextList:string[] = await this.analyzeData(unAnalyzedData, member);
 
         await this.extractKeywords(vocTextList, member, product);
+
+        console.timeEnd('analyze_measure');
 
         return "Success";
     }
@@ -348,22 +384,49 @@ export class VocService{
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
-            if(toBeProcessedVocEntityList.length == 20 || i == vocEntityList.length -1){
-                let processedVocTextList:string[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
-                
-                processedVocTextList.forEach((voc) => {
-                    vocTextList.push(voc);
-                });
+            if(toBeProcessedVocEntityList.length == 10 || i == vocEntityList.length -1){
+                for(let failCounter:number = 0; failCounter<=10; failCounter++) {
+                    let isException:boolean = false;
+                    const vocAnalysisList:VocAnalysisEntity[] = [];
+                    try{
+                        console.log("GPT!")
+                        await this.sleep(1000);
+                        let processedVocAnalysis:VocAnalysisEntity[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
+                    
+                        processedVocAnalysis.forEach((vocAnalysis) => {
+                            vocAnalysisList.push(vocAnalysis)
+                            vocTextList.push(vocAnalysis.voc.description);
+                        });
+                        toBeProcessedVocEntityList = [];
 
-                toBeProcessedVocEntityList = [];
+                    } catch(exception){
+                        const holdbackTimeWeight = failCounter+1;
+                        console.log(exception);
+                        isException = true;
+                        const holdbackTime:number = exception.headers['retry-after-ms'];
+                        console.log("Voc Analyzed Failed Counter: %d", failCounter);
+                        console.log("Trying after %d ms", holdbackTime*holdbackTimeWeight);
+                        await this.sleep(holdbackTime*holdbackTimeWeight);
+
+                    } finally{
+
+                        if(!isException){
+                            failCounter = 12;
+                            console.log("success");
+                            this.vocAnalysisRepository.save(vocAnalysisList);
+                        } else{
+                            console.log("Retry"); 
+                        }
+
+                    }
+                }
             }
         }*/
-
         
         return vocTextList;
     }
 
-    private async classifyVoc(vocEntity:VocEntity, categoryMap:Map<string, CategoryEntity>):Promise<string>{
+    private async classifyVoc(vocEntity:VocEntity, categoryMap:Map<string, CategoryEntity>):Promise<VocAnalysisEntity>{
         const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntity.description, Array.from(categoryMap.keys()));
         const classifiedCategory:string = classifiedCategoryList[0];
         const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntity.description, Array.from(categoryMap.keys()));
@@ -373,9 +436,7 @@ export class VocService{
         } else{
             primarySentiment = SentimentEnum.negative;
         }
-        const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntity, categoryMap.get(classifiedCategory), primarySentiment, sentiments);
-        this.vocAnalysisRepository.save(vocAnalysis);
-        return vocEntity.description;
+        return VocAnalysisEntity.create(vocEntity, categoryMap.get(classifiedCategory), primarySentiment, sentiments);
     }
 
     private async extractKeywords(vocTextList:string[], member:MemberEntity, product:ProductEntity){
@@ -446,31 +507,40 @@ export class VocService{
         return Array.from(sortedDtoByDateMap.values());
     }
 
-    private async countVocByCategory(vocList:VocByDateDto[]):Promise<VocCountPerCategoryDto[]>{
+    private async countVocByCategory(vocList:VocByDateDto[], categoryList:CategoryEntity[]):Promise<VocCountPerCategoryDto[]>{
         let resultMap:Map<string,VocCountPerCategoryDto> = new Map();
+
+        for(let i = 0; i<categoryList.length; i++){
+            const category:CategoryEntity = categoryList[i];
+            resultMap.set(category.categoryName, new VocCountPerCategoryDto(category.categoryName, category.id))
+        }
 
         for(let i = 0; i<vocList.length; i++){
             let countPerCategory:Map<string, number[]> = new Map();
             let vocs = vocList[i].vocs;
 
+            for(let j = 0; j<categoryList.length; j++){
+                const category:CategoryEntity =categoryList[j];
+                countPerCategory.set(category.categoryName, [0,0]);
+            }
+
             for(let j = 0 ; j < vocs.length; j++){
                 const vocEntity:VocEntity = vocs[j];
-                const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
-                const category:CategoryEntity = vocAnalysis.category;
-                const categoryName:string = category.categoryName;
 
-                if(!resultMap.has(categoryName)){
-                    resultMap.set(categoryName, new VocCountPerCategoryDto(category.categoryName, category.id));
-                }
+                if(vocEntity.vocAnalysis != null){
+                    const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
+                    const category:CategoryEntity = vocAnalysis.category;
+                    const categoryName:string = category.categoryName;
 
-                if(!countPerCategory.has(categoryName)){
-                    countPerCategory.set(categoryName, [0,0]);
-                }
+                    if(!countPerCategory.has(categoryName)){
+                        countPerCategory.set(categoryName, [0,0]);
+                    }
 
-                if(vocAnalysis.primarySentiment == SentimentEnum.positive){
-                    countPerCategory.get(categoryName)[0]++;
-                } else if(vocAnalysis.primarySentiment == SentimentEnum.negative){
-                    countPerCategory.get(categoryName)[1]++;
+                    if(vocAnalysis.primarySentiment == SentimentEnum.positive){
+                        countPerCategory.get(categoryName)[0]++;
+                    } else if(vocAnalysis.primarySentiment == SentimentEnum.negative){
+                        countPerCategory.get(categoryName)[1]++;
+                    }
                 }
             }
 
@@ -485,7 +555,60 @@ export class VocService{
         return Array.from(resultMap.values());
     }
 
+    /*private async countVocByCategory(vocList:VocByDateDto[], categoryList:CategoryEntity[]):Promise<VocCountPerCategoryDto[]>{
+        let resultMap:Map<string,VocCountPerCategoryDto> = new Map();
+
+        for(let i = 0; i<vocList.length; i++){
+            let countPerCategory:Map<string, number[]> = new Map();
+            let vocs = vocList[i].vocs;
+
+            for(let j = 0; j<categoryList.length; j++){
+                resultMap.set(categoryList[j].categoryName, new VocCountPerCategoryDto(categoryList[j].categoryName, categoryList[j].id));
+                countPerCategory.set(categoryList[j].categoryName, [0,0]);
+            }
+
+            for(let j = 0 ; j < vocs.length; j++){
+                const vocEntity:VocEntity = vocs[j];
+                
+                if(vocEntity.vocAnalysis == null){
+                    if(vocEntity.url.id != 'bb76508f-f27d-42f4-9d53-8842bbb56c28'){
+                        console.log(vocEntity.url);
+                    }
+                    
+                } else {
+                    const vocAnalysis:VocAnalysisEntity = vocEntity.vocAnalysis;
+                    const category:CategoryEntity = vocAnalysis.category;
+                    const categoryName:string = category.categoryName;
+
+                    if(!countPerCategory.has(categoryName)){
+                        countPerCategory.set(categoryName, [0,0]);
+                    }
+
+                    if(vocAnalysis.primarySentiment == SentimentEnum.positive){
+                        countPerCategory.get(categoryName)[0]++;
+                    } else if(vocAnalysis.primarySentiment == SentimentEnum.negative){
+                        countPerCategory.get(categoryName)[1]++;
+                    }
+                }
+            }
+
+            const categoryArray:string[] = Array.from(countPerCategory.keys());
+            for(let j = 0; j<categoryArray.length; j++){
+                const countArray:number[] = countPerCategory.get(categoryArray[j]);
+                resultMap.get(categoryArray[j]).vocCountList.push(new VocCountPerWeekDto(vocList[i].date.toLocaleString(), countArray[0], countArray[1]));
+            }
+        }
+
+
+        return Array.from(resultMap.values());
+    }*/
+
     private nullCheckForEntity(entity) {
         if (entity == null) throw new NotFoundException();
-      };
+    };
+
+    private async sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 }
