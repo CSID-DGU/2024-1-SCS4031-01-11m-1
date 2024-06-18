@@ -12,6 +12,9 @@ import { VocAnalysisEntity } from "./entity/voc-analysis.entity";
 import { CategoryEntity } from "src/member-data/category/entity/category.entity";
 import { CustomOpenAI } from "src/llm/llm-module";
 import { VocKeywordEntity } from "./entity/voc-keyword.entity";
+import { AuthModule } from "src/auth/auth.module";
+import { AuthService } from "src/auth/auth.service";
+import { JwtService } from "@nestjs/jwt";
 
 @Module({
     imports: [
@@ -23,9 +26,11 @@ import { VocKeywordEntity } from "./entity/voc-keyword.entity";
             VocKeywordEntity,
             CategoryEntity,
             MemberEntity
-        ])
+        ]),
+        AuthModule,
       ],
     controllers: [VocController],
-    providers: [VocService, DataScrapingModuleMapping, CustomOpenAI]
+    providers: [VocService, DataScrapingModuleMapping, CustomOpenAI, AuthService,
+        JwtService,]
 })
 export class VocModule{}

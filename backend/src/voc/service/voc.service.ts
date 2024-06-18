@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataScrapingModuleMapping } from "../data-scraper/data-scraper-mapping";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VocEntity } from "../entity/voc.entity";
-import { Repository, QueryFailedError, Between } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { UrlEntity } from "src/member-data/products/entities/url.entity";
 import { ProductEntity } from "src/member-data/products/entities/product.entity";
 import { UrlVocListDto } from "src/voc/controller/controller-dto/get-voc-by-productId/url-voc-list.dto"
@@ -182,6 +182,33 @@ export class VocService{
         return "Success";
     }
 
+    @Transactional()
+    public async refreshAnalyzedVocByDateAndProducts(startDate:Date, endDate:Date, productIds: string[], memberId:string){
+        const member = await this.memberRepository.findOneBy({memberId: memberId});
+        this.nullCheckForEntity(member);
+
+        const products:ProductEntity[] = []
+        for(let k=0; k<productIds.length; k++){
+            const product = await this.productRepository.findOneBy({id: productIds[k]});
+            const vocAnalysises = await this.getVocAnalysisByProductIdAndDate(productIds[k], startDate, endDate);
+            for(let m =0; m< vocAnalysises.length; m++){
+                await this.vocAnalysisRepository.remove(vocAnalysises[m])
+            }
+            products.push(product);
+        };
+
+        for(let i=0; i<products.length; i++){
+            const urlList:UrlEntity[] = await this.urlRepository.findBy({product:products[i]})
+            const unAnalyzedData:VocEntity[] = [];
+
+            for(let j=0; j<urlList.length; j++){
+                const voc:VocEntity[] = await this.getVocByProductIdAndDate(products[i].id, startDate, endDate);
+                unAnalyzedData.push(...voc);
+            };
+            await this.analyzeData(unAnalyzedData, member);
+        };
+    };
+
     public async testDataScraping(url:string): Promise<String[]>{
         let resultList:String[] = [];
         const result:DataScraperReturnDto[] = await this.dataScrapingModuleMapping.get("Crawling")!.scrape(url, "OliveYoung", "");
@@ -247,6 +274,19 @@ export class VocService{
             },
             relations: ['voc', 'voc.url', 'voc.url.product', 'category']
         });
+    }
+
+    private async getVocByProductIdAndDate(productId: string, startDate: Date, endDate: Date):Promise<VocEntity[]>{
+        return this.vocRepository.find({
+            where: {
+                url:{
+                    product:{
+                        id: productId
+                    }
+                },
+                uploadedDate: Between(startDate, endDate)
+            }
+        })
     }
 
     public async getVocAnalysisByProductIdAndDate(productId: string, startDate: Date, endDate: Date): Promise<VocAnalysisEntity[]> {
