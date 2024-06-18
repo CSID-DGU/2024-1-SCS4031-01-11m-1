@@ -20,7 +20,6 @@ import { ReportMapper } from "./mapper/report-mapper";
 import { CountPerCategoryDto } from "./dto/count-per-category.dto";
 import { VocEntity } from "src/voc/entity/voc.entity";
 import { ReportDto } from "./dto/report.dto";
-import { UrlEntity } from "src/member-data/products/entities/url.entity";
 
 @Injectable()
 export class ReportService {
@@ -35,12 +34,8 @@ export class ReportService {
     private readonly productMinuteRepository: Repository<ProductMinuteEntity>,
     @InjectRepository(ProductEntity)
     private readonly productRepository: Repository<ProductEntity>,
-    @InjectRepository(MemberEntity)
-    private readonly memberRepository: Repository<MemberEntity>,
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>,
-    @InjectRepository(VocAnalysisEntity)
-    private readonly vocAnalysisRepository: Repository<VocAnalysisEntity>,
     @InjectRepository(VocEntity)
     private readonly vocRepository: Repository<VocEntity>
   ){}
@@ -62,10 +57,6 @@ export class ReportService {
     const categoryEntities:CategoryEntity[] = await this.categoryService.loadCategories(memberId);
     this.nullCheckForList(categoryEntities);
     const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
-    
-    await this.vocService.vocKeywordExtractionRefresh(productId);
-    const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
-    this.nullCheckForList(keywordEntities);
 
     const vocAnalysises:VocAnalysisEntity[] = await this.vocService.getVocAnalysisByProductIdAndDate(productId, startDate, endDate);
     this.nullCheckForList(vocAnalysises);
@@ -86,14 +77,23 @@ export class ReportService {
       const negativeKeywordByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg, 'negative')
       negativeKeywordsByCtg.push(negativeKeywordByCtg);
     };
-    
+
+    const unupdatedKeywords: string[] = []
+    for(const positiveKeywordByCtg of positiveKeywordsByCtg){
+      unupdatedKeywords.push(...positiveKeywordByCtg.keywords)
+    };
+    for(const negativeKeywordByCtg of negativeKeywordsByCtg){
+      unupdatedKeywords.push(...negativeKeywordByCtg.keywords)
+    };
+    const set = new Set(unupdatedKeywords);
+    const keywords = [...set]
 
     // 레포트 생성
     const ragResults:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
 
     const reportSources: ReportSource[] = [];
     for(const ragResult of ragResults){
-      const categoryResult = await this.createReportSource(ragResult, keywordEntities, vocAnalysisesGroupByCtg, vocAnalysises)
+      const categoryResult = await this.createReportSource(ragResult, keywords, vocAnalysisesGroupByCtg, vocAnalysises)
       reportSources.push(categoryResult);
     };
 
@@ -228,11 +228,12 @@ export class ReportService {
     return vocReviews;
   }
 
-  private async createReportSource(ragResult: customRAGresult, keywordEntities: VocKeywordEntity[], vocAnalysisesGroupByCtg:VocAnalysisesAndCategory[], vocAnalysises: VocAnalysisEntity[]){
+  private async createReportSource(ragResult: customRAGresult, keywords: string[], vocAnalysisesGroupByCtg:VocAnalysisesAndCategory[], vocAnalysises: VocAnalysisEntity[]){
     const categoryName:string = ragResult.categoryName;
 
-      const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
-      const keywords:string[] = keywordsList[0]?.keywords;
+      // const keywordsList = keywordEntities.filter(result => result.category.categoryName === categoryName);
+      // const keywords:string[] = keywordsList[0]?.keywords;
+      
 
       const positiveAnswers = ragResult.sentiment.긍정;
       const negativeAnswers = ragResult.sentiment.부정;
