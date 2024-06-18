@@ -24,17 +24,17 @@ const Container = styled.div`
 const Title = styled.p`
     color: #333;
     font-family: "Wanted Sans";
-    font-size: 32px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
     margin-top: 27px;
-    margin-left: 57px;
+    margin-left: 40px;
 `;
 
 const ListContainer = styled.div`
-    width: 95%;
-    height: 100%; 
+    width: 1430px;
+    height: 800px; 
     flex-shrink: 0;
     border-radius: 10px;
     border: 1px solid #DFDFDF;
@@ -62,7 +62,7 @@ const AddProductbtn = styled.button`
     line-height: normal;
     position:relative;
     left:88%;
-    top:-7%;
+    top:15px;
 `;
 
 const AddMinutebtn = styled.button`
@@ -86,7 +86,7 @@ const AddMinutebtn = styled.button`
     line-height: normal;
     position:relative;
     left:88%;
-    top:-7%;
+    top:10px;
 `;
 
 const Addicon = styled.div`

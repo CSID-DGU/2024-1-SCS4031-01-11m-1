@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const Title = styled.div`
@@ -8,7 +8,6 @@ const Title = styled.div`
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    margin-top: 20px;
 `;
 
 const Container = styled.div`
@@ -18,11 +17,13 @@ const Container = styled.div`
     overflow-y: auto;
     &::-webkit-scrollbar {
     width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 2px;
-    background: #ccc;
-  } 
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+        background: #ccc;
+    }
+    border-radius: 2.5px;
+    border: 1px solid #D9D9D9; 
 `;
 
 const Item = styled.div`
@@ -35,26 +36,36 @@ const Item = styled.div`
   margin-top: 0px;
   cursor: pointer; 
   padding: 13px;
+  background-color: ${({ isSelected }) => (isSelected ? 'rgba(28, 49, 89, 0.30)' : 'transparent')};
   &:hover {
     background-color: rgba(28, 49, 89, 0.30);
   }
 `;
 
-
-
 function Data() {
-    const data = ['1', '2'];
+    const [selectedData, setSelectedData] = useState(null);
+    const data = ['Review', 'Q&A'];
+
+    const handleItemClick = (item) => {
+        setSelectedData(item);
+    };
+
     return (
         <>
             <Title>Data</Title>
             <Container>
-                {data.map((data, index) => (
-                    <Item key={index}>{data}</Item>
+                {data.map((item, index) => (
+                    <Item 
+                        key={index} 
+                        isSelected={selectedData === item}
+                        onClick={() => handleItemClick(item)}
+                    >
+                        {item}
+                    </Item>
                 ))}
             </Container>
-            
         </>
-    )
+    );
 }
 
 export default Data;

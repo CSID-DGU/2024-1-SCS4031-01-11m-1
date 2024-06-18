@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import Product from './addreport/Product';
-import Data from './addreport/Data';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { TailSpin } from 'react-loader-spinner';
+import Product from './addreport/Product'; // Ensure this path is correct
+import Data from './addreport/Data'; // Ensure this path is correct
+import Document from './addreport/Document'; // Ensure this path is correct
+import DateRange from './addreport/DateRange'; // Ensure this path is correct
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -22,8 +27,10 @@ const Container = styled.div`
     border-radius: 10px;
     background: #FFF;
     padding: 26px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 `;
-
 
 const Title = styled.p`
     color: #333;
@@ -34,22 +41,32 @@ const Title = styled.p`
     line-height: normal;
 `;
 
-const Line = styled.p`
-    width: 250px;
+const Line = styled.div`
+    position:relative;
+    z-index:99;
+    width: 100%;
     height: 1px;
     background: #D9D9D9;
-    margin-top: 28px;
+    margin-top: 13px;
+`;
+
+const Content = styled.div`
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+`;
+
+const Column = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 48%;
 `;
 
 const ButtonContainer = styled.div`
     display: flex;
-    width: 172px;
-    height: 27px;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-end;
     gap: 14px;
-    flex-shrink: 0;
-    margin-left: 83px;
     margin-top: 20px;
 `;
 
@@ -95,25 +112,133 @@ const CancelButton = styled.button`
     cursor: pointer;
 `;
 
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    z-index: 2000;
+`;
 
-function AddReport() {
+function AddReport({ onClose }) {
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [memberId, setMemberId] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
+    const [loading, setLoading] = useState(false); 
+    const isMounted = useRef(true);
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo && userInfo.memberId && userInfo.accessToken) {
+            setMemberId(userInfo.memberId);
+            setAccessToken(userInfo.accessToken);
+        }
+
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
+    const handleCancel = () => {
+        onClose();
+    };
+
+    const handleSave = async () => {
+        if (!selectedProduct || !selectedDocument || !startDate || !endDate) {
+            alert("Please select a product, a document, and date range.");
+            return;
+        }
+
+        setLoading(true); 
+
+        try {
+            const requestBody = {
+                productId: selectedProduct.id,
+                minuteId: selectedDocument.id,
+                startDate: formatDate(startDate),
+                endDate: formatDate(endDate),
+            };
+            console.log(requestBody)
+
+            const response = await axios.post(
+                `http://15.165.14.203/api/member-data/report/${memberId}`,
+                requestBody,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                }
+            );
+            
+
+            if (response.status === 201) {
+                navigate(`${response.data}`); 
+                onClose();
+    
+            }
+        } catch (error) {
+            if (isMounted.current) {
+                console.error("Failed to save report", error);
+                alert("Failed to save report");
+            }
+        } finally {
+            if (isMounted.current) {
+                setLoading(false); 
+            }
+        }
+    };
+
+    const handleDateRangeSelect = (start, end) => {
+        setStartDate(start);
+        setEndDate(end);
+    };
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const yyyy = d.getFullYear();
+        const MM = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${MM}-${dd} 00:00:00`;
+    };
+    
 
     return (
         <ModalOverlay>
             <Container>
                 <Title>Add Report</Title>
-                <Product />
-                <Data />
+                <Content>
+                    <Column>
+                        <Product onProductSelect={setSelectedProduct} />
+                        <Data />
+                    </Column>
+                    <Column>
+                        <Document onDocumentSelect={setSelectedDocument} />
+                        <DateRange onDateRangeSelect={handleDateRangeSelect} />
+                    </Column>
+                </Content>
                 <Line />
-
-                {/* <ButtonContainer>
+                <ButtonContainer>
                     <CancelButton onClick={handleCancel}>Cancel</CancelButton>
                     <SaveButton onClick={handleSave}>Save</SaveButton>
-                </ButtonContainer> */}
+                </ButtonContainer>
+                {loading && (
+                    <SpinnerContainer>
+                        <TailSpin height={80} width={80} color="#1C3159" ariaLabel="loading" />
+                    </SpinnerContainer>
+                )}
             </Container>
         </ModalOverlay>
-    )
+    );
 }
 
-export default AddReport
+export default AddReport;

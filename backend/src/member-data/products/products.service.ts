@@ -223,6 +223,7 @@ export class ProductsService {
     try{
       const member:MemberEntity = await this.authService.findById(memberId)
       this.nullCheckForEntity(member);
+
       file.originalname = Buffer.from(file.originalname, 'ascii').toString('utf8',);
       const fileName = `${file.originalname}`;
       const fileUrl = `/media/${fileName}`;
