@@ -62,7 +62,8 @@ export class ReportService {
     const categoryEntities:CategoryEntity[] = await this.categoryService.loadCategories(memberId);
     this.nullCheckForList(categoryEntities);
     const categories:string[] = categoryEntities.map((result)=>{return result.categoryName});
-
+    
+    await this.vocService.vocKeywordExtractionRefresh(productId);
     const keywordEntities:VocKeywordEntity[] = await this.vocService.getVocKeywordsByProductId(productId);
     this.nullCheckForList(keywordEntities);
 
@@ -85,6 +86,7 @@ export class ReportService {
       const negativeKeywordByCtg: KeywordsBySentimentCtg = await this.createKeywordsByCtg(vocAnalysisByCtg, 'negative')
       negativeKeywordsByCtg.push(negativeKeywordByCtg);
     };
+    
 
     // 레포트 생성
     const ragResults:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
