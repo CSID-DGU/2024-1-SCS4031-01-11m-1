@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Sentiment from './Sentiment';
-import {motion } from 'framer-motion';
+import VocReviews from './VocReviews';
 
 const DetailContainer = styled.div`
   margin-top: 20px;
- 
 `;
 
 const CategoryName = styled.div`
@@ -58,9 +57,9 @@ const Answer = styled.div`
     font-weight: 400;
     line-height: normal;
     letter-spacing: 0.5px;
-    width:305px;
-    line-height:30px;
-    margin-top:10px;
+    width: 305px;
+    line-height: 30px;
+    margin-top: 10px;
 `;
 
 const SumContainer = styled.div`
@@ -69,18 +68,19 @@ const SumContainer = styled.div`
 `;
 
 const VocSumWrapper = styled.div`
-    height: 240px;
+    height: 100%;
     white-space: pre-line;
     width: 590px;
     margin-left: 5px;
-    margin-top:10px;
+    margin-top: 10px;
+    margin-bottom: 30px;
     letter-spacing: 0.5px;
     color: #000;
     font-family: Pretendard;
-    font-size: 15px;
-    font-style:normal;
+    font-size: 13px;
+    font-style: normal;
     font-weight: 400;
-    line-height: 30px;
+    line-height: 20px;
 `;
 
 const MinuteContainer = styled.div`
@@ -90,18 +90,22 @@ const MinuteContainer = styled.div`
 
 const SentimentContainer = styled.div`
     margin-top: 20px;
-    margin-left:20px;
+    margin-left: 20px;
 `;
 
 const RowContainer = styled.div`
-    display:flex;
+    display: flex;
 `;
+
 const CategoryDetail = ({ reportSource }) => {
     useEffect(() => {
         console.log('Received reportSource:', reportSource);
     }, [reportSource]);
 
-    const VocSummary = reportSource.vocSummaries.length > 0 ? reportSource.vocSummaries[0] : ''; // vocSummaries 배열의 길이가 1 이상이면 Summary를 설정, 아니면 빈 문자열로 설정
+    // vocSummaries 배열의 길이가 1 이상이면 Summary를 설정, 아니면 빈 문자열로 설정
+    const VocSummary = reportSource.vocSummaries.length > 0 ? reportSource.vocSummaries[0] : ''; 
+
+    // vocSummary 출력값 포맷팅
     const formattedVocSummaries = VocSummary ? VocSummary.split('.').map((sentence, index, array) => {
         if (index === array.length - 1) {
             return null; // 마지막 항목은 표시하지 않음
@@ -115,36 +119,32 @@ const CategoryDetail = ({ reportSource }) => {
 
     return (
         <DetailContainer>
-               
-                <CategoryName>{reportSource.categoryName}</CategoryName>
-                <KeywordsContainer>
-                    <SubTitle>Keyword</SubTitle>
-                    {reportSource.keywords.map((keyword, index) => (
-                        <Keyword key={index}>{keyword}</Keyword>
+            <CategoryName>{reportSource.categoryName}</CategoryName>
+            <KeywordsContainer>
+                <SubTitle>Keyword</SubTitle>
+                {reportSource.keywords.map((keyword, index) => (
+                    <Keyword key={index}>{keyword}</Keyword>
+                ))}
+            </KeywordsContainer>
+            <SumContainer>
+                <SubTitle>Voc Summary</SubTitle>
+                <VocSumWrapper>
+                    {formattedVocSummaries.map((sentence, index) => (
+                        <div key={index}>{sentence}</div>
                     ))}
-                </KeywordsContainer>
-                <SumContainer>
-                    <SubTitle>Voc Summary</SubTitle>
-                    <VocSumWrapper>
-                        {formattedVocSummaries.map((sentence, index) => (
-                            <div key={index}>{sentence}</div>
-                        ))}
-                    </VocSumWrapper>
-                    </SumContainer>
-                <RowContainer>
-                    <MinuteContainer>
-                        <SubTitle>Minute</SubTitle>
-                        <Answer>{formattedAnswer}</Answer>
-                    </MinuteContainer>
-                    <SentimentContainer>
-                        <SubTitle>Sentiment</SubTitle>
-                        <Sentiment positiveCnt={reportSource.positiveCnt} negativeCnt={reportSource.negativeCnt} />
-                    </SentimentContainer>
-                    
-                        
-                </RowContainer>
-                
-                
+                </VocSumWrapper>
+                <VocReviews vocReviews={reportSource.vocReviews} />
+            </SumContainer>
+            <RowContainer>
+                <MinuteContainer>
+                    <SubTitle>Minute</SubTitle>
+                    <Answer>{formattedAnswer}</Answer>
+                </MinuteContainer>
+                <SentimentContainer>
+                    <SubTitle>Sentiment</SubTitle>
+                    <Sentiment positiveCnt={reportSource.positiveCnt} negativeCnt={reportSource.negativeCnt} />
+                </SentimentContainer>
+            </RowContainer>
         </DetailContainer>
     );
 };
@@ -154,7 +154,8 @@ CategoryDetail.propTypes = {
         categoryName: PropTypes.string.isRequired,
         keywords: PropTypes.arrayOf(PropTypes.string).isRequired,
         vocSummaries: PropTypes.arrayOf(PropTypes.string).isRequired,
-        answer: PropTypes.string.isRequired,
+        vocReviews: PropTypes.arrayOf(PropTypes.string).isRequired,
+        answer: PropTypes.arrayOf(PropTypes.string).isRequired,
         positiveCnt: PropTypes.number.isRequired,
         negativeCnt: PropTypes.number.isRequired,
     }).isRequired,
