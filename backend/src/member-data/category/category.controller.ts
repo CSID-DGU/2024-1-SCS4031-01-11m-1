@@ -7,11 +7,13 @@ import { MemberEntity } from "src/auth/member.entity";
 import { CategoryEntity } from "./entity/category.entity";
 import { ApiExceptionResponse } from "src/utils/decorator/exception-response.decorater";
 import { AddCategoryDto } from "./dto/add-category.dto";
+import { VocService } from "src/voc/service/voc.service";
 
 @ApiTags('Member Data -category- Controller')
 @Controller('/member-data')
 export class CategoryController {
   constructor(
+    private vocService: VocService,
     private categoryService: CategoryService,
   ){};
   

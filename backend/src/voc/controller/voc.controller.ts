@@ -1,9 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { TestDataScrapingRequestDto } from "./controller-dto/test-data-scraping/test-data-scraping-request.dto";
 import { UrlVocListDto } from "./controller-dto/get-voc-by-productId/url-voc-list.dto";
 import { GetVocByProductIdResponseDto } from "./controller-dto/get-voc-by-productId/get-voc-by-productId-response.dto"
 import { VocService } from "../service/voc.service";
+import { RefreshAnalyzedVocByDateAndProductsDto } from "./controller-dto/get-voc-by-productId/refresh-analyzed-voc-by-date-and-products.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { Member } from "src/auth/get-member-decorator";
+import { MemberEntity } from "src/auth/member.entity";
 
 @ApiTags('VOC Data Controller')
 @Controller('/voc')
@@ -36,13 +40,23 @@ export class VocController{
     @ApiOperation({summary: "Product 엔티티 Id를 통해 Voc 업데이트"})
     @Post("/updateVocByProductId/:productId")
     public async updateVocByProductId(@Param("productId") productId:string){
-        return this.vocService.scrapeDataByProductId(productId);
+        await this.vocService.scrapeDataByProductId(productId);
+        return this.vocService.analyzeVocByProductId(productId);
     }
 
     @ApiOperation({summary: "VOC 키워드 추출 리프레시(테스트용)"})
     @Post("/refresh/vockeywords/:productId")
     public async refreshVocKeywords(@Param("productId") productId:string){
         return this.vocService.vocKeywordExtractionRefresh(productId);
+    }
+
+    @ApiOperation({summary: "카테고리 추가했을 때 voc 분석내용 업데이트 - 상품, 날짜 선택"})
+    @Post("/refresh/voc-analysis-when-add-category/:memberId")
+    @UseGuards(AuthGuard())
+    @ApiBearerAuth('access-token')
+    public async refreshAnalyzedVocByDateAndProducts(@Body() refreshAnalyzedVocByDateAndProductsDto:RefreshAnalyzedVocByDateAndProductsDto, @Member() member: MemberEntity){
+        const {productIds, startDate, endDate} = refreshAnalyzedVocByDateAndProductsDto
+        return this.vocService.refreshAnalyzedVocByDateAndProducts(startDate, endDate, productIds, member.memberId)
     }
 
     //-------------------------------------VOC 데이터 가져오기------------------------------------//

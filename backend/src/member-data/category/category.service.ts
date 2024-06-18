@@ -7,6 +7,7 @@ import { MemberEntity } from "src/auth/member.entity";
 import { AuthService } from "src/auth/auth.service";
 import { VocAnalysisEntity } from "src/voc/entity/voc-analysis.entity";
 import { VocKeywordEntity } from "src/voc/entity/voc-keyword.entity";
+import { ProductsService } from "../products/products.service";
 
 @Injectable()
 export class CategoryService{
@@ -53,6 +54,7 @@ export class CategoryService{
       this.nullCheckForEntity(member);
 
       const checkDuplication = await this.categoryDuplicationCheck(categoryName);
+
       if(checkDuplication == true){
         throw new BadRequestException()
       } else{

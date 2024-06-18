@@ -22,6 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       description: error,
       timestamp: timestamp,
       url: request.url,
+      error: error
     });
 
     this.errorLogging(url, errorResponse, timestamp);
