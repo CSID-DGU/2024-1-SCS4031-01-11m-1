@@ -129,12 +129,16 @@ export class ReportService {
 
   async loadReport(reportId: string): Promise<ReportDto>{
     const report: ReportEntity = await this.reportRepository.findOneBy({id: reportId});
+    this.nullCheckForEntity(report)
     const vocCountMap:Map<string,number[]> = new Map();
     const categoryMap:Map<string, CategoryEntity> = new Map();
-    let day:number = report.createdAt.getDay()-1;
-    let date:Date = new Date(report.createdAt);
-    let nextWeekDate:Date;
-    let previousWeekDate:Date;
+
+    let createdAt:Date = report.createdAt;
+    let day:number = createdAt.getDate()-1;
+    let date:Date = new Date(createdAt);
+    let thisMonthLastDate:Date;
+    let previousMonthDate:Date;
+    let dayBeforeDate:Date;
     
     const vocCountPerCategory: CountPerCategoryDto[] = [];
     this.nullCheckForEntity(report);
@@ -149,24 +153,39 @@ export class ReportService {
       vocCountMap.set(category.categoryName, [0,0]);
       categoryMap.set(category.categoryName, category);
     });
-
-    if(day<0){
-      day = day + 7;
-    }
-
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
     date.setDate(date.getDate()-day);
-    nextWeekDate = new Date(date);
-    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-    previousWeekDate = new Date(date);
-    previousWeekDate.setDate(previousWeekDate.getDate() - 7);
+
+    thisMonthLastDate = new Date(date);
+    thisMonthLastDate.setMonth(thisMonthLastDate.getMonth()+1);
+    thisMonthLastDate.setDate(thisMonthLastDate.getDate()-1)
+    thisMonthLastDate.setHours(11);
+    thisMonthLastDate.setMinutes(59);
+    thisMonthLastDate.setSeconds(59);
+
+    previousMonthDate = new Date(date);
+    previousMonthDate.setHours(0);
+    previousMonthDate.setMinutes(0);
+    previousMonthDate.setSeconds(0);
+    previousMonthDate.setMonth(previousMonthDate.getMonth()-1)
+
+    dayBeforeDate = new Date(date);
+    dayBeforeDate.setDate(dayBeforeDate.getDate()-1);
+    dayBeforeDate.setHours(11);
+    dayBeforeDate.setMinutes(59);
+    dayBeforeDate.setSeconds(59);
 
     console.log(date.toLocaleString())
-    console.log(nextWeekDate.toLocaleString());
+    console.log(thisMonthLastDate.toLocaleString());
+    console.log(previousMonthDate.toLocaleString());
+    console.log(dayBeforeDate.toLocaleString());
 
     const vocs:VocEntity[] = await this.vocRepository.find({
       where: {
         uploadedDate: Between(
-          date, nextWeekDate
+          date, thisMonthLastDate
         ), url: In(urlIdList)
       }
     });
@@ -179,7 +198,7 @@ export class ReportService {
     const previousVocs:VocEntity[] = await this.vocRepository.find({
       where: {
         uploadedDate: Between(
-          previousWeekDate, date
+          previousMonthDate, dayBeforeDate
         ), url: In(urlIdList)
       }
     });

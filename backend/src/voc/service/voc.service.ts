@@ -427,7 +427,6 @@ export class VocService{
                     const vocAnalysisList:VocAnalysisEntity[] = [];
                     try{
                         console.log("GPT!")
-                        //await this.sleep(1000);
                         let processedVocAnalysis:VocAnalysisEntity[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
                     
                         processedVocAnalysis.forEach((vocAnalysis) => {
@@ -437,7 +436,7 @@ export class VocService{
                         toBeProcessedVocEntityList = [];
 
                     } catch(exception){
-                        const holdbackTimeWeight = failCounter+50;
+                        const holdbackTimeWeight = failCounter+5;
                         console.log(exception);
                         isException = true;
                         const holdbackTime:number = exception.headers['retry-after-ms'];
