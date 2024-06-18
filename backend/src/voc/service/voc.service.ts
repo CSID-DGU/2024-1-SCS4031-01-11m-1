@@ -135,8 +135,6 @@ export class VocService{
 
         const vocTextList:string[] = await this.analyzeData(unAnalyzedData, member);
 
-        await this.extractKeywords(vocTextList, member, product);
-
         console.timeEnd('analyze_measure');
 
         return "Success";
@@ -174,8 +172,6 @@ export class VocService{
         }
 
         const vocTextList:string[] = await this.analyzeData(unAnalyzedData, member);
-
-        await this.extractKeywords(vocTextList, member, product);
 
         console.timeEnd('analyze_measure');
 
@@ -404,7 +400,7 @@ export class VocService{
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
 
-       for(let i = 0; i<vocEntityList.length; i++){
+       /*for(let i = 0; i<vocEntityList.length; i++){
             const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const classifiedCategory:string = classifiedCategoryList[0];
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
@@ -418,9 +414,9 @@ export class VocService{
             const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntityList[i], categoryMap.get(classifiedCategory), primarySentiment, sentiments);
             await this.vocAnalysisRepository.save(vocAnalysis);
             vocTextList.push(vocEntityList[i].description);
-        }
+        }*/
 
-        /*let toBeProcessedVocEntityList:VocEntity[] = [];
+        let toBeProcessedVocEntityList:VocEntity[] = [];
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
@@ -430,7 +426,7 @@ export class VocService{
                     const vocAnalysisList:VocAnalysisEntity[] = [];
                     try{
                         console.log("GPT!")
-                        await this.sleep(1000);
+                        //await this.sleep(1000);
                         let processedVocAnalysis:VocAnalysisEntity[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
                     
                         processedVocAnalysis.forEach((vocAnalysis) => {
@@ -440,7 +436,7 @@ export class VocService{
                         toBeProcessedVocEntityList = [];
 
                     } catch(exception){
-                        const holdbackTimeWeight = failCounter+1;
+                        const holdbackTimeWeight = failCounter+50;
                         console.log(exception);
                         isException = true;
                         const holdbackTime:number = exception.headers['retry-after-ms'];
@@ -461,7 +457,7 @@ export class VocService{
                     }
                 }
             }
-        }*/
+        }
         
         return vocTextList;
     }
@@ -585,8 +581,6 @@ export class VocService{
             }
 
             const categoryArray:string[] = Array.from(countPerCategory.keys());
-
-            console.log(resultMap);
 
             for(let j = 0; j<categoryArray.length; j++){
                 const countArray:number[] = countPerCategory.get(categoryArray[j]);
