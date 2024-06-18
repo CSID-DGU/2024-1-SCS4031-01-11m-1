@@ -36,7 +36,8 @@ export class VocController{
     @ApiOperation({summary: "Product 엔티티 Id를 통해 Voc 업데이트"})
     @Post("/updateVocByProductId/:productId")
     public async updateVocByProductId(@Param("productId") productId:string){
-        return this.vocService.scrapeDataByProductId(productId);
+        await this.vocService.scrapeDataByProductId(productId);
+        return this.vocService.analyzeVocByProductId(productId);
     }
 
     @ApiOperation({summary: "VOC 키워드 추출 리프레시(테스트용)"})
