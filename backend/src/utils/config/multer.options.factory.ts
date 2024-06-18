@@ -32,6 +32,7 @@ const storage = (folder: string): multer.StorageEngine => {
     },
 
     filename(req, file, cb){
+      file.originalname = Buffer.from(file.originalname, 'ascii').toString('utf8')
       const ext = path.extname(file.originalname);
       const fileName = `${path.basename(
         file.originalname,
