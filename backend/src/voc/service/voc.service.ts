@@ -281,8 +281,9 @@ export class VocService{
                     }
                 },
                 uploadedDate: Between(startDate, endDate)
-            }
-        })
+            },
+            relations: ["url", "url.product"]
+        });
     }
 
     public async getVocAnalysisByProductIdAndDate(productId: string, startDate: Date, endDate: Date): Promise<VocAnalysisEntity[]> {
