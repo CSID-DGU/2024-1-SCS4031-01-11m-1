@@ -205,7 +205,7 @@ export class ReportService {
     });
 
     previousVocs.forEach((voc) => {
-      if(voc.vocAnalysis=!null){
+      if(voc.vocAnalysis != null){
       const categoryName:string = voc.vocAnalysis.category.categoryName;
       vocCountMap.get(categoryName)[1] = vocCountMap.get(categoryName)[1] + 1;}
     });
