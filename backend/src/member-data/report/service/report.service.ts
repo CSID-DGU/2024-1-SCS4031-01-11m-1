@@ -191,8 +191,9 @@ export class ReportService {
     });
 
     vocs.forEach((voc) => {
+      if(voc.vocAnalysis != null){
       const categoryName:string = voc.vocAnalysis.category.categoryName
-      vocCountMap.get(categoryName)[0] = vocCountMap.get(categoryName)[0]+1
+      vocCountMap.get(categoryName)[0] = vocCountMap.get(categoryName)[0]+1}
     });
 
     const previousVocs:VocEntity[] = await this.vocRepository.find({
@@ -204,8 +205,9 @@ export class ReportService {
     });
 
     previousVocs.forEach((voc) => {
+      if(voc.vocanalysis=!null){
       const categoryName:string = voc.vocAnalysis.category.categoryName;
-      vocCountMap.get(categoryName)[1] = vocCountMap.get(categoryName)[1] + 1;
+      vocCountMap.get(categoryName)[1] = vocCountMap.get(categoryName)[1] + 1;}
     });
 
     vocCountMap.forEach((vocCount, categoryName) => {
