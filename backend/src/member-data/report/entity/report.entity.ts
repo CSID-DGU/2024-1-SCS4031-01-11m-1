@@ -14,7 +14,7 @@ export class ReportEntity extends BaseEntity {
   @Column()
   productName: string;
 
-  @ManyToOne(() => MemberEntity, {eager: false})
+  @ManyToOne(() => MemberEntity, {eager: true})
   member: MemberEntity;
 
   constructor(
