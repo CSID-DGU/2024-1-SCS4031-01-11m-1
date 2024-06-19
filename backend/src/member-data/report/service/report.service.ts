@@ -86,7 +86,9 @@ export class ReportService {
       unupdatedKeywords.push(...negativeKeywordByCtg.keywords)
     };
     const set = new Set(unupdatedKeywords);
-    const keywords = [...set]
+    let keywords = [...set]
+    keywords = keywords.filter(result => result != "카테고리");
+    console.log(keywords)
 
     // 레포트 생성
     const ragResults:customRAGresult[] = await this.customOpenAI.customRAG(categories, positiveKeywordsByCtg, negativeKeywordsByCtg, minute.path);
