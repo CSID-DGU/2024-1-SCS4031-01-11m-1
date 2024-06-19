@@ -407,8 +407,7 @@ export class VocService{
         }
 
        for(let i = 0; i<vocEntityList.length; i++){
-            const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
-            const classifiedCategory:string = classifiedCategoryList[0];
+            const classifiedCategory:string = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
             let primarySentiment:SentimentEnum = null;
             if(sentiments[classifiedCategory] == "긍정"){
