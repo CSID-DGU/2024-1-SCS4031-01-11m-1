@@ -173,8 +173,7 @@ export class CustomOpenAI {
       const vectorstores = await FaissStore.fromDocuments(
         docs,
         new OpenAIEmbeddings({
-          apiKey: `${process.env.OPENAI_KEY}`,
-          model: 'gpt-4o'
+          apiKey: `${process.env.OPENAI_KEY}`
         })
       );
     
@@ -190,8 +189,7 @@ export class CustomOpenAI {
       const prompt = PromptTemplate.fromTemplate(template);
     
       const chat_model = new ChatOpenAI({
-        apiKey: `${process.env.OPENAI_KEY}`,
-        model: 'gpt-4o'
+        apiKey: `${process.env.OPENAI_KEY}`
       });
     
       const chain = RunnableSequence.from([
