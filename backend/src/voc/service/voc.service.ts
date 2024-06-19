@@ -401,7 +401,7 @@ export class VocService{
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
 
-       /*for(let i = 0; i<vocEntityList.length; i++){
+       for(let i = 0; i<vocEntityList.length; i++){
             const classifiedCategoryList:string[] = await this.customOpenAI.categoryClassifier(vocEntityList[i].description, Array.from(categoryMap.keys()));
             const classifiedCategory:string = classifiedCategoryList[0];
             const sentiments:{category:string, sentiment:string} = await this.customOpenAI.sentimentAnalysis(vocEntityList[i].description, Array.from(categoryMap.keys()));
@@ -415,9 +415,9 @@ export class VocService{
             const vocAnalysis:VocAnalysisEntity = VocAnalysisEntity.create(vocEntityList[i], categoryMap.get(classifiedCategory), primarySentiment, sentiments);
             await this.vocAnalysisRepository.save(vocAnalysis);
             vocTextList.push(vocEntityList[i].description);
-        }*/
+        }
 
-        let toBeProcessedVocEntityList:VocEntity[] = [];
+        /*let toBeProcessedVocEntityList:VocEntity[] = [];
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
@@ -457,8 +457,8 @@ export class VocService{
                     }
                 }
             }
-        }
-        
+        }*/
+
         return vocTextList;
     }
 
