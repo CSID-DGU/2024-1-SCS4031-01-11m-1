@@ -109,7 +109,7 @@ export class CustomOpenAI {
 
     const response: OpenAI.Chat.Completions.ChatCompletion
       = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [
         {
             role: "system",
@@ -174,6 +174,7 @@ export class CustomOpenAI {
         docs,
         new OpenAIEmbeddings({
           apiKey: `${process.env.OPENAI_KEY}`,
+          model: 'gpt-4o'
         })
       );
     
@@ -190,6 +191,7 @@ export class CustomOpenAI {
     
       const chat_model = new ChatOpenAI({
         apiKey: `${process.env.OPENAI_KEY}`,
+        model: 'gpt-4o'
       });
     
       const chain = RunnableSequence.from([
