@@ -421,7 +421,7 @@ export class VocService{
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
-            if(toBeProcessedVocEntityList.length == 1 || i == vocEntityList.length -1){
+            if(toBeProcessedVocEntityList.length == 10 || i == vocEntityList.length -1){
                 for(let failCounter:number = 0; failCounter<=10; failCounter++) {
                     let isException:boolean = false;
                     const vocAnalysisList:VocAnalysisEntity[] = [];
