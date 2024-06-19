@@ -421,13 +421,12 @@ export class VocService{
 
         for(let i = 0; i<vocEntityList.length; i++){
             toBeProcessedVocEntityList.push(vocEntityList[i]);
-            if(toBeProcessedVocEntityList.length == 10 || i == vocEntityList.length -1){
+            if(toBeProcessedVocEntityList.length == 1 || i == vocEntityList.length -1){
                 for(let failCounter:number = 0; failCounter<=10; failCounter++) {
                     let isException:boolean = false;
                     const vocAnalysisList:VocAnalysisEntity[] = [];
                     try{
                         console.log("GPT!")
-                        //await this.sleep(1000);
                         let processedVocAnalysis:VocAnalysisEntity[] = await Promise.all(toBeProcessedVocEntityList.map((vocEntity) => this.classifyVoc(vocEntity, categoryMap)));
                     
                         processedVocAnalysis.forEach((vocAnalysis) => {
@@ -437,7 +436,7 @@ export class VocService{
                         toBeProcessedVocEntityList = [];
 
                     } catch(exception){
-                        const holdbackTimeWeight = failCounter+50;
+                        const holdbackTimeWeight = failCounter+5;
                         console.log(exception);
                         isException = true;
                         const holdbackTime:number = exception.headers['retry-after-ms'];

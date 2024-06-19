@@ -43,9 +43,9 @@ const Item = styled.div`
     }
 `;
 
-function Product({ onProductSelect }) {
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [products, setProducts] = useState([]);
+function Document({ onDocumentSelect }) {
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [documents, setDocuments] = useState([]);
     const [memberId, setMemberId] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
 
@@ -58,41 +58,41 @@ function Product({ onProductSelect }) {
     }, []);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchDocuments = async () => {
             if (memberId && accessToken) {
                 try {
-                    const response = await axios.get(`http://15.165.14.203/api/member-data/products/${memberId}`, {
+                    const response = await axios.get(`http://15.165.14.203/api/member-data/product-minutes/${memberId}`, {
                         headers: {
                             'Authorization': `Bearer ${accessToken}`
                         }
                     });
-                    setProducts(response.data);
+                    setDocuments(response.data);
                 } catch (error) {
-                    console.error("Failed to fetch products", error);
+                    console.error("Failed to fetch documents", error);
                 }
             }
         };
 
-        fetchProducts();
+        fetchDocuments();
     }, [memberId, accessToken]);
 
-    const handleItemClick = (product) => {
-        const newSelectedProduct = selectedProduct === product ? null : product;
-        setSelectedProduct(newSelectedProduct);
-        onProductSelect(newSelectedProduct);
+    const handleItemClick = (document) => {
+        const newSelectedDocument = selectedDocument === document ? null : document;
+        setSelectedDocument(newSelectedDocument);
+        onDocumentSelect(newSelectedDocument);
     };
 
     return (
         <>
-            <Title>Product</Title>
+            <Title>Document</Title>
             <Container>
-                {products.map((product) => (
+                {documents.map((document) => (
                     <Item
-                        key={product.id}
-                        isSelected={selectedProduct === product}
-                        onClick={() => handleItemClick(product)}
+                        key={document.id}
+                        isSelected={selectedDocument === document}
+                        onClick={() => handleItemClick(document)}
                     >
-                        {product.productName}
+                        {document.minuteName}
                     </Item>
                 ))}
             </Container>
@@ -100,4 +100,4 @@ function Product({ onProductSelect }) {
     );
 }
 
-export default Product;
+export default Document;

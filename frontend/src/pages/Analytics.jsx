@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Navbar from "./Navbar";
 import plusicon from '../components/image/plus_icon.png';
 import ReportTable from '../components/analytics/ReportTable';
+import AddReport from '../components/analytics/AddReport';
 
 const Container = styled.div`
     width: 100%;
@@ -17,12 +18,12 @@ const Container = styled.div`
 const Title = styled.p`
     color: #333;
     font-family: "Wanted Sans";
-    font-size: 32px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
     margin-top: 27px;
-    margin-left: 57px;
+    margin-left: 40px;
 `;
 
 const ListContainer = styled.div`
@@ -55,7 +56,7 @@ const AddRebortbtn = styled.button`
     line-height: normal;
     position:relative;
     left:88%;
-    top:-7%;
+    top:20px;
 `;
 
 const Addicon = styled.div`
@@ -67,22 +68,31 @@ const Addicon = styled.div`
 `;
 
 function Analytics() {
-  return (
-    <>
-        <Navbar />
-        <Title>Analytics</Title>
-        <Container>
-            <ListContainer>
-                <AddRebortbtn>
-                    <Addicon src={plusicon} />
-                    Add Report
-                </AddRebortbtn>
-                <ReportTable />
-            </ListContainer>
-        </Container>
-        
-    </>
-  )
-}
+    const [showAddReport, setShowAddReport] = useState(false);
 
-export default Analytics
+    const handleAddReportClick = () => {
+        setShowAddReport(true);
+    };
+
+    const handleCloseAddReport = () => {
+        setShowAddReport(false);
+    };
+
+    return (
+        <>
+            <Navbar />
+            <Title>Analytics</Title>
+            <Container>
+                <ListContainer>
+                    {showAddReport && <AddReport onClose={handleCloseAddReport} />}
+                    <AddRebortbtn onClick={handleAddReportClick}>
+                        <Addicon />
+                        Add Report
+                    </AddRebortbtn>
+                    <ReportTable />
+                </ListContainer>
+            </Container>
+        </>
+    );
+}
+export default Analytics;
