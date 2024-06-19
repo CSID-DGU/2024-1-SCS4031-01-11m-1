@@ -53,7 +53,7 @@ export class CategoryService{
       const member:MemberEntity = await this.authService.findById(memberId)
       this.nullCheckForEntity(member);
 
-      const checkDuplication = await this.categoryDuplicationCheck(categoryName);
+      const checkDuplication = await this.categoryDuplicationCheck(categoryName, member);
 
       if(checkDuplication == true){
         throw new BadRequestException()
@@ -140,8 +140,8 @@ export class CategoryService{
     if (entity == null) throw new NotFoundException();
   };
 
-  private async categoryDuplicationCheck(name: string){
-    const category = await this.categoryRepository.findOneBy({categoryName: name});
+  private async categoryDuplicationCheck(name: string, member:MemberEntity){
+    const category = await this.categoryRepository.findOneBy({categoryName: name, member: member});
     if(category){
       return true;
     } else{

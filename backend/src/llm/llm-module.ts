@@ -23,7 +23,7 @@ export class CustomOpenAI {
     카테고리: ${categories}
     리뷰: ${review}
     
-    다음 리뷰를 분석해서 제시한 카테고리 리스트 중 어떤 카테고리에 속하는지 판단해줘.
+    다음 리뷰를 분석해서 제시한 카테고리 리스트 중 어떤 카테고리에 속하는지 판단해줘. 답변은 ${categories}중 하나여야해
     `;
 
     const tools: OpenAI.Chat.Completions.ChatCompletionTool[]= [
@@ -36,8 +36,8 @@ export class CustomOpenAI {
           type: "object",
           properties: {
             prediction: {
-            type: "array",
-            items: { type: "string", enum: categories },
+            type: "string",
+            //items: { type: "string", enum: categories },
             description: "예측된 카테고리",
             },
           },
