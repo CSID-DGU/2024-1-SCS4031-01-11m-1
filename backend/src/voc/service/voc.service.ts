@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataScrapingModuleMapping } from "../data-scraper/data-scraper-mapping";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VocEntity } from "../entity/voc.entity";
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, IsNull } from 'typeorm';
 import { UrlEntity } from "src/member-data/products/entities/url.entity";
 import { ProductEntity } from "src/member-data/products/entities/product.entity";
 import { UrlVocListDto } from "src/voc/controller/controller-dto/get-voc-by-productId/url-voc-list.dto"
@@ -20,6 +20,7 @@ import { VocCountPerCategoryDto } from "../dto/voc-count-per-category";
 import { VocCountPerWeekDto } from "../dto/voc-count-per-week.dto";
 import { TenLatestVocDto } from "../dto/10-latest-voc.dto";
 import { TenLatestIndividualDto } from "../dto/10-latest-individual-voc.dto";
+import { isNull } from "util";
 
 @Injectable()
 export class VocService{
@@ -127,10 +128,14 @@ export class VocService{
         const unAnalyzedData:VocEntity[] = [];
 
         for(let i = 0; i<urlList.length; i++){
-            const voc:VocEntity[] = await this.vocRepository.find({
-                where: {url: urlList[i], vocAnalysis: null}
+            (await this.vocRepository.find({
+                where: {url: urlList[i]}
+            })).forEach((voc)=>{
+                if(voc.vocAnalysis == null){
+                    unAnalyzedData.push(voc);
+                }
             });
-            unAnalyzedData.push(...voc);
+            console.log(unAnalyzedData);
         }
 
         const vocTextList:string[] = await this.analyzeData(unAnalyzedData, member);
