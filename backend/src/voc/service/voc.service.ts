@@ -397,9 +397,6 @@ export class VocService{
         const categoryList:CategoryEntity[] = await this.categoryRepository.findBy({member:member});
         const vocTextList:string[] = [];
 
-        console.log(member);
-        console.log(categoryList);
-
         for(let i = 0; i<categoryList.length; i++){
             categoryMap.set(categoryList[i].categoryName, categoryList[i]);
         }
